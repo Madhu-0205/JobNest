@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Community - CampusConnect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin:0; padding:0; box-sizing: border-box; font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background-color: #f7faff;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 3em;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    header {
+      width: 100%; max-width: 1200px;
+      background-color: #0f52ba;
+      padding: 1em 2.5em;
+      display: flex; justify-content: space-between; align-items: center;
+      color: white;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      user-select: none;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+    }
+    nav a {
+      font-weight: 600;
+      margin-left: 2em;
+      font-size: 1rem;
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    nav a:hover, nav a[aria-current="page"] {
+      color: #ffb703;
+      text-decoration: underline;
+    }
+    #darkModeToggle {
+      margin-left: 2em;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: #ffb703;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      user-select: none;
+    }
+    #darkModeToggle:hover {
+      color: #ffd54f;
+    }
+    main {
+      max-width: 1000px;
+      width: 90%;
+      margin-top: 2.5em;
+      flex-grow: 1;
+      user-select: none;
+    }
+    h2 {
+      color: #0f52ba;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 1.3em;
+      user-select: text;
+    }
+    .posts, .clubs {
+      margin-bottom: 3em;
+    }
+    .post, .club {
+      background-color: #e0ecff;
+      border-radius: 18px;
+      padding: 1.3em 1.8em;
+      margin-bottom: 1em;
+      box-shadow: inset 0 0 15px rgba(15,82,186,0.1);
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+      user-select: text;
+    }
+    .post:hover, .club:hover, .post:focus-visible, .club:focus-visible {
+      background-color: #c5d9ff;
+      outline: none;
+      box-shadow: inset 0 0 25px rgba(15,82,186,0.3);
+    }
+    .post h3, .club h3 {
+      font-weight: 700;
+      color: #0f52ba;
+      margin-bottom: 0.5em;
+    }
+    .post p, .club p {
+      color: #383838;
+      line-height: 1.4;
+    }
+    footer {
+      width: 100%;
+      background-color: #0f52ba;
+      color: white;
+      padding: 1.6em 2em;
+      text-align: center;
+      font-size: 0.9rem;
+      box-shadow: 0 -4px 8px rgba(0,0,0,0.15);
+      user-select: none;
+      margin-top: auto;
+    }
+    @media (max-width: 900px) {
+      main {
+        width: 95%;
+      }
+    }
+  /* Dark Mode */
+  body.dark-mode {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+  }
+  body.dark-mode header {
+    background-color: #222 !important;
+  }
+  body.dark-mode main {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+  }
+  body.dark-mode .posts .post,
+  body.dark-mode .clubs .club {
+    background-color: #222 !important;
+    box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1) !important;
+    color: #ffb703 !important;
+  }
+  body.dark-mode .posts .post:hover,
+  body.dark-mode .clubs .club:hover,
+  body.dark-mode .posts .post:focus-visible,
+  body.dark-mode .clubs .club:focus-visible {
+    background-color: #333 !important;
+    box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.25) !important;
+  }
+  body.dark-mode nav a,
+  body.dark-mode nav a:hover,
+  body.dark-mode nav a[aria-current="page"] {
+    color: #ffb703 !important;
+  }
+  body.dark-mode footer {
+    background-color: #222 !important;
+    color: #ffb703 !important;
+  }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 onclick="location.href='landing.html'">CampusConnect</h1>
+    <nav>
+      <a href="landing.html">Home</a>
+      <a href="gig-listings.html">Gigs</a>
+      <a href="community.html" aria-current="page" style="text-decoration: underline;">Community</a>
+      <a href="profile.html">Profile</a>
+      <a href="payment.html">Payment</a>
+      <a href="login.html">Login</a>
+      <button id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="posts" aria-label="Community posts">
+      <h2>Latest Posts & Discussions</h2>
+      <article tabindex="0" class="post" role="article" aria-labelledby="post1title" aria-describedby="post1desc">
+        <h3 id="post1title">Campus Coding Hackathon - Register Now!</h3>
+        <p id="post1desc">Join fellow students in a weekend of coding, networking, and prizes. Everyone welcome!</p>
+      </article>
+      <article tabindex="0" class="post" role="article" aria-labelledby="post2title" aria-describedby="post2desc">
+        <h3 id="post2title">Exam Preparation Group Formed</h3>
+        <p id="post2desc">Study smarter with peers! Join our new exam prep group and share notes and tips.</p>
+      </article>
+    </section>
+
+    <section class="clubs" aria-label="Student clubs and organizations">
+      <h2>Clubs & Activities</h2>
+      <article tabindex="0" class="club" role="region" aria-labelledby="club1title" aria-describedby="club1desc">
+        <h3 id="club1title">AI Research Club</h3>
+        <p id="club1desc">Dive into cutting-edge AI projects with fellow enthusiasts. Weekly workshops & webinars.</p>
+      </article>
+      <article tabindex="0" class="club" role="region" aria-labelledby="club2title" aria-describedby="club2desc">
+        <h3 id="club2title">Photography & Arts Society</h3>
+        <p id="club2desc">Express your creativity, join photo walks, and exhibit your work in college events.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 CampusConnect. Student-first platform.
+  </footer>
+
+  <script>
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+
+    function applyDarkMode(enabled) {
+      if(enabled) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'enabled');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'disabled');
+      }
+    }
+
+    darkModeToggle.addEventListener('click', () => {
+      const isDark = document.body.classList.contains('dark-mode');
+      applyDarkMode(!isDark);
+    });
+
+    if(localStorage.getItem('darkMode') === 'enabled') {
+      applyDarkMode(true);
+    }
+  </script>
+</body>
+</html>

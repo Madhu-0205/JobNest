@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment Module Test</title>
+</head>
+<body>
+  <h2>Payment Module Testing</h2>
+
+  <button onclick="testRazorpay()">Test Razorpay Payment</button><br><br>
+  <button onclick="testStripe()">Test Stripe Payment</button><br><br>
+  <button onclick="testUpi()">Generate UPI QR Code</button><br><br>
+
+  <div id="response"></div>
+  <img id="qrCodeImg" style="display:none; width:200px; height:200px;" />
+
+  <script>
+    const backendUrl = 'http://localhost:3000/api/payments';
+
+    function testRazorpay() {
+      fetch(`${backendUrl}/razorpay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 1, amount: 100 })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('response').innerText = 'Razorpay Order ID: ' + data.order.id;
+        if(data.qrCode) {
+          const img = document.getElementById('qrCodeImg');
+          img.src = data.qrCode;
+          img.style.display = 'block';
+        }
+      })
+      .catch(err => alert('Error: ' + err.message));
+    }
+
+    function testStripe() {
+      fetch(`${backendUrl}/stripe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 1, amount: 100 })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('response').innerText = 'Stripe Client Secret: ' + data.clientSecret;
+        document.getElementById('qrCodeImg').style.display = 'none';
+      })
+      .catch(err => alert('Error: ' + err.message));
+    }
+
+    function testUpi() {
+      fetch(`${backendUrl}/upi-qrcode`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: 100 })
+      })
+      .then(response => response.json())
+      .then(data => {
+        const img = document.getElementById('qrCodeImg');
+        img.src = data.qrCode;
+        img.style.display = 'block';
+        document.getElementById('response').innerText = 'UPI QR Code Generated';
+      })
+      .catch(err => alert('Error: ' + err.message));
+    }
+  </script>
+</body>
+</html>

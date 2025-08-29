@@ -1,0 +1,566 @@
+<!-- payment.html -->
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payments - CampusConnect</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* Reset and base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: #f7faff;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 3em;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    header {
+      width: 100%;
+      max-width: 1200px;
+      background-color: #0f52ba;
+      padding: 1em 2em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.4s ease;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      user-select: none;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+    }
+    nav a {
+      font-weight: 600;
+      margin-left: 2em;
+      font-size: 1rem;
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    nav a:hover,
+    nav a[aria-current='page'] {
+      color: #ffb703;
+      text-decoration: underline;
+    }
+    #darkModeToggle {
+      margin-left: 2em;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: white;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    #darkModeToggle:hover {
+      color: #ffd54f;
+    }
+    main {
+      max-width: 600px;
+      width: 90%;
+      background: white;
+      border-radius: 20px;
+      padding: 2.5em 2.5em;
+      margin-top: 2em;
+      box-shadow: 0 8px 30px rgba(15, 82, 186, 0.15);
+      animation: fadeInUp 0.8s ease forwards;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8em;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      user-select: none;
+    }
+    h2 {
+      color: #0f52ba;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      user-select: text;
+    }
+    label {
+      font-weight: 600;
+      color: #0f52ba;
+      margin-bottom: 0.4em;
+      display: block;
+      user-select: text;
+    }
+    input[type='number'] {
+      width: 100%;
+      padding: 0.8em 1em;
+      font-size: 1.1rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      user-select: text;
+    }
+    input[type='number']:focus {
+      border-color: #0f52ba;
+      box-shadow: 0 0 12px rgba(15, 82, 186, 0.35);
+    }
+    button {
+      background-color: #0f52ba;
+      color: white;
+      padding: 0.9em 2em;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 35px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(15, 82, 186, 0.8),
+        0 0 20px #0f52ba;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+      user-select: none;
+      perspective: 700px;
+    }
+    button:hover {
+      transform: rotateX(15deg) scale(1.1);
+      box-shadow: 0 10px 20px rgba(15, 82, 186, 1), 0 0 45px #0f52ba;
+    }
+    .payment-methods {
+      display: flex;
+      justify-content: space-between;
+      gap: 1em;
+      margin-bottom: 1em;
+      flex-wrap: wrap;
+    }
+    .method-btn {
+      background: #e0ecff;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 1.1em 2.2em;
+      flex: 1;
+      text-align: center;
+      border: 2px solid transparent;
+      font-size: 1.15rem;
+      color: #0f52ba;
+      font-weight: 600;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      user-select: none;
+     
+    }
+    .method-btn.selected,
+    .method-btn:hover {
+      background-color: #0f52ba;
+      color: white;
+      border-color: #073763;
+    }
+    #qrCodeContainer {
+      text-align: center;
+      margin-top: 1.5em;
+      user-select: none;
+    }
+    #qrCodeContainer p {
+      font-weight: 600;
+      color: #0f52ba;
+      font-size: 1rem;
+      margin-bottom: 0.8em;
+      user-select: text;
+    }
+    #qrCodeContainer img {
+      max-width: 250px;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(15, 82, 186, 0.3);
+      transition: transform 0.6s ease;
+      cursor: pointer;
+      user-select: none;
+      perspective: 700px;
+    }
+    #qrCodeContainer img:hover {
+      transform: rotateY(18deg) rotateX(13deg) scale(1.07);
+      box-shadow: 0 35px 80px rgba(15, 82, 186, 0.55);
+    }
+    .error-message {
+      color: #d00000;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 0.4em;
+      user-select: none;
+    }
+    .success-message {
+      color: #007200;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 1.2em;
+      text-align: center;
+      user-select: none;
+    }
+    #paymentStatus {
+      margin-top: 1.3em;
+      font-weight: 600;
+      color: #0f52ba;
+      font-size: 1rem;
+      text-align: center;
+      user-select: none;
+    }
+    footer {
+      margin-top: auto;
+      width: 100%;
+      background-color: #0f52ba;
+      color: white;
+      padding: 1.5em 2em;
+      text-align: center;
+      font-size: 0.9rem;
+      box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.15);
+      user-select: none;
+    }
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    /* Dark Mode */
+    body.dark-mode {
+      background: #121212 !important;
+      color: #e0e0e0 !important;
+    }
+    body.dark-mode header {
+      background-color: #222 !important;
+    }
+    body.dark-mode main {
+      background: #1e1e1e !important;
+      color: #e0e0e0 !important;
+      box-shadow: 0 8px 30px rgba(255, 255, 255, 0.06);
+    }
+    body.dark-mode .method-btn {
+      background: #222 !important;
+      color: #ffb703 !important;
+      border-color: #444 !important;
+    }
+    body.dark-mode .method-btn.selected,
+    body.dark-mode .method-btn:hover {
+      background-color: #ffb703 !important;
+      color: #1a1a2e !important;
+      border-color: #ffd54f !important;
+    }
+    body.dark-mode #paymentStatus,
+    body.dark-mode .success-message {
+      color: #ffb703 !important;
+    }
+    body.dark-mode .error-message {
+      color: #ff6666 !important;
+    }
+    body.dark-mode #qrCodeContainer img {
+      box-shadow: 0 20px 50px rgba(255, 183, 3, 0.4);
+    }
+    body.dark-mode #qrCodeContainer img:hover {
+      box-shadow: 0 35px 80px rgba(255, 183, 3, 0.7);
+    }
+    /* Responsive */
+    @media (max-width: 600px) {
+      main {
+        width: 95%;
+        padding: 2em 1.5em;
+      }
+      .payment-methods {
+        flex-direction: column;
+      }
+      .method-btn {
+        flex: none;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 onclick="location.href='landing.html'">CampusConnect</h1>
+    <nav>
+      <a href="landing.html">Home</a>
+      <a href="gig-listings.html">Gigs</a>
+      <a href="community.html">Community</a>
+      <a href="profile.html">Profile</a>
+      <a href="payment.html" aria-current="page" style="text-decoration: underline;">
+        Payment
+      </a>
+      <a href="login.html">Login</a>
+      <button id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+    </nav>
+  </header>
+
+  <main role="main" aria-label="Payment options">
+    <h2>Make a Payment</h2>
+
+    <label for="amountInput">Amount (₹ INR)</label>
+    <input
+      type="number"
+      id="amountInput"
+      min="1"
+      max="100000"
+      placeholder="Enter amount in ₹"
+      aria-required="true"
+    />
+
+    <p>Select a payment method:</p>
+    <div
+      class="payment-methods"
+      role="radiogroup"
+      aria-label="Select payment method"
+    >
+      <button
+        type="button"
+        class="method-btn selected"
+        id="razorpayBtn"
+        role="radio"
+        aria-checked="true"
+        tabindex="0"
+      >
+        Razorpay
+      </button>
+      <button
+        type="button"
+        class="method-btn"
+        id="stripeBtn"
+        role="radio"
+        aria-checked="false"
+        tabindex="-1"
+      >
+        Stripe
+      </button>
+      <button
+        type="button"
+        class="method-btn"
+        id="upiBtn"
+        role="radio"
+        aria-checked="false"
+        tabindex="-1"
+      >
+        UPI QR
+      </button>
+    </div>
+
+    <button id="payBtn">Pay Now</button>
+
+    <div id="qrCodeContainer" hidden>
+      <p>Scan to pay using UPI:</p>
+      <img id="qrCodeImg" alt="UPI Payment QR Code" />
+    </div>
+
+    <div class="error-message" id="errorMessage" role="alert" aria-live="assertive"></div>
+    <div class="success-message" id="successMessage" role="alert" aria-live="polite"></div>
+    <div id="paymentStatus"></div>
+  </main>
+
+  <footer>
+    &copy; 2025 CampusConnect. All rights reserved.
+  </footer>
+
+  <script>
+    const amountInput = document.getElementById('amountInput');
+    const razorpayBtn = document.getElementById('razorpayBtn');
+    const stripeBtn = document.getElementById('stripeBtn');
+    const upiBtn = document.getElementById('upiBtn');
+    const payBtn = document.getElementById('payBtn');
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
+    const qrCodeImg = document.getElementById('qrCodeImg');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const paymentStatus = document.getElementById('paymentStatus');
+
+    let selectedMethod = 'razorpay';
+    let lastGeneratedAmount = 0;
+
+    function clearSelection() {
+      razorpayBtn.classList.remove('selected');
+      razorpayBtn.setAttribute('aria-checked', 'false');
+      stripeBtn.classList.remove('selected');
+      stripeBtn.setAttribute('aria-checked', 'false');
+      upiBtn.classList.remove('selected');
+      upiBtn.setAttribute('aria-checked', 'false');
+
+      razorpayBtn.tabIndex = -1;
+      stripeBtn.tabIndex = -1;
+      upiBtn.tabIndex = -1;
+    }
+
+    function selectMethod(method) {
+      clearSelection();
+      selectedMethod = method;
+      if (method === 'razorpay') {
+        razorpayBtn.classList.add('selected');
+        razorpayBtn.setAttribute('aria-checked', 'true');
+        razorpayBtn.tabIndex = 0;
+      } else if (method === 'stripe') {
+        stripeBtn.classList.add('selected');
+        stripeBtn.setAttribute('aria-checked', 'true');
+        stripeBtn.tabIndex = 0;
+      } else if (method === 'upi') {
+        upiBtn.classList.add('selected');
+        upiBtn.setAttribute('aria-checked', 'true');
+        upiBtn.tabIndex = 0;
+      }
+      qrCodeContainer.hidden = true;
+      qrCodeImg.src = '';
+      errorMessage.textContent = '';
+      successMessage.textContent = '';
+      paymentStatus.textContent = '';
+    }
+
+    razorpayBtn.addEventListener('click', () => selectMethod('razorpay'));
+    stripeBtn.addEventListener('click', () => selectMethod('stripe'));
+    upiBtn.addEventListener('click', () => selectMethod('upi'));
+
+    // Generate UPI QR based on amount entered
+    amountInput.addEventListener('input', () => {
+      if (selectedMethod === 'upi') {
+        const amount = parseFloat(amountInput.value);
+        if (amount > 0 && amount !== lastGeneratedAmount) {
+          generateUpiQr(amount);
+          lastGeneratedAmount = amount;
+        } else if (amount <= 0) {
+          qrCodeContainer.hidden = true;
+          qrCodeImg.src = '';
+          paymentStatus.textContent = '';
+        }
+      }
+    });
+
+    async function generateUpiQr(amount) {
+      try {
+        const res = await fetch('http://localhost:3000/api/payments/upi-qrcode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount }),
+        });
+        const data = await res.json();
+        if (res.ok && data.qrCode) {
+          qrCodeImg.src = data.qrCode;
+          qrCodeContainer.hidden = false;
+          successMessage.textContent = '';
+          errorMessage.textContent = '';
+          paymentStatus.textContent = 'Scan the QR code using your UPI app to pay.';
+        } else {
+          throw new Error(data.error || 'Failed to generate UPI QR code');
+        }
+      } catch (err) {
+        qrCodeContainer.hidden = true;
+        qrCodeImg.src = '';
+        successMessage.textContent = '';
+        errorMessage.textContent = err.message;
+        paymentStatus.textContent = '';
+      }
+    }
+
+    payBtn.addEventListener('click', async () => {
+      errorMessage.textContent = '';
+      successMessage.textContent = '';
+      paymentStatus.textContent = '';
+      if (selectedMethod === 'upi') {
+        // For UPI, the QR is already generated on amount input
+        if (qrCodeContainer.hidden) {
+          errorMessage.textContent = 'Enter a valid amount to generate UPI QR code.';
+          return;
+        }
+        paymentStatus.textContent = 'Awaiting UPI payment confirmation...';
+        return;
+      }
+
+      const amount = Number(amountInput.value);
+      if (!amount || amount < 1) {
+        errorMessage.textContent = 'Please enter a valid amount greater than ₹0.';
+        amountInput.focus();
+        return;
+      }
+
+      if (selectedMethod === 'razorpay') {
+        try {
+          const res = await fetch('http://localhost:3000/api/payments/razorpay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: 1, amount }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            successMessage.textContent = `Razorpay order created with ID: ${data.order.id}`;
+            updatePaymentStatus('Order created, proceed to payment.');
+          } else {
+            throw new Error(data.error || 'Error creating Razorpay order');
+          }
+        } catch (err) {
+          errorMessage.textContent = err.message;
+          updatePaymentStatus('Failed to create order.');
+        }
+      } else if (selectedMethod === 'stripe') {
+        try {
+          const res = await fetch('http://localhost:3000/api/payments/stripe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: 1, amount }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            successMessage.textContent = `Stripe payment intent created. Client secret: ${data.clientSecret}`;
+            updatePaymentStatus('Payment intent created. Complete checkout.');
+          } else {
+            throw new Error(data.error || 'Error creating Stripe payment intent');
+          }
+        } catch (err) {
+          errorMessage.textContent = err.message;
+          updatePaymentStatus('Failed to create payment intent.');
+        }
+      }
+    });
+
+    function updatePaymentStatus(status) {
+      paymentStatus.textContent = `Payment Status: ${status}`;
+    }
+
+    // Initialize default selected method
+    selectMethod('razorpay');
+
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    function applyDarkMode(enabled) {
+      if (enabled) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'enabled');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'disabled');
+      }
+    }
+    darkModeToggle.addEventListener('click', () => {
+      const enabled = document.body.classList.contains('dark-mode');
+      applyDarkMode(!enabled);
+    });
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      applyDarkMode(true);
+    }
+  </script>
+</body>
+</html>

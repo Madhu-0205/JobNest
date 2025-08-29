@@ -1,0 +1,350 @@
+<!-- gig-creation.html -->
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create New Gig - CampusConnect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: #f7faff;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 2em;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    header {
+      width: 100%;
+      max-width: 1200px;
+      background-color: #0f52ba;
+      padding: 1em 2em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: background-color 0.4s ease;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      user-select: none;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+    }
+    nav a {
+      font-weight: 600;
+      margin-left: 2em;
+      font-size: 1rem;
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    nav a:hover, nav a[aria-current="page"] {
+      color: #ffb703;
+      text-decoration: underline;
+    }
+    #darkModeToggle {
+      margin-left: 2em;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: white;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    #darkModeToggle:hover {
+      color: #ffd54f;
+    }
+    main {
+      max-width: 800px;
+      width: 90%;
+      background: white;
+      border-radius: 20px;
+      padding: 2.5em;
+      margin-top: 2em;
+      box-shadow: 0 8px 30px rgba(15, 82, 186, 0.15);
+      animation: fadeInUp 0.8s ease forwards;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      user-select: none;
+    }
+    h2 {
+      color: #0f52ba;
+      margin-bottom: 1.5em;
+      font-weight: 700;
+      text-align: center;
+      user-select: text;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.3em;
+    }
+    label {
+      font-weight: 600;
+      color: #0f52ba;
+      margin-bottom: 0.5em;
+      display: block;
+      user-select: text;
+    }
+    input[type='text'],
+    input[type='number'],
+    textarea {
+      padding: 0.9em 1.2em;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      resize: vertical;
+      font-family: 'Poppins', sans-serif;
+      user-select: text;
+    }
+    input[type='text']:focus,
+    input[type='number']:focus,
+    textarea:focus {
+      border-color: #0f52ba;
+      outline: none;
+      box-shadow: 0 0 12px rgba(15,82,186,0.35);
+    }
+    button[type='submit'] {
+      background-color: #0f52ba;
+      color: white;
+      padding: 1em 2.5em;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 35px;
+      cursor: pointer;
+      box-shadow:
+        0 6px 18px rgba(15,82,186,0.8),
+        0 0 25px #0f52ba;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      perspective: 500px;
+      user-select: none;
+    }
+    button[type='submit']:hover {
+      transform: rotateX(12deg) scale(1.1);
+      box-shadow:
+        0 10px 25px rgba(15,82,186,1),
+        0 0 35px #0f52ba;
+    }
+    .error-message {
+      color: #d00000;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 0.5em;
+      user-select: none;
+    }
+    .success-message {
+      color: #007200;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 1em;
+      user-select: none;
+    }
+    footer {
+      margin-top: auto;
+      width: 100%;
+      background-color: #0f52ba;
+      color: white;
+      padding: 1.5em 2em;
+      text-align: center;
+      font-size: 0.9rem;
+      box-shadow: 0 -4px 8px rgba(0,0,0,0.15);
+      user-select: none;
+    }
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    body.dark-mode {
+      background: #121212 !important;
+      color: #e0e0e0 !important;
+    }
+    body.dark-mode header {
+      background-color: #222 !important;
+    }
+    body.dark-mode main {
+      background: #1e1e1e !important;
+      color: #e0e0e0 !important;
+      box-shadow: 0 8px 30px rgba(255, 255, 255, 0.06);
+    }
+    body.dark-mode input[type='text'],
+    body.dark-mode input[type='number'],
+    body.dark-mode textarea {
+      background: #222 !important;
+      color: #ffb703 !important;
+      border-color: #444 !important;
+      box-shadow: none !important;
+    }
+    body.dark-mode button[type='submit'] {
+      background-color: #ffb703 !important;
+      color: #1a1a2e !important;
+      box-shadow:
+        0 10px 25px rgba(251, 183, 3, 1) !important;
+    }
+    body.dark-mode button[type='submit']:hover {
+      background-color: #ffd54f !important;
+    }
+    @media (max-width: 780px) {
+      main {
+        width: 95%;
+        padding: 2em 1.5em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 onclick="location.href='landing.html'">CampusConnect</h1>
+    <nav>
+      <a href="landing.html">Home</a>
+      <a href="gig-listings.html">Gigs</a>
+      <a href="community.html">Community</a>
+      <a href="profile.html">Profile</a>
+      <a href="payment.html">Payment</a>
+      <a href="login.html" aria-current="page" style="text-decoration: underline;">Login</a>
+      <button id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+    </nav>
+  </header>
+
+  <main role="main" aria-label="Create a new gig">
+    <h2>Create New Gig</h2>
+
+    <form id="gigForm" novalidate>
+      <div>
+        <label for="title">Gig Title</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="Enter gig title"
+          required
+          minlength="5"
+          maxlength="100"
+        />
+        <div class="error-message" id="titleError"></div>
+      </div>
+      <div>
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
+          placeholder="Describe your gig"
+          required
+          minlength="15"
+          maxlength="500"
+        ></textarea>
+        <div class="error-message" id="descError"></div>
+      </div>
+      <div>
+        <label for="price">Price (₹ INR)</label>
+        <input
+          type="number"
+          id="price"
+          name="price"
+          placeholder="Set your price in ₹"
+          required
+          min="1"
+          max="100000"
+        />
+        <div class="error-message" id="priceError"></div>
+      </div>
+      <button type="submit">Create Gig</button>
+      <div class="success-message" id="successMsg" role="alert" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <footer>
+    &copy; 2025 CampusConnect. All rights reserved.
+  </footer>
+
+  <script>
+    const gigForm = document.getElementById('gigForm');
+    const titleEl = document.getElementById('title');
+    const descEl = document.getElementById('description');
+    const priceEl = document.getElementById('price');
+
+    const titleError = document.getElementById('titleError');
+    const descError = document.getElementById('descError');
+    const priceError = document.getElementById('priceError');
+    const successMsg = document.getElementById('successMsg');
+
+    gigForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      titleError.textContent = '';
+      descError.textContent = '';
+      priceError.textContent = '';
+      successMsg.textContent = '';
+
+      let valid = true;
+
+      if (titleEl.value.trim().length < 5) {
+        titleError.textContent = 'Title must be at least 5 characters.';
+        valid = false;
+      }
+      if (descEl.value.trim().length < 15) {
+        descError.textContent = 'Description must be at least 15 characters.';
+        valid = false;
+      }
+      if (!priceEl.value || priceEl.value <= 0) {
+        priceError.textContent = 'Please enter a valid price greater than ₹0.';
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      // Simulate form submission (replace with real API call)
+      successMsg.textContent = 'Gig created successfully!';
+      gigForm.reset();
+    });
+
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    function applyDarkMode(enabled) {
+      if (enabled) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'enabled');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'disabled');
+      }
+    }
+    darkModeToggle.addEventListener('click', () => {
+      const enabled = document.body.classList.contains('dark-mode');
+      applyDarkMode(!enabled);
+    });
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      applyDarkMode(true);
+    }
+  </script>
+</body>
+</html>
