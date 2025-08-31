@@ -1,0 +1,88 @@
+import express from "express";
+import { Op } from "sequelize";
+import Gig from "../models/GIG.js";
+import Post from "../models/Post.js";
+import User from "../models/User.js";
+
+const router = express.Router();
+
+// Site-wide search endpoint
+router.get("/", async (req, res) => {
+  try {
+    const { q, page = 1, limit = 10 } = req.query;
+    if (!q) return res.status(400).json({ message: "Query parameter 'q' is required." });
+
+    const offset = (page - 1) * limit;
+    const searchTerm = `%${q}%`;
+
+    // Search gigs
+    const gigsPromise = Gig.findAndCountAll({
+      where: {
+        [Op.or]: [
+          { title: { [Op.iLike]: searchTerm } },
+          { description: { [Op.iLike]: searchTerm } },
+        ],
+      },
+      include: [{ model: User, attributes: ["id", "username"] }],
+      limit: Number(limit),
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
+
+    // Search posts
+    const postsPromise = Post.findAndCountAll({
+      where: {
+        [Op.or]: [
+          { title: { [Op.iLike]: searchTerm } },
+          { content: { [Op.iLike]: searchTerm } },
+        ],
+      },
+      include: [{ model: User, attributes: ["id", "username"] }],
+      limit: Number(limit),
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
+
+    // Search users by username or email
+    const usersPromise = User.findAndCountAll({
+      where: {
+        [Op.or]: [
+          { username: { [Op.iLike]: searchTerm } },
+          { email: { [Op.iLike]: searchTerm } },
+        ],
+      },
+      attributes: ["id", "username", "email"],
+      limit: Number(limit),
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
+
+    const [gigs, posts, users] = await Promise.all([gigsPromise, postsPromise, usersPromise]);
+
+    res.json({
+      gigs: {
+        results: gigs.rows,
+        total: gigs.count,
+        totalPages: Math.ceil(gigs.count / limit),
+        currentPage: Number(page),
+      },
+      posts: {
+        results: posts.rows,
+        total: posts.count,
+        totalPages: Math.ceil(posts.count / limit),
+        currentPage: Number(page),
+      },
+      users: {
+        results: users.rows,
+        total: users.count,
+        totalPages: Math.ceil(users.count / limit),
+        currentPage: Number(page),
+      },
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({ message: "Search failed." });
+  }
+});
+
+export default router;

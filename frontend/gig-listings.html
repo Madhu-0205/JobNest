@@ -1,0 +1,285 @@
+<!-- gig-listings.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gig Listings - CampusConnect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: #f7faff;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 2em;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    header {
+      width: 100%;
+      max-width: 1200px;
+      background-color: #0f52ba;
+      padding: 1em 2em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: background-color 0.4s ease;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      user-select: none;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+    }
+    nav a {
+      font-weight: 600;
+      margin-left: 2em;
+      font-size: 1rem;
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    nav a:hover, nav a[aria-current="page"] {
+      color: #ffb703;
+      text-decoration: underline;
+    }
+    #darkModeToggle {
+      margin-left: 2em;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: white;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    #darkModeToggle:hover {
+      color: #ffd54f;
+    }
+    main {
+      max-width: 1200px;
+      width: 90%;
+      margin-top: 2em;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5em;
+      animation: fadeInUp 0.8s ease forwards;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    .gig-card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.8em 2em 2.5em;
+      box-shadow: 0 8px 28px rgba(15,82,186,0.15);
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      cursor: pointer;
+      perspective: 700px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .gig-card:hover {
+      transform: rotateX(8deg) translateY(-12px);
+      box-shadow: 0 15px 40px rgba(15,82,186,0.35);
+    }
+    .gig-title {
+      font-weight: 700;
+      color: #0f52ba;
+      font-size: 1.3rem;
+      margin-bottom: 0.6em;
+      user-select: text;
+    }
+    .gig-description {
+      font-size: 1rem;
+      color: #474747;
+      flex-grow: 1;
+      margin-bottom: 1.1em;
+      line-height: 1.4;
+      user-select: text;
+    }
+    .gig-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .gig-price {
+      font-weight: 700;
+      color: #073763;
+      font-size: 1.15rem;
+      user-select: text;
+    }
+    .gig-btn {
+      background-color: #0f52ba;
+      color: white;
+      border: none;
+      padding: 0.5em 1.5em;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15,82,186,0.6);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      perspective: 800px;
+      user-select: none;
+    }
+    .gig-btn:hover {
+      transform: rotateX(12deg) scale(1.1);
+      box-shadow: 0 8px 25px rgba(15,82,186,0.85);
+    }
+    h2 {
+      color: #0f52ba;
+      margin-bottom: 1.4em;
+      font-weight: 700;
+      font-size: 1.8rem;
+      text-align: center;
+      user-select: text;
+      grid-column: 1 / -1;
+    }
+    footer {
+      margin-top: auto;
+      width: 100%;
+      background-color: #0f52ba;
+      color: white;
+      padding: 1.5em 2em;
+      text-align: center;
+      font-size: 0.9rem;
+      box-shadow: 0 -4px 8px rgba(0,0,0,0.15);
+      user-select: none;
+      grid-column: 1 / -1;
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    body.dark-mode {
+      background: #121212 !important;
+      color: #e0e0e0 !important;
+    }
+    body.dark-mode header {
+      background-color: #222 !important;
+    }
+    body.dark-mode main {
+      background: #1e1e1e !important;
+      color: #e0e0e0 !important;
+      box-shadow: 0 8px 30px rgba(255,255,255,0.07);
+    }
+    body.dark-mode .gig-card {
+      background: #222 !important;
+      color: #ffb703 !important;
+      box-shadow: 0 15px 40px rgba(255, 183, 3, 0.5);
+    }
+    body.dark-mode .gig-btn {
+      background-color: #ffb703 !important;
+      color: #1a1a2e !important;
+      box-shadow: 0 10px 20px rgba(251, 183, 3, 1) !important;
+    }
+    body.dark-mode .gig-btn:hover {
+      background-color: #ffd54f !important;
+    }
+    body.dark-mode .gig-price {
+      color: #ffd54f !important;
+    }
+    body.dark-mode footer {
+      background-color: #121212 !important;
+      box-shadow: none !important;
+      color: #ffb703 !important;
+    }
+    @media (max-width: 780px) {
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 1.1em;
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 onclick="location.href='landing.html'">CampusConnect</h1>
+    <nav>
+      <a href="landing.html">Home</a>
+      <a href="gig-listings.html" aria-current="page" style="text-decoration: underline;">Gigs</a>
+      <a href="community.html">Community</a>
+      <a href="profile.html">Profile</a>
+      <a href="payment.html">Payment</a>
+      <a href="login.html">Login</a>
+      <button id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+    </nav>
+  </header>
+
+  <main role="main" aria-label="Gig listings main content">
+    <h2>Available Gigs</h2>
+
+    <article class="gig-card" tabindex="0" role="region" aria-labelledby="gig1title" aria-describedby="gig1desc">
+      <h3 id="gig1title" class="gig-title">Logo Design for Startup</h3>
+      <p id="gig1desc" class="gig-description">Create a modern and scalable logo design tailored for a tech startup brand.</p>
+      <div class="gig-footer">
+        <span class="gig-price">₹150</span>
+        <button class="gig-btn" onclick="alert('Request sent for Logo Design!')">Request</button>
+      </div>
+    </article>
+
+    <article class="gig-card" tabindex="0" role="region" aria-labelledby="gig2title" aria-describedby="gig2desc">
+      <h3 id="gig2title" class="gig-title">Essay Writing Help</h3>
+      <p id="gig2desc" class="gig-description">Assistance with research and writing for academic essays and papers.</p>
+      <div class="gig-footer">
+        <span class="gig-price">₹80</span>
+        <button class="gig-btn" onclick="alert('Request sent for Essay Writing!')">Request</button>
+      </div>
+    </article>
+
+    <article class="gig-card" tabindex="0" role="region" aria-labelledby="gig3title" aria-describedby="gig3desc">
+      <h3 id="gig3title" class="gig-title">Website Development</h3>
+      <p id="gig3desc" class="gig-description">Develop a responsive website using React and Node.js for your portfolio or business.</p>
+      <div class="gig-footer">
+        <span class="gig-price">₹400</span>
+        <button class="gig-btn" onclick="alert('Request sent for Website Development!')">Request</button>
+      </div>
+    </article>
+
+  </main>
+
+  <footer>
+    &copy; 2025 CampusConnect. All rights reserved.
+  </footer>
+
+  <script>
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    function applyDarkMode(enabled) {
+      if (enabled) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'enabled');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'disabled');
+      }
+    }
+    darkModeToggle.addEventListener('click', () => {
+      const enabled = document.body.classList.contains('dark-mode');
+      applyDarkMode(!enabled);
+    });
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      applyDarkMode(true);
+    }
+  </script>
+</body>
+</html>
