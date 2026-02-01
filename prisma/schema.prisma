@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Used for migrations
+}
+
+model Profile {
+  id            String   @id // Matches Supabase Auth ID
+  email         String   @unique
+  name          String?
+  role          String? // 'jobseeker' | 'employer'
+  skills        String[] @default([])
+  balance       Float    @default(0.0)
+  avatar        String?
+  rating        Float    @default(5.0)
+  completedGigs Int      @default(0)
+  verified      Boolean  @default(false)
+  
+  address       String?
+  latitude      Float?
+  longitude     Float?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("profiles")
+}
