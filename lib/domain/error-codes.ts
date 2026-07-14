@@ -1,0 +1,34 @@
+/**
+ * Unified Domain Error Codes registry.
+ * Maps exact domain validation rules to codes for client resolution.
+ */
+export const DOMAIN_ERROR_CODES = {
+  // General Errors
+  INVALID_INPUT: "INVALID_INPUT",
+  UNAUTHORIZED: "UNAUTHORIZED",
+  FORBIDDEN: "FORBIDDEN",
+  NOT_FOUND: "NOT_FOUND",
+  
+  // User/Worker/Employer domain
+  USER_NOT_FOUND: "USER_NOT_FOUND",
+  USER_ALREADY_EXISTS: "USER_ALREADY_EXISTS",
+  PROFILE_INCOMPLETE: "PROFILE_INCOMPLETE",
+  KYC_FAILED: "KYC_FAILED",
+  
+  // Job/Gig Domain
+  JOB_NOT_FOUND: "JOB_NOT_FOUND",
+  JOB_ALREADY_FILLED: "JOB_ALREADY_FILLED",
+  INVALID_JOB_STATUS: "INVALID_JOB_STATUS",
+  GEOLOCATION_OUT_OF_BOUNDS: "GEOLOCATION_OUT_OF_BOUNDS",
+  
+  // Transaction / Wallet Domain
+  INSUFFICIENT_FUNDS: "INSUFFICIENT_FUNDS",
+  TRANSACTION_FAILED: "TRANSACTION_FAILED",
+  WALLET_BLOCKED: "WALLET_BLOCKED",
+  
+  // System/Infrastructure Errors
+  DATABASE_ERROR: "DATABASE_ERROR",
+  INTEGRATION_TIMEOUT: "INTEGRATION_TIMEOUT",
+} as const;
+
+export type DomainErrorCode = typeof DOMAIN_ERROR_CODES[keyof typeof DOMAIN_ERROR_CODES];
