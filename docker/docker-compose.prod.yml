@@ -1,0 +1,106 @@
+# JobNest Production Docker Compose
+# Usage: docker compose -f docker/docker-compose.prod.yml up -d
+
+name: jobnest-production
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "50m"
+    max-file: "5"
+    compress: "true"
+
+services:
+
+  # ─────────────────────────────────────────────────────────────────
+  # Next.js Application (standalone)
+  # ─────────────────────────────────────────────────────────────────
+  web:
+    image: ${JOBNEST_IMAGE:-jobnest:latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-dev}
+        BUILD_SHA: ${BUILD_SHA:-unknown}
+    container_name: jobnest-web
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
+      OLLAMA_API_URL: ${OLLAMA_API_URL:-http://localhost:11434}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      REDIS_URL: ${REDIS_URL:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    volumes:
+      - app-logs:/app/logs:rw
+    networks:
+      - jobnest-internal
+    logging: *default-logging
+    depends_on:
+      nginx:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────────────────────────
+  # Nginx Reverse Proxy
+  # ─────────────────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: jobnest-nginx
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-cache:/var/cache/nginx
+      - nginx-logs:/var/log/nginx
+    networks:
+      - jobnest-internal
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
+    depends_on: []
+
+volumes:
+  app-logs:
+    name: jobnest-app-logs
+  nginx-cache:
+    name: jobnest-nginx-cache
+  nginx-logs:
+    name: jobnest-nginx-logs
+
+networks:
+  jobnest-internal:
+    name: jobnest-network
+    driver: bridge

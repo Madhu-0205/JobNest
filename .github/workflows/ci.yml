@@ -2,14 +2,27 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop, 'release/**', 'hotfix/**']
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+  NODE_ENV: production
 
 jobs:
-  verify:
-    name: Lint, Typecheck & Build
+  # ─────────────────────────────────────────────────────────────────
+  # Job 1: Code Quality (Lint + Typecheck + Build)
+  # ─────────────────────────────────────────────────────────────────
+  quality:
+    name: Quality Gate
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout Code
@@ -18,11 +31,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --prefer-offline
 
       - name: Lint Check
         run: npm run lint
@@ -33,5 +46,115 @@ jobs:
       - name: Build Project
         run: npm run build
         env:
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
-          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: nextjs-build-${{ github.sha }}
+          path: .next/
+          retention-days: 3
+
+  # ─────────────────────────────────────────────────────────────────
+  # Job 2: Security Audit
+  # ─────────────────────────────────────────────────────────────────
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --prefer-offline
+
+      - name: Dependency Vulnerability Audit
+        run: npm audit --audit-level=high
+        continue-on-error: false
+
+      - name: Check for Secrets in Code
+        run: |
+          echo "Scanning for hardcoded secrets patterns..."
+          if grep -rE "(password|secret|api_key|private_key)\s*=\s*['\"][^'\"]{8,}" \
+            --include="*.ts" --include="*.tsx" --include="*.js" \
+            --exclude-dir=node_modules --exclude-dir=.next \
+            .; then
+            echo "WARNING: Potential hardcoded secrets found. Review above."
+          else
+            echo "No hardcoded secret patterns detected."
+          fi
+
+      - name: Verify .gitignore covers secrets
+        run: |
+          required=(".env" ".env.local" ".env.production")
+          for f in "${required[@]}"; do
+            if grep -qF "$f" .gitignore; then
+              echo "✓ $f is in .gitignore"
+            else
+              echo "✗ MISSING: $f not in .gitignore" && exit 1
+            fi
+          done
+
+  # ─────────────────────────────────────────────────────────────────
+  # Job 3: Smoke Tests
+  # ─────────────────────────────────────────────────────────────────
+  smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [quality]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run Smoke Tests
+        run: npm run test:smoke --if-present
+        env:
+          NODE_ENV: test
+
+  # ─────────────────────────────────────────────────────────────────
+  # Job 4: Docker Build Validation
+  # ─────────────────────────────────────────────────────────────────
+  docker-build:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [quality]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+          tags: jobnest:ci-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_TELEMETRY_DISABLED=1

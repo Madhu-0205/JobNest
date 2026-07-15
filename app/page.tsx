@@ -61,7 +61,13 @@ export default function HomePage() {
               className="text-foreground"
               aria-label="Toggle visual theme"
             >
-              {theme === "dark" ? "☀️" : "🌙"}
+              {/* suppressHydrationWarning prevents the hydration mismatch
+                  caused by the server always rendering "dark" while the client
+                  reads the real value from localStorage after mount. */}
+              <span suppressHydrationWarning>
+                {theme === "dark" ? "☀️" : "🌙"}
+              </span>
+
             </Button>
             
             <Dialog>

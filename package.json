@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "db:migrate": "npx tsx database/migrate.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -11,7 +10,26 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+
+    "db:migrate": "npx tsx database/migrate.ts",
+
+    "test:smoke": "npx tsx tests/smoke/health.test.ts && npx tsx tests/smoke/auth.test.ts",
+    "test:integration": "npx tsx tests/integration/api.test.ts",
+    "test:all": "npm run test:smoke && npm run test:integration",
+
+    "validate:env": "npx tsx -e \"import('./lib/security/env-validator.ts').then(m => m.validateEnv()).then(() => console.log('✅ Env OK')).catch(e => { console.error(e.message); process.exit(1); })\"",
+
+    "health:check": "curl -sf http://localhost:3000/api/health | npx -y jq .",
+    "metrics:check": "curl -sf http://localhost:3000/api/metrics",
+
+    "security:audit": "npm audit --audit-level=high",
+    "security:audit:fix": "npm audit fix",
+
+    "docker:build": "docker build -f docker/Dockerfile -t jobnest:latest .",
+    "docker:prod": "docker compose -f docker/docker-compose.prod.yml up -d",
+    "docker:prod:down": "docker compose -f docker/docker-compose.prod.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.prod.yml logs -f app"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
