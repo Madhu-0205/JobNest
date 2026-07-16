@@ -379,8 +379,13 @@ export async function getSavedLocationsAction(): Promise<ActionResult<{ label: s
 
       if (error) throw new Error(error.message);
 
-      return (data || []).map((row: { label: string; locations: { latitude: string | number; longitude: string | number }[] }) => {
-        const loc = row.locations && row.locations[0];
+      interface RowLocation {
+        latitude: string | number;
+        longitude: string | number;
+      }
+      return (data || []).map((row: { label: string; locations: RowLocation | RowLocation[] | null }) => {
+        const rawLoc = row.locations;
+        const loc = Array.isArray(rawLoc) ? rawLoc[0] : rawLoc;
         const latitude = loc ? (typeof loc.latitude === "string" ? parseFloat(loc.latitude) : loc.latitude) : 0;
         const longitude = loc ? (typeof loc.longitude === "string" ? parseFloat(loc.longitude) : loc.longitude) : 0;
         return {

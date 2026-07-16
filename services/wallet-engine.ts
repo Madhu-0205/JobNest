@@ -5,6 +5,7 @@ import { logger } from "@/services/logger";
 /**
  * Wallet Balance Engine.
  * Processes active balances, locks, releases, and updates with double-entry audit trails.
+ * Leverages database-level atomic operations and row locking to prevent concurrent race conditions.
  */
 export class WalletEngine {
   /**
@@ -20,27 +21,27 @@ export class WalletEngine {
     try {
       const supabase = await createServerClient();
 
-      // 1. Get current wallet
-      const { data: wallet, error: getErr } = await supabase
+      // 1. Call atomic database RPC function to safely credit the balance
+      const { data, error: rpcErr } = await supabase.rpc("adjust_wallet_balance", {
+        p_user_id: userId,
+        p_amount: amount,
+        p_locked_amount: 0.00,
+      });
+
+      if (rpcErr || !data || data.length === 0 || !data[0].success) {
+        throw rpcErr || new Error("Atomic wallet credit operation failed.");
+      }
+
+      const newBalance = Number(data[0].new_balance);
+
+      // 2. Fetch the wallet ID for transaction mapping
+      const { data: wallet } = await supabase
         .from("wallets")
-        .select("id, balance")
+        .select("id")
         .eq("user_id", userId)
         .single();
 
-      if (getErr || !wallet) throw getErr || new Error("Wallet not found.");
-
-      const newBalance = Number(wallet.balance) + amount;
-
-      // 2. Update wallet
-      const { error: updErr } = await supabase
-        .from("wallets")
-        .update({
-          balance: newBalance,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", wallet.id);
-
-      if (updErr) throw updErr;
+      if (!wallet) throw new Error("Wallet not found after credit adjustment.");
 
       // 3. Log transaction
       const txId = crypto.randomUUID();
@@ -63,9 +64,9 @@ export class WalletEngine {
 
       logger.info(`[WalletEngine] Credited ${amount} INR to user ${userId}. New balance: ${newBalance}`);
       return { success: true, newBalance };
-    } catch {
-      logger.warn(`[WalletEngine] Bypassing credit db updates. Simulating response. User: ${userId}, Amount: ${amount}`);
-      return { success: true, newBalance: 1500.00 }; // mock return
+    } catch (err) {
+      logger.error(`[WalletEngine] Credit operation failure for user ${userId}:`, err as Record<string, unknown>);
+      throw err;
     }
   }
 
@@ -82,32 +83,29 @@ export class WalletEngine {
     try {
       const supabase = await createServerClient();
 
-      const { data: wallet, error: getErr } = await supabase
+      // 1. Call atomic database RPC function to safely debit the balance
+      const { data, error: rpcErr } = await supabase.rpc("adjust_wallet_balance", {
+        p_user_id: userId,
+        p_amount: -amount,
+        p_locked_amount: 0.00,
+      });
+
+      if (rpcErr || !data || data.length === 0 || !data[0].success) {
+        throw rpcErr || new Error("Atomic wallet debit operation failed.");
+      }
+
+      const newBalance = Number(data[0].new_balance);
+
+      // 2. Fetch the wallet ID for transaction mapping
+      const { data: wallet } = await supabase
         .from("wallets")
-        .select("id, balance")
+        .select("id")
         .eq("user_id", userId)
         .single();
 
-      if (getErr || !wallet) throw getErr || new Error("Wallet not found.");
+      if (!wallet) throw new Error("Wallet not found after debit adjustment.");
 
-      if (Number(wallet.balance) < amount) {
-        throw new Error("Insufficient funds inside wallet balance.");
-      }
-
-      const newBalance = Number(wallet.balance) - amount;
-
-      // Update wallet
-      const { error: updErr } = await supabase
-        .from("wallets")
-        .update({
-          balance: newBalance,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", wallet.id);
-
-      if (updErr) throw updErr;
-
-      // Log transaction
+      // 3. Log transaction
       const txId = crypto.randomUUID();
       await supabase.from("wallet_transactions").insert({
         id: txId,
@@ -119,7 +117,7 @@ export class WalletEngine {
         description,
       });
 
-      // Double-Entry ledger write
+      // 4. Double-Entry ledger write
       await LedgerService.recordDoubleEntry(
         txId,
         { accountId: userId, amount, referenceType: "payout" }, // Debit User
@@ -128,9 +126,9 @@ export class WalletEngine {
 
       logger.info(`[WalletEngine] Debited ${amount} INR from user ${userId}. New balance: ${newBalance}`);
       return { success: true, newBalance };
-    } catch {
-      logger.warn(`[WalletEngine] Bypassing debit db updates. Simulating response. User: ${userId}, Amount: ${amount}`);
-      return { success: true, newBalance: 500.00 }; // mock return
+    } catch (err) {
+      logger.error(`[WalletEngine] Debit operation failure for user ${userId}:`, err as Record<string, unknown>);
+      throw err;
     }
   }
 
@@ -141,26 +139,20 @@ export class WalletEngine {
     try {
       const supabase = await createServerClient();
 
-      const { data: wallet } = await supabase
-        .from("wallets")
-        .select("id, balance, locked_balance")
-        .eq("user_id", userId)
-        .single();
+      const { data, error: rpcErr } = await supabase.rpc("adjust_wallet_balance", {
+        p_user_id: userId,
+        p_amount: -amount,
+        p_locked_amount: amount,
+      });
 
-      if (!wallet || Number(wallet.balance) < amount) return false;
-
-      await supabase
-        .from("wallets")
-        .update({
-          balance: Number(wallet.balance) - amount,
-          locked_balance: Number(wallet.locked_balance) + amount,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", wallet.id);
+      if (rpcErr || !data || data.length === 0 || !data[0].success) {
+        return false;
+      }
 
       return true;
-    } catch {
-      return true;
+    } catch (err) {
+      logger.error(`[WalletEngine] Lock funds failure for user ${userId}:`, err as Record<string, unknown>);
+      return false;
     }
   }
 
@@ -171,26 +163,20 @@ export class WalletEngine {
     try {
       const supabase = await createServerClient();
 
-      const { data: wallet } = await supabase
-        .from("wallets")
-        .select("id, balance, locked_balance")
-        .eq("user_id", userId)
-        .single();
+      const { data, error: rpcErr } = await supabase.rpc("adjust_wallet_balance", {
+        p_user_id: userId,
+        p_amount: amount,
+        p_locked_amount: -amount,
+      });
 
-      if (!wallet || Number(wallet.locked_balance) < amount) return false;
-
-      await supabase
-        .from("wallets")
-        .update({
-          balance: Number(wallet.balance) + amount,
-          locked_balance: Number(wallet.locked_balance) - amount,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", wallet.id);
+      if (rpcErr || !data || data.length === 0 || !data[0].success) {
+        return false;
+      }
 
       return true;
-    } catch {
-      return true;
+    } catch (err) {
+      logger.error(`[WalletEngine] Unlock funds failure for user ${userId}:`, err as Record<string, unknown>);
+      return false;
     }
   }
 }

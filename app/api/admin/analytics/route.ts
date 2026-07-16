@@ -1,27 +1,26 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/services/logger";
 import { AnalyticsEngine } from "@/services/analytics-engine";
+import { AuthorizationGuard } from "@/lib/authorization/guard";
+import { PERMISSIONS } from "@/lib/authorization/permissions";
 
 /**
- * GET /api/admin/analytics — Full analytics dashboard payload.
+ * GET /api/admin/analytics — Secure full analytics dashboard payload.
  */
 export async function GET() {
   try {
+    // 1. Enforce strict permissions authorization check
+    try {
+      await AuthorizationGuard.assertPermission(PERMISSIONS.ANALYTICS_VIEW);
+    } catch {
+      return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
+    }
+
     const dashboard = await AnalyticsEngine.getDashboard();
-    logger.info("[API:Admin:Analytics] Dashboard fetched.");
+    logger.info("[API:Admin:Analytics] Dashboard payload fetched.");
     return NextResponse.json({ success: true, data: dashboard });
-  } catch {
-    logger.warn("[API:Admin:Analytics] Failed. Returning minimal mock.");
-    return NextResponse.json({
-      success: true,
-      data: {
-        kpis: {
-          activeUsers: 127438, dailyActiveUsers: 18924,
-          onlineWorkers: 3841, onlineEmployers: 1204,
-          activeOpportunities: 12607, dailyRevenue: 284750,
-          fraudAlerts: 23, apiSuccessRate: 99.7,
-        },
-      },
-    });
+  } catch (err) {
+    logger.error("[API:Admin:Analytics] Dashboard load failed:", err as Record<string, unknown>);
+    return NextResponse.json({ success: false, error: "Dashboard load failed." }, { status: 500 });
   }
 }

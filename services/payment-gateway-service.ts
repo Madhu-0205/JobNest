@@ -32,12 +32,7 @@ export class RazorpayAdapter implements PaymentGatewayAdapter {
 
   verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
     try {
-      // In production:
-      // const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
-      // return expected === signature;
-      
-      // Sandbox validation: allows custom test keys or logs success
-      if (signature === "sandbox_test_signature") return true;
+      if (!signature || !secret || !payload) return false;
       const shasum = crypto.createHmac("sha256", secret);
       shasum.update(payload);
       const digest = shasum.digest("hex");
@@ -73,7 +68,25 @@ export class StripeAdapter implements PaymentGatewayAdapter {
   }
 
   verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
-    return signature === "sandbox_stripe_test_signature" || !!(payload && signature && secret);
+    try {
+      if (!signature || !secret || !payload) return false;
+      const parts = signature.split(",");
+      const tPart = parts.find((p) => p.startsWith("t="));
+      const v1Part = parts.find((p) => p.startsWith("v1="));
+      if (!tPart || !v1Part) return false;
+
+      const timestamp = tPart.substring(2);
+      const hash = v1Part.substring(3);
+
+      const expectedSignature = crypto
+        .createHmac("sha256", secret)
+        .update(`${timestamp}.${payload}`)
+        .digest("hex");
+
+      return expectedSignature === hash;
+    } catch {
+      return false;
+    }
   }
 
   async refundPayment(paymentId: string, amount: number, reason: string): Promise<{ success: boolean; gatewayRefundId: string }> {

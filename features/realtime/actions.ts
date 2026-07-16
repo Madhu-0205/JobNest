@@ -14,7 +14,6 @@ import { z } from "zod";
 import { runWithRequestContext } from "@/lib/observability/request-context-helper";
 import { logRequestLifecycle } from "@/lib/observability/request-logger";
 import { ActionResult } from "@/features/auth/actions";
-import { logger } from "@/services/logger";
 
 async function executeAction<T>(
   actionName: string,
@@ -59,50 +58,50 @@ export async function createChatRoomAction(
   workerId: string
 ): Promise<ActionResult<{ roomId: string }>> {
   return executeAction("createChatRoomAction", async () => {
-    await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
+    const callerId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
     
-    try {
-      const supabase = await createServerClient();
-      
-      // Try to find existing chat room
-      let query = supabase
-        .from("chat_rooms")
-        .select("id")
-        .eq("employer_id", employerId)
-        .eq("worker_id", workerId);
-        
-      if (opportunityId) {
-        query = query.eq("opportunity_id", opportunityId);
-      } else {
-        query = query.is("opportunity_id", null);
-      }
-
-      const { data: existing } = await query.maybeSingle();
-
-      if (existing) {
-        return { roomId: existing.id };
-      }
-
-      // Create new chat room
-      const { data: newRoom, error: insertErr } = await supabase
-        .from("chat_rooms")
-        .insert({
-          opportunity_id: opportunityId,
-          employer_id: employerId,
-          worker_id: workerId,
-        })
-        .select("id")
-        .single();
-
-      if (insertErr || !newRoom) {
-        throw new Error(insertErr?.message || "Failed to create chat room.");
-      }
-
-      return { roomId: newRoom.id };
-    } catch {
-      logger.info("Database connection unconfigured or bypassed. Returning simulated roomId.");
-      return { roomId: "c5c64b54-9462-4b2a-874f-66df98ea5a8d" };
+    // BOLA Check: verify participant identity
+    if (callerId !== employerId && callerId !== workerId) {
+      throw new Error("Access denied. You are not a participant in this conversation.");
     }
+
+    const supabase = await createServerClient();
+    
+    // Try to find existing chat room
+    let query = supabase
+      .from("chat_rooms")
+      .select("id")
+      .eq("employer_id", employerId)
+      .eq("worker_id", workerId);
+      
+    if (opportunityId) {
+      query = query.eq("opportunity_id", opportunityId);
+    } else {
+      query = query.is("opportunity_id", null);
+    }
+
+    const { data: existing } = await query.maybeSingle();
+
+    if (existing) {
+      return { roomId: existing.id };
+    }
+
+    // Create new chat room
+    const { data: newRoom, error: insertErr } = await supabase
+      .from("chat_rooms")
+      .insert({
+        opportunity_id: opportunityId,
+        employer_id: employerId,
+        worker_id: workerId,
+      })
+      .select("id")
+      .single();
+
+    if (insertErr || !newRoom) {
+      throw new Error(insertErr?.message || "Failed to create chat room.");
+    }
+
+    return { roomId: newRoom.id };
   });
 }
 
@@ -113,48 +112,46 @@ export async function sendMessageAction(formData: unknown): Promise<ActionResult
   return executeAction("sendMessageAction", async () => {
     const validated = sendMessageSchema.parse(formData);
     const user = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
+    const supabase = await createServerClient();
 
-    try {
-      const supabase = await createServerClient();
-      const { data, error } = await supabase
-        .from("chat_messages")
-        .insert({
-          room_id: validated.roomId,
-          sender_id: user,
-          message_type: validated.messageType,
-          content: validated.content || null,
-          attachment_url: validated.attachmentUrl || null,
-          location_lat: validated.locationLat || null,
-          location_lon: validated.locationLon || null,
-          delivery_status: "sent",
-        })
-        .select("id")
-        .single();
+    // BOLA Check: Verify user is a participant of the room
+    const { data: room, error: roomErr } = await supabase
+      .from("chat_rooms")
+      .select("employer_id, worker_id")
+      .eq("id", validated.roomId)
+      .single();
 
-      if (error || !data) {
-        throw new Error(error?.message || "Failed to insert chat message.");
-      }
-
-      // Publish to Event Bus
-      await EventBus.publish("chat.message.sent", {
-        roomId: validated.roomId,
-        senderId: user,
-        messageType: validated.messageType,
-      }, user);
-
-      return { messageId: data.id };
-    } catch {
-      logger.info("Supabase connection unconfigured. Simulating message dispatch.");
-      
-      // Dispatch simulated event to Event Bus anyway
-      await EventBus.publish("chat.message.sent", {
-        roomId: validated.roomId,
-        senderId: user,
-        messageType: validated.messageType,
-      }, user);
-
-      return { messageId: crypto.randomUUID() };
+    if (roomErr || !room || (room.employer_id !== user && room.worker_id !== user)) {
+      throw new Error("Access denied. You are not a participant in this chat room.");
     }
+
+    const { data, error } = await supabase
+      .from("chat_messages")
+      .insert({
+        room_id: validated.roomId,
+        sender_id: user,
+        message_type: validated.messageType,
+        content: validated.content || null,
+        attachment_url: validated.attachmentUrl || null,
+        location_lat: validated.locationLat || null,
+        location_lon: validated.locationLon || null,
+        delivery_status: "sent",
+      })
+      .select("id")
+      .single();
+
+    if (error || !data) {
+      throw new Error(error?.message || "Failed to insert chat message.");
+    }
+
+    // Publish to Event Bus
+    await EventBus.publish("chat.message.sent", {
+      roomId: validated.roomId,
+      senderId: user,
+      messageType: validated.messageType,
+    }, user);
+
+    return { messageId: data.id };
   });
 }
 
@@ -164,36 +161,22 @@ export async function sendMessageAction(formData: unknown): Promise<ActionResult
 export async function getChatRoomsAction(): Promise<ActionResult<Record<string, unknown>[]>> {
   return executeAction("getChatRoomsAction", async () => {
     const user = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
+    const supabase = await createServerClient();
 
-    try {
-      const supabase = await createServerClient();
-      const { data, error } = await supabase
-        .from("chat_rooms")
-        .select(`
-          id,
-          created_at,
-          opportunity_id,
-          employer_id,
-          worker_id,
-          metadata
-        `)
-        .or(`employer_id.eq.${user},worker_id.eq.${user}`);
+    const { data, error } = await supabase
+      .from("chat_rooms")
+      .select(`
+        id,
+        created_at,
+        opportunity_id,
+        employer_id,
+        worker_id,
+        metadata
+      `)
+      .or(`employer_id.eq.${user},worker_id.eq.${user}`);
 
-      if (error) throw error;
-      return data || [];
-    } catch {
-      logger.info("Returning simulated active chat rooms.");
-      return [
-        {
-          id: "c5c64b54-9462-4b2a-874f-66df98ea5a8d",
-          created_at: new Date().toISOString(),
-          opportunity_id: null,
-          employer_id: "employer-profile-id",
-          worker_id: "worker-profile-id",
-          metadata: { label: "Agricultural Field Work Chat" },
-        }
-      ];
-    }
+    if (error) throw error;
+    return data || [];
   });
 }
 
@@ -206,47 +189,34 @@ export async function getChatMessagesAction(
   beforeTimestamp?: string
 ): Promise<ActionResult<Record<string, unknown>[]>> {
   return executeAction("getChatMessagesAction", async () => {
-    await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
+    const user = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
+    const supabase = await createServerClient();
 
-    try {
-      const supabase = await createServerClient();
-      let query = supabase
-        .from("chat_messages")
-        .select("*")
-        .eq("room_id", roomId)
-        .order("created_at", { ascending: true })
-        .limit(limit);
+    // BOLA Check: Verify user is a participant of the room
+    const { data: room, error: roomErr } = await supabase
+      .from("chat_rooms")
+      .select("employer_id, worker_id")
+      .eq("id", roomId)
+      .single();
 
-      if (beforeTimestamp) {
-        query = query.lt("created_at", beforeTimestamp);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
-    } catch {
-      logger.info("Returning simulated messages history logs.");
-      return [
-        {
-          id: "m1",
-          room_id: roomId,
-          sender_id: "employer-profile-id",
-          message_type: "text",
-          content: "Hello Arun, are you currently headed to the job location?",
-          delivery_status: "read",
-          created_at: new Date(Date.now() - 3600000).toISOString(),
-        },
-        {
-          id: "m2",
-          room_id: roomId,
-          sender_id: "worker-profile-id",
-          message_type: "text",
-          content: "Yes, I am on my way. Should reach in 10 minutes.",
-          delivery_status: "read",
-          created_at: new Date(Date.now() - 3000000).toISOString(),
-        }
-      ];
+    if (roomErr || !room || (room.employer_id !== user && room.worker_id !== user)) {
+      throw new Error("Access denied. You are not a participant in this chat room.");
     }
+
+    let query = supabase
+      .from("chat_messages")
+      .select("*")
+      .eq("room_id", roomId)
+      .order("created_at", { ascending: true })
+      .limit(limit);
+
+    if (beforeTimestamp) {
+      query = query.lt("created_at", beforeTimestamp);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
   });
 }
 
@@ -257,45 +227,31 @@ export async function updateLiveTrackingAction(formData: unknown): Promise<Actio
   return executeAction("updateLiveTrackingAction", async () => {
     const validated = liveTrackingSchema.parse(formData);
     const user = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
+    const supabase = await createServerClient();
 
-    try {
-      const supabase = await createServerClient();
-      const { error } = await supabase.from("live_tracking").upsert({
-        user_id: user,
-        latitude: validated.latitude,
-        longitude: validated.longitude,
-        speed: validated.speed || null,
-        heading: validated.heading || null,
-        accuracy: validated.accuracy || null,
-        status: validated.status || "available",
-        updated_at: new Date().toISOString(),
-        last_seen: new Date().toISOString(),
-      });
+    const { error } = await supabase.from("live_tracking").upsert({
+      user_id: user,
+      latitude: validated.latitude,
+      longitude: validated.longitude,
+      speed: validated.speed || null,
+      heading: validated.heading || null,
+      accuracy: validated.accuracy || null,
+      status: validated.status || "available",
+      updated_at: new Date().toISOString(),
+      last_seen: new Date().toISOString(),
+    });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      // Publish update to event bus
-      await EventBus.publish("worker.location.updated", {
-        latitude: validated.latitude,
-        longitude: validated.longitude,
-        speed: validated.speed || 0,
-        heading: validated.heading || 0,
-      }, user);
+    // Publish update to event bus
+    await EventBus.publish("worker.location.updated", {
+      latitude: validated.latitude,
+      longitude: validated.longitude,
+      speed: validated.speed || 0,
+      heading: validated.heading || 0,
+    }, user);
 
-      return { userId: user };
-    } catch {
-      logger.info("GPS live tracking database logging bypassed. Simulating Event Bus publish.");
-      
-      // Dispatch simulated event to Event Bus anyway
-      await EventBus.publish("worker.location.updated", {
-        latitude: validated.latitude,
-        longitude: validated.longitude,
-        speed: validated.speed || 0,
-        heading: validated.heading || 0,
-      }, user);
-
-      return { userId: user };
-    }
+    return { userId: user };
   });
 }
 
@@ -304,31 +260,36 @@ export async function updateLiveTrackingAction(formData: unknown): Promise<Actio
  */
 export async function getLiveTrackingAction(userId: string): Promise<ActionResult<Record<string, unknown>>> {
   return executeAction("getLiveTrackingAction", async () => {
-    await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
+    const callerId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
+    const supabase = await createServerClient();
 
-    try {
-      const supabase = await createServerClient();
-      const { data, error } = await supabase
-        .from("live_tracking")
-        .select("*")
+    if (callerId !== userId) {
+      // BOLA check: caller must have an active application/job relationship with the worker
+      const { data: relationship, error: relErr } = await supabase
+        .from("applications")
+        .select(`
+          status,
+          opportunities (employer_id)
+        `)
         .eq("user_id", userId)
-        .single();
+        .eq("status", "accepted")
+        .maybeSingle();
 
-      if (error) throw error;
-      return data;
-    } catch {
-      logger.info("Returning simulated current coordinates telemetry.");
-      return {
-        user_id: userId,
-        latitude: 12.9716,
-        longitude: 77.5946,
-        speed: 12.5,
-        heading: 180,
-        accuracy: 5.0,
-        status: "working",
-        last_seen: new Date().toISOString(),
-      };
+      const relData = relationship as { opportunities: { employer_id: string } | null } | null;
+      const employerId = relData?.opportunities?.employer_id;
+      if (relErr || !employerId || employerId !== callerId) {
+        throw new Error("Access denied. You do not have an active hiring relationship with this worker.");
+      }
     }
+
+    const { data, error } = await supabase
+      .from("live_tracking")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
+
+    if (error || !data) throw error || new Error("Live tracking telemetry not found for this worker.");
+    return data;
   });
 }
 
@@ -340,18 +301,13 @@ export async function syncOfflineQueueAction(formData: unknown): Promise<ActionR
     const validated = syncOfflineQueueSchema.parse(formData);
     const user = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
     
-    try {
-      const queueItems: QueueItem[] = validated.map(item => ({
-        eventType: item.eventType,
-        payload: item.payload,
-        clientTimestamp: item.clientTimestamp,
-      }));
+    const queueItems: QueueItem[] = validated.map(item => ({
+      eventType: item.eventType,
+      payload: item.payload,
+      clientTimestamp: item.clientTimestamp,
+    }));
 
-      const syncResult = await RealtimeService.processOfflineQueue(user, queueItems);
-      return syncResult;
-    } catch {
-      logger.info("Supabase sync context unconfigured. Simulating queue flush as successful.");
-      return { processed: validated.length, failed: 0 };
-    }
+    const syncResult = await RealtimeService.processOfflineQueue(user, queueItems);
+    return syncResult;
   });
 }

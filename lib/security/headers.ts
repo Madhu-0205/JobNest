@@ -43,11 +43,18 @@ export function buildCsp(nonce?: string): string {
       "'self'",
       "https://*.supabase.co",
       "wss://*.supabase.co",
+      "https://a.tile.openstreetmap.org",
+      "https://b.tile.openstreetmap.org",
+      "https://c.tile.openstreetmap.org",
+      "https://tile.openstreetmap.org",
+      "https://nominatim.openstreetmap.org",
       process.env["NEXT_PUBLIC_API_URL"] ?? "",
     ]
       .filter(Boolean)
       .join(" "),
     "media-src": "'self'",
+    "worker-src": "'self' blob:",
+    "child-src": "'self' blob:",
     "object-src": "'none'",
     "base-uri": "'self'",
     "form-action": "'self'",

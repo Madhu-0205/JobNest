@@ -1,4 +1,4 @@
-import { LatLon, GeospatialService } from "@/services/geospatial-service";
+import { calculateDistance } from "@/utils/geospatial";
 
 export interface GPSPing {
   latitude: number;
@@ -9,14 +9,13 @@ export interface GPSPing {
 
 /**
  * Enterprise GPS Security & Anti-Spoofing Validator.
- * Analyzes location telemetry streams to block fake GPS pings, mock coordinates,
- * and impossible location jumps (impossible speed detection).
+ * Single source of truth for GPS velocity audits, accuracy thresholds, and jump anomalies.
  */
 export class GPSSecurityValidator {
-  // Max human ground velocity threshold in meters per second (83.3 m/s = 300 km/h)
-  private static readonly MAX_GROUND_SPEED_MPS = 83.3;
+  // Max physical speed allowed (50 m/s = 180 km/h)
+  public static readonly MAX_GROUND_SPEED_MPS = 50.0;
   // Maximum error margin allowed in meters (pings above this are discarded)
-  private static readonly MAX_ACCURACY_THRESHOLD_METERS = 100;
+  public static readonly MAX_ACCURACY_THRESHOLD_METERS = 50.0;
 
   /**
    * Evaluates if a GPS ping has an acceptable accuracy range.
@@ -26,23 +25,33 @@ export class GPSSecurityValidator {
   }
 
   /**
+   * Calculates distance between two points.
+   */
+  static calculateDistance(
+    p1: { latitude: number; longitude: number },
+    p2: { latitude: number; longitude: number }
+  ): number {
+    return calculateDistance(p1, p2);
+  }
+
+  /**
    * Computes velocity between two successive pings to determine if a location jump occurred.
    * Blocks impossible teleportation mock software.
    */
   static detectLocationJump(previous: GPSPing, current: GPSPing): {
     isSpoofed: boolean;
+    reason?: string;
     speedMps: number;
     distanceMeters: number;
   } {
-    const startPoint: LatLon = { latitude: previous.latitude, longitude: previous.longitude };
-    const endPoint: LatLon = { latitude: current.latitude, longitude: current.longitude };
-
-    const distance = GeospatialService.calculateDistance(startPoint, endPoint);
+    const distance = this.calculateDistance(previous, current);
     const timeDeltaSeconds = Math.abs(current.timestamp - previous.timestamp) / 1000;
 
     if (timeDeltaSeconds === 0) {
+      const isSpoofed = distance > 20; // Jumped > 20m in 0s
       return {
-        isSpoofed: distance > 20, // Jumped > 20m in 0s
+        isSpoofed,
+        reason: isSpoofed ? "Zero time delta with coordinates displacement." : undefined,
         speedMps: 0,
         distanceMeters: distance,
       };
@@ -51,8 +60,15 @@ export class GPSSecurityValidator {
     const speed = distance / timeDeltaSeconds;
     const isSpoofed = speed > this.MAX_GROUND_SPEED_MPS;
 
+    // Teleportation verification (short time, large jumps)
+    const isTeleport = timeDeltaSeconds < 2.0 && distance > 150;
+    const finalSpoofed = isSpoofed || isTeleport;
+
     return {
-      isSpoofed,
+      isSpoofed: finalSpoofed,
+      reason: finalSpoofed 
+        ? `Velocity of ${Math.round(speed * 3.6)} km/h exceeds limit of ${Math.round(this.MAX_GROUND_SPEED_MPS * 3.6)} km/h.` 
+        : undefined,
       speedMps: Math.round(speed * 100) / 100,
       distanceMeters: Math.round(distance),
     };

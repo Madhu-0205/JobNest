@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { logger } from "@/services/logger";
+import { AuthorizationGuard } from "@/lib/authorization/guard";
+import { PERMISSIONS } from "@/lib/authorization/permissions";
 
 const REPORT_TYPES = [
   { type: "daily_summary", label: "Daily Platform Summary", description: "All KPIs for a single day" },
@@ -16,16 +18,25 @@ const REPORT_TYPES = [
 ];
 
 /**
- * GET /api/admin/reports — List available report types and recent exports.
+ * GET /api/admin/reports — Securely list available report types and recent exports.
  */
 export async function GET() {
   try {
+    // 1. Enforce strict permissions authorization check
+    try {
+      await AuthorizationGuard.assertPermission(PERMISSIONS.ANALYTICS_VIEW);
+    } catch {
+      return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
+    }
+
     const supabase = await createServerClient();
-    const { data: recentExports } = await supabase
+    const { data: recentExports, error } = await supabase
       .from("report_exports")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(20);
+
+    if (error) throw error;
 
     return NextResponse.json({
       success: true,
@@ -34,53 +45,51 @@ export async function GET() {
         recentExports: recentExports || [],
       },
     });
-  } catch {
-    return NextResponse.json({
-      success: true,
-      data: {
-        reportTypes: REPORT_TYPES,
-        recentExports: [],
-      },
-    });
+  } catch (err) {
+    logger.error("[API:Admin:Reports] List reports failed:", err as Record<string, unknown>);
+    return NextResponse.json({ success: false, error: "Reports list fetch failed." }, { status: 500 });
   }
 }
 
 /**
- * POST /api/admin/reports — Queue a new report export.
+ * POST /api/admin/reports — Securely queue a new report export.
  */
 export async function POST(req: NextRequest) {
   try {
+    // 1. Enforce strict permissions authorization check
+    let userId: string;
+    try {
+      userId = await AuthorizationGuard.assertPermission(PERMISSIONS.ANALYTICS_EXPORT);
+    } catch {
+      return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
+    }
+
     const body = await req.json() as {
       reportType?: string;
       periodStart?: string;
       periodEnd?: string;
-      requestedBy?: string;
     };
 
     if (!body.reportType) {
-      return NextResponse.json({ success: false, error: "reportType is required." }, { status: 400 });
+      return NextResponse.json({ success: false, error: "reportType parameter is required." }, { status: 400 });
     }
 
-    const reportId = `rpt-${Date.now()}`;
+    const supabase = await createServerClient();
+    const { data, error } = await supabase.from("report_exports").insert({
+      requested_by: userId,
+      report_type: body.reportType,
+      parameters: { periodStart: body.periodStart, periodEnd: body.periodEnd },
+      status: "pending",
+    }).select("id").single();
 
-    try {
-      const supabase = await createServerClient();
-      const { data } = await supabase.from("report_exports").insert({
-        requested_by: body.requestedBy || null,
-        report_type: body.reportType,
-        parameters: { periodStart: body.periodStart, periodEnd: body.periodEnd },
-        status: "pending",
-      }).select("id").single();
-      if (data?.id) {
-        logger.info(`[API:Admin:Reports] Report queued: ${body.reportType} id=${data.id}`);
-        return NextResponse.json({ success: true, data: { reportId: data.id, status: "pending" } });
-      }
-    } catch {
-      logger.warn("[API:Admin:Reports] Simulated report queue.");
+    if (error || !data) {
+      throw error || new Error("Failed to register report export task.");
     }
 
-    return NextResponse.json({ success: true, data: { reportId, status: "pending" } });
-  } catch {
+    logger.info(`[API:Admin:Reports] Report queued: ${body.reportType} id=${data.id} by user ${userId}`);
+    return NextResponse.json({ success: true, data: { reportId: data.id, status: "pending" } });
+  } catch (err) {
+    logger.error("[API:Admin:Reports] Report generation failed:", err as Record<string, unknown>);
     return NextResponse.json({ success: false, error: "Report generation failed." }, { status: 500 });
   }
 }

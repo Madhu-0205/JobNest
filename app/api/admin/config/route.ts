@@ -1,36 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { logger } from "@/services/logger";
-
-const DEFAULT_FLAGS: Record<string, boolean> = {
-  "ai.semantic_search": true,
-  "ai.profile_enhancement": true,
-  "ai.translation": true,
-  "payments.razorpay": true,
-  "payments.escrow": true,
-  "realtime.live_tracking": true,
-  "realtime.chat": true,
-  "kyc.document_upload": true,
-  "kyc.face_match": false,
-  "moderation.auto_flag": true,
-  "analytics.heatmap": true,
-  "support.live_chat": false,
-};
-
-const DEFAULT_SETTINGS: { key: string; category: string; description: string; value: unknown }[] = [
-  { key: "platform.commission_rate", category: "financial", description: "Platform commission rate (0–1)", value: 0.10 },
-  { key: "platform.max_opportunities_per_user", category: "limits", description: "Max active opportunities per employer", value: 25 },
-  { key: "ai.recommendation_weights", category: "ai", description: "Composite score weights", value: { skills: 0.25, trust: 0.20, distance: 0.15, rating: 0.15, availability: 0.10, responseTime: 0.08, salary: 0.07 } },
-  { key: "trust.minimum_score_to_apply", category: "trust", description: "Minimum trust score required to apply for jobs", value: 30 },
-  { key: "support.sla_high_hours", category: "support", description: "SLA for high priority tickets (hours)", value: 8 },
-  { key: "fraud.auto_suspend_threshold", category: "fraud", description: "Fraud score threshold for auto-suspension", value: 85 },
-];
+import { AuthorizationGuard } from "@/lib/authorization/guard";
+import { PERMISSIONS } from "@/lib/authorization/permissions";
 
 /**
- * GET /api/admin/config — Feature flags and system settings.
+ * GET /api/admin/config — Secure feature flags and system settings.
  */
 export async function GET() {
   try {
+    // 1. Authenticate and authorize GET access
+    try {
+      await AuthorizationGuard.assertPermission(PERMISSIONS.CONFIG_VIEW);
+    } catch {
+      return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
+    }
+
     const supabase = await createServerClient();
 
     const [flagsRes, settingsRes] = await Promise.allSettled([
@@ -38,33 +23,55 @@ export async function GET() {
       supabase.from("system_settings").select("*").order("category"),
     ]);
 
-    const flags = flagsRes.status === "fulfilled" && flagsRes.value.data?.length
+    const flags = flagsRes.status === "fulfilled" && flagsRes.value.data
       ? Object.fromEntries(flagsRes.value.data.map((f) => [f.flag_key, f.is_enabled]))
-      : DEFAULT_FLAGS;
+      : {};
 
-    const settings = settingsRes.status === "fulfilled" && settingsRes.value.data?.length
+    const settings = settingsRes.status === "fulfilled" && settingsRes.value.data
       ? settingsRes.value.data
-      : DEFAULT_SETTINGS;
+      : [];
 
-    logger.info("[API:Admin:Config] Config loaded.");
+    logger.info("[API:Admin:Config] Config loaded from live database.");
     return NextResponse.json({ success: true, data: { flags, settings } });
-  } catch {
-    return NextResponse.json({ success: true, data: { flags: DEFAULT_FLAGS, settings: DEFAULT_SETTINGS } });
+  } catch (err) {
+    logger.error("[API:Admin:Config] Config load error:", err as Record<string, unknown>);
+    return NextResponse.json({ success: false, error: "Failed to load configuration." }, { status: 500 });
   }
 }
 
 /**
- * POST /api/admin/config — Update a feature flag.
+ * POST /api/admin/config — Securely update a feature flag override.
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { flagKey?: string; isEnabled?: boolean };
-    if (!body.flagKey) {
-      return NextResponse.json({ success: false, error: "flagKey is required." }, { status: 400 });
+    // 1. Authenticate and authorize POST access
+    let userId: string;
+    try {
+      userId = await AuthorizationGuard.assertPermission(PERMISSIONS.CONFIG_MANAGE);
+    } catch {
+      return NextResponse.json({ success: false, error: "Access denied. Insufficient privileges." }, { status: 403 });
     }
-    logger.info(`[API:Admin:Config] Flag ${body.flagKey} → ${body.isEnabled}`);
+
+    const body = await req.json() as { flagKey?: string; isEnabled?: boolean; targetType?: string; targetId?: string };
+    if (!body.flagKey) {
+      return NextResponse.json({ success: false, error: "flagKey parameter is required." }, { status: 400 });
+    }
+
+    const supabase = await createServerClient();
+    const { error } = await supabase.from("feature_flag_overrides").insert({
+      flag_key: body.flagKey,
+      target_type: body.targetType || "global",
+      target_id: body.targetId || "global",
+      is_enabled: !!body.isEnabled,
+      created_by: userId,
+    });
+
+    if (error) throw error;
+
+    logger.info(`[API:Admin:Config] Flag ${body.flagKey} set to ${body.isEnabled} by user ${userId}`);
     return NextResponse.json({ success: true, data: { flagKey: body.flagKey, isEnabled: body.isEnabled } });
-  } catch {
+  } catch (err) {
+    logger.error("[API:Admin:Config] Config update failed:", err as Record<string, unknown>);
     return NextResponse.json({ success: false, error: "Config update failed." }, { status: 500 });
   }
 }

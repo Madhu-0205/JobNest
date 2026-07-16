@@ -71,7 +71,7 @@ export class AuthorizationGuard {
       .map((ur) => ur.roles?.name as RoleName)
       .filter((name): name is RoleName => !!name);
 
-    if (!roles.includes(role)) {
+    if (!roles.includes(role) && !roles.includes("super_admin")) {
       throw new AuthorizationError(`Access denied. Required role: ${role}`);
     }
 

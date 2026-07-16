@@ -1,5 +1,6 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { logger } from "@/services/logger";
+import { GPSSecurityValidator, GPSPing } from "@/lib/security/gps-validator";
 
 /**
  * Enterprise Fraud Detector Foundation.
@@ -34,14 +35,15 @@ export class FraudDetector {
 
       logger.info(`[FraudDetector] Registered ${signalType} alert signal (score: ${score}) for user ${userId || "guest"}`);
       return { success: true, signalId: data.id };
-    } catch {
-      logger.warn(`[FraudDetector] Bypassed database logging. Alerting: ${signalType}. Score: ${score}`, details);
+    } catch (err) {
+      logger.warn(`[FraudDetector] Bypassed database logging. Alerting: ${signalType}. Score: ${score}`, err as Record<string, unknown>);
       return { success: true, signalId: crypto.randomUUID() };
     }
   }
 
   /**
    * Evaluates suspicious coordinate jumps (Fake Location checks).
+   * Uses GPSSecurityValidator as the single source of truth.
    */
   static async checkLocationAnomaly(
     userId: string,
@@ -53,24 +55,24 @@ export class FraudDetector {
   ): Promise<boolean> {
     if (!lastLat || !lastLon || !timeDeltaSeconds || timeDeltaSeconds <= 0) return false;
 
-    // Calculate distance (simple speed check)
-    const R = 6371e3; // Earth radius in meters
-    const phi1 = (currentLat * Math.PI) / 180;
-    const phi2 = (lastLat * Math.PI) / 180;
-    const deltaPhi = ((lastLat - currentLat) * Math.PI) / 180;
-    const deltaLambda = ((lastLon - currentLon) * Math.PI) / 180;
+    const p1: GPSPing = {
+      latitude: lastLat,
+      longitude: lastLon,
+      timestamp: 0,
+      accuracyMeters: 5,
+    };
+    
+    const p2: GPSPing = {
+      latitude: currentLat,
+      longitude: currentLon,
+      timestamp: timeDeltaSeconds * 1000,
+      accuracyMeters: 5,
+    };
 
-    const a =
-      Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-      Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distanceMeters = R * c;
+    const check = GPSSecurityValidator.detectLocationJump(p1, p2);
 
-    const speedMps = distanceMeters / timeDeltaSeconds;
-    const speedKmh = speedMps * 3.6;
-
-    // If speed exceeds 250 km/h (impossible travel check), register location anomaly signal
-    if (speedKmh > 250) {
+    if (check.isSpoofed) {
+      const speedKmh = check.speedMps * 3.6;
       await this.logSignal(userId, "location_mismatch", 0.85, {
         current_coordinates: `${currentLat}, ${currentLon}`,
         last_coordinates: `${lastLat}, ${lastLon}`,

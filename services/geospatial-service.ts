@@ -1,6 +1,7 @@
 import { HttpClient } from "@/lib/http/client";
 import { logger } from "@/lib/observability/logger";
 import { env } from "@/config/env";
+import { GPSSecurityValidator, GPSPing } from "@/lib/security/gps-validator";
 
 import {
   LatLon,
@@ -347,15 +348,22 @@ export class GeospatialService {
 
   /**
    * Validates GPS parameters. Detects speed anomalies, jumps, and poor signal alerts.
+   * Utilizes GPSSecurityValidator as the single source of truth.
    */
   static detectSpoofing(
     userId: string,
     current: LatLon & { accuracy: number; timestamp: number },
     lastPing?: { latitude: number; longitude: number; timestamp: number }
   ): SpoofCheckResult {
-    const accuracyThreshold = 50.0; // max acceptable error in meters
+    logger.info(`[GeospatialService] Running spoofing telemetry check for user: ${userId}`);
+    const ping: GPSPing = {
+      latitude: current.latitude,
+      longitude: current.longitude,
+      timestamp: current.timestamp,
+      accuracyMeters: current.accuracy,
+    };
 
-    if (current.accuracy > accuracyThreshold) {
+    if (!GPSSecurityValidator.validateAccuracy(ping)) {
       return {
         isSpoofed: false,
         reason: "Poor GPS signal accuracy. Accuracy exceeds threshold.",
@@ -367,41 +375,19 @@ export class GeospatialService {
       return { isSpoofed: false, accuracyMeters: current.accuracy };
     }
 
-    const timeDiffSeconds = (current.timestamp - lastPing.timestamp) / 1000;
-    
-    // Prevent division by zero
-    if (timeDiffSeconds <= 0) {
-      return { isSpoofed: false, accuracyMeters: current.accuracy };
-    }
+    const prevPing: GPSPing = {
+      latitude: lastPing.latitude,
+      longitude: lastPing.longitude,
+      timestamp: lastPing.timestamp,
+      accuracyMeters: 5,
+    };
 
-    const distance = this.calculateDistance(lastPing, current);
-    const speedMps = distance / timeDiffSeconds;
-
-    // Speeds exceeding 50 m/s (180 km/h) are flagged as spoofed/impossible
-    const speedLimitMps = 50.0;
-    if (speedMps > speedLimitMps) {
-      logger.warn(`Impossible speed jump detected for user [${userId}]: ${speedMps.toFixed(2)} m/s over ${timeDiffSeconds.toFixed(1)}s.`);
-      return {
-        isSpoofed: true,
-        reason: "Location jump detected: Velocity exceeds physical limits.",
-        speedMps,
-        accuracyMeters: current.accuracy,
-      };
-    }
-
-    // Teleportation verification (short time, large jumps)
-    if (timeDiffSeconds < 2.0 && distance > 150) {
-      return {
-        isSpoofed: true,
-        reason: "Location jump detected: Teleportation anomalous ping.",
-        speedMps,
-        accuracyMeters: current.accuracy,
-      };
-    }
+    const check = GPSSecurityValidator.detectLocationJump(prevPing, ping);
 
     return {
-      isSpoofed: false,
-      speedMps,
+      isSpoofed: check.isSpoofed,
+      reason: check.reason,
+      speedMps: check.speedMps,
       accuracyMeters: current.accuracy,
     };
   }

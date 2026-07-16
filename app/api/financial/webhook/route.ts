@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const webhookSecret = process.env["PAYMENT_WEBHOOK_SECRET"] || "mock_webhook_secret";
     const isValid = adapter.verifyWebhookSignature(rawBody, signature, webhookSecret);
 
-    if (!isValid && signature !== "sandbox_test_signature") {
+    if (!isValid) {
       logger.warn(`[PaymentWebhook] Rejected webhook request due to invalid signature checksum.`);
       return NextResponse.json({ success: false, error: "Invalid signature verification." }, { status: 401 });
     }

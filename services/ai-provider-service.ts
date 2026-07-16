@@ -1,10 +1,8 @@
-
-
 import { createServerClient } from "@/lib/supabase/server";
 import { logger } from "@/services/logger";
 
 // ─────────────────────────────────────────────────────────────────
-// AI Provider Adapters
+// AI Provider Adapters & Types
 // ─────────────────────────────────────────────────────────────────
 
 export interface AIEmbeddingResult {
@@ -29,12 +27,13 @@ interface AIProviderAdapter {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// Ollama Adapter (Default Local Provider)
+// Ollama Adapter (Local Provider)
 // ─────────────────────────────────────────────────────────────────
 
 const OLLAMA_BASE_URL = process.env["OLLAMA_URL"] || "http://localhost:11434";
-const OLLAMA_EMBED_MODEL = "nomic-embed-text";
-const OLLAMA_CHAT_MODEL = "gemma";
+const OLLAMA_EMBED_MODEL = process.env["EMBEDDING_MODEL"] || "all-minilm"; // Defaulting to 384-dimension all-minilm
+const OLLAMA_CHAT_MODEL = process.env["CHAT_MODEL"] || "gemma";
+const EXPECTED_DIMENSION = Number(process.env["EMBEDDING_DIMENSION"] || "384");
 
 class OllamaAdapter implements AIProviderAdapter {
   name = "ollama";
@@ -48,7 +47,7 @@ class OllamaAdapter implements AIProviderAdapter {
         body: JSON.stringify({ model: OLLAMA_EMBED_MODEL, prompt: text }),
       });
 
-      if (!res.ok) throw new Error(`Ollama embed returned ${res.status}`);
+      if (!res.ok) throw new Error(`Ollama embed returned status ${res.status}`);
 
       const data = await res.json() as { embedding: number[] };
       const latencyMs = Date.now() - start;
@@ -60,8 +59,8 @@ class OllamaAdapter implements AIProviderAdapter {
         inputTokens: Math.ceil(text.length / 4),
         latencyMs,
       };
-    } catch {
-      logger.warn("[AIProvider:Ollama] Embed request failed. Returning deterministic mock embedding.");
+    } catch (err) {
+      logger.warn(`[AIProvider:Ollama] Request failed, using fallback mock: ${err instanceof Error ? err.message : String(err)}`);
       return this.mockEmbed(text, start);
     }
   }
@@ -79,7 +78,7 @@ class OllamaAdapter implements AIProviderAdapter {
         body: JSON.stringify({ model: OLLAMA_CHAT_MODEL, messages, stream: false }),
       });
 
-      if (!res.ok) throw new Error(`Ollama chat returned ${res.status}`);
+      if (!res.ok) throw new Error(`Ollama chat returned status ${res.status}`);
 
       const data = await res.json() as { message?: { content?: string } };
       const latencyMs = Date.now() - start;
@@ -93,17 +92,15 @@ class OllamaAdapter implements AIProviderAdapter {
         outputTokens: Math.ceil(text.length / 4),
         latencyMs,
       };
-    } catch {
-      logger.warn("[AIProvider:Ollama] Chat request failed. Returning mock completion.");
+    } catch (err) {
+      logger.warn(`[AIProvider:Ollama] Request failed, using fallback mock: ${err instanceof Error ? err.message : String(err)}`);
       return this.mockComplete(prompt, start);
     }
   }
 
-  // ── Deterministic sandbox fallbacks ──
-
   private mockEmbed(text: string, startTime: number): AIEmbeddingResult {
-    // Generate a deterministic 384-dim vector from text hash
-    const embedding = new Array(384).fill(0).map((_, i) => {
+    // Generate a deterministic vector matching expected dimension length from text hash
+    const embedding = new Array(EXPECTED_DIMENSION).fill(0).map((_, i) => {
       const charCode = text.charCodeAt(i % text.length) || 0;
       return parseFloat(((charCode * 0.00123 + i * 0.00071) % 1).toFixed(6));
     });
@@ -138,13 +135,39 @@ class OllamaAdapter implements AIProviderAdapter {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// Provider Registry
+// Configurable Provider Registry
 // ─────────────────────────────────────────────────────────────────
 
-type ProviderName = "ollama";
+type ProviderName = "ollama" | "sandbox";
 
 const ADAPTERS: Record<ProviderName, AIProviderAdapter> = {
   ollama: new OllamaAdapter(),
+  sandbox: {
+    name: "sandbox",
+    async embed(text: string) {
+      const start = Date.now();
+      const embedding = new Array(EXPECTED_DIMENSION).fill(0).map((_, i) => {
+        const charCode = text.charCodeAt(i % text.length) || 0;
+        return parseFloat(((charCode * 0.00123 + i * 0.00071) % 1).toFixed(6));
+      });
+      return {
+        embedding,
+        model: "sandbox-embed",
+        inputTokens: Math.ceil(text.length / 4),
+        latencyMs: Date.now() - start,
+      };
+    },
+    async complete(prompt: string) {
+      const start = Date.now();
+      return {
+        text: "Sandbox completions simulation.",
+        model: "sandbox-chat",
+        inputTokens: Math.ceil(prompt.length / 4),
+        outputTokens: 8,
+        latencyMs: Date.now() - start,
+      };
+    }
+  }
 };
 
 /**
@@ -152,10 +175,26 @@ const ADAPTERS: Record<ProviderName, AIProviderAdapter> = {
  * Unified access layer for embeddings, completions, and AI task logging.
  */
 export class AIProviderService {
-  private static defaultProvider: ProviderName = "ollama";
+  private static defaultProvider: ProviderName = (process.env["EMBEDDING_PROVIDER"] as ProviderName) || "ollama";
 
   static getAdapter(provider?: ProviderName): AIProviderAdapter {
-    return ADAPTERS[provider || this.defaultProvider];
+    const active = provider || this.defaultProvider;
+    if (!ADAPTERS[active]) {
+      throw new Error(`AI Provider adapter '${active}' is not registered.`);
+    }
+    return ADAPTERS[active];
+  }
+
+  /**
+   * Validate generated vector dimension length to prevent DB schema conflicts.
+   */
+  static validateEmbedding(embedding: number[]): void {
+    if (!Array.isArray(embedding)) {
+      throw new Error("Invalid embedding structure: must be a numeric array.");
+    }
+    if (embedding.length !== EXPECTED_DIMENSION) {
+      throw new Error(`Embedding vector size mismatch: database expects ${EXPECTED_DIMENSION}, provider generated ${embedding.length}.`);
+    }
   }
 
   /**
@@ -164,6 +203,10 @@ export class AIProviderService {
   static async embed(text: string, userId?: string, provider?: ProviderName): Promise<AIEmbeddingResult> {
     const adapter = this.getAdapter(provider);
     const result = await adapter.embed(text);
+    
+    // Auto-detect and validate the dimension sizes
+    this.validateEmbedding(result.embedding);
+
     await this.logUsage(userId || null, adapter.name, result.model, "embedding", result.inputTokens, 0, result.latencyMs);
     return result;
   }

@@ -1,28 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/services/logger";
 import { ModerationService } from "@/services/moderation-service";
+import { AuthorizationGuard } from "@/lib/authorization/guard";
+import { PERMISSIONS } from "@/lib/authorization/permissions";
 
 /**
- * GET /api/admin/moderation — Queue + stats.
+ * GET /api/admin/moderation — Secure Queue + stats.
  */
 export async function GET() {
   try {
+    // 1. Enforce strict permissions authorization check
+    try {
+      await AuthorizationGuard.assertPermission(PERMISSIONS.MODERATION_VIEW);
+    } catch {
+      return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
+    }
+
     const [items, stats] = await Promise.all([
       ModerationService.getPendingQueue(50),
       ModerationService.getStats(),
     ]);
     return NextResponse.json({ success: true, data: { items, stats } });
-  } catch {
-    return NextResponse.json({ success: true, data: { items: [], stats: { pending: 0, inReview: 0, resolvedToday: 0, escalated: 0, avgResolutionHours: 0 } } });
+  } catch (err) {
+    logger.error("[API:Admin:Moderation] Queue fetch failed:", err as Record<string, unknown>);
+    return NextResponse.json({ success: false, error: "Moderation queue fetch failed." }, { status: 500 });
   }
 }
 
 /**
- * POST /api/admin/moderation — Take action on a queue item.
+ * POST /api/admin/moderation — Securely take action on a queue item.
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { itemId?: string; action?: "approved" | "rejected" | "escalated"; note?: string; actorId?: string };
+    // 1. Enforce strict permissions authorization check
+    let userId: string;
+    try {
+      userId = await AuthorizationGuard.assertPermission(PERMISSIONS.MODERATION_ACTION);
+    } catch {
+      return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
+    }
+
+    const body = await req.json() as { itemId?: string; action?: "approved" | "rejected" | "escalated"; note?: string };
     if (!body.itemId || !body.action) {
       return NextResponse.json({ success: false, error: "itemId and action are required." }, { status: 400 });
     }
@@ -30,13 +48,14 @@ export async function POST(req: NextRequest) {
     const result = await ModerationService.takeAction(
       body.itemId,
       body.action,
-      body.actorId || "system",
+      userId, // Use authenticated actor's userId
       body.note
     );
 
-    logger.info(`[API:Admin:Moderation] ${body.action} on ${body.itemId}`);
+    logger.info(`[API:Admin:Moderation] Action ${body.action} executed on item ${body.itemId} by moderator ${userId}`);
     return NextResponse.json({ success: true, data: result });
-  } catch {
+  } catch (err) {
+    logger.error("[API:Admin:Moderation] Action failed:", err as Record<string, unknown>);
     return NextResponse.json({ success: false, error: "Moderation action failed." }, { status: 500 });
   }
 }

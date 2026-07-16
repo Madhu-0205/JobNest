@@ -23,10 +23,10 @@ export function parseUserAgent(uaString: string): ParsedUserAgent {
     deviceType = "tablet";
   }
 
-  if (lowercaseUa.includes("windows")) os = "Windows";
-  else if (lowercaseUa.includes("macintosh") || lowercaseUa.includes("mac os")) os = "macOS";
+  if (lowercaseUa.includes("iphone") || lowercaseUa.includes("ipad")) os = "iOS";
   else if (lowercaseUa.includes("android")) os = "Android";
-  else if (lowercaseUa.includes("iphone") || lowercaseUa.includes("ipad")) os = "iOS";
+  else if (lowercaseUa.includes("windows")) os = "Windows";
+  else if (lowercaseUa.includes("macintosh") || lowercaseUa.includes("mac os")) os = "macOS";
   else if (lowercaseUa.includes("linux")) os = "Linux";
 
   if (lowercaseUa.includes("chrome") || lowercaseUa.includes("crios")) browser = "Chrome";

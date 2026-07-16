@@ -7,7 +7,11 @@ INSERT INTO public.roles (name, description) VALUES
 ('worker', 'Gig workers applying for jobs and requesting payouts'),
 ('resident', 'Local residents looking to post personal chores'),
 ('student', 'Students applying for local part-time gigs'),
-('guest', 'Anonymous viewer of public listings')
+('guest', 'Anonymous viewer of public listings'),
+('operations', 'Operations team manager'),
+('finance_admin', 'Finance administrator'),
+('trust_safety', 'Trust and Safety auditor'),
+('analyst', 'Data and business analyst')
 ON CONFLICT (name) DO NOTHING;
 
 -- 2. SEED DEFAULT PERMISSIONS
@@ -25,7 +29,19 @@ INSERT INTO public.permissions (name, description) VALUES
 ('wallet:view', 'Check wallet statements and balance'),
 ('users:manage', 'Suspend/reactivate users'),
 ('system:settings', 'Configure global application parameters'),
-('audit:view', 'Access system security log feeds')
+('audit:view', 'Access system security log feeds'),
+('moderation:view', 'View content moderation queue'),
+('moderation:action', 'Approve or reject content reviews'),
+('support:view', 'View help desk support tickets'),
+('support:manage', 'Respond and close support tickets'),
+('analytics:view', 'View platform usage analytics'),
+('analytics:export', 'Export system reports'),
+('finance:view', 'View platform ledger balance sheet'),
+('finance:manage', 'Trigger payout processing batch jobs'),
+('fraud:view', 'Inspect security fraud signals'),
+('fraud:manage', 'Configure fraud prevention rules'),
+('config:view', 'Inspect feature flag settings'),
+('config:manage', 'Update active feature flags')
 ON CONFLICT (name) DO NOTHING;
 
 -- 3. LINK ROLES AND PERMISSIONS
@@ -41,7 +57,7 @@ INSERT INTO public.role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM public.roles r, public.permissions p
 WHERE r.name = 'admin'
-AND p.name IN ('jobs:view', 'jobs:delete', 'profiles:view', 'profiles:verify', 'wallet:view', 'users:manage', 'audit:view')
+AND p.name IN ('jobs:view', 'jobs:delete', 'profiles:view', 'profiles:verify', 'wallet:view', 'users:manage', 'audit:view', 'moderation:view', 'moderation:action', 'support:view', 'support:manage', 'analytics:view', 'analytics:export', 'finance:view', 'fraud:view', 'config:view')
 ON CONFLICT DO NOTHING;
 
 -- C. Moderator mappings
@@ -49,7 +65,7 @@ INSERT INTO public.role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM public.roles r, public.permissions p
 WHERE r.name = 'moderator'
-AND p.name IN ('jobs:view', 'jobs:delete', 'profiles:view', 'profiles:verify')
+AND p.name IN ('jobs:view', 'jobs:delete', 'profiles:view', 'profiles:verify', 'moderation:view', 'moderation:action', 'support:view')
 ON CONFLICT DO NOTHING;
 
 -- D. Employer mappings
@@ -90,6 +106,38 @@ SELECT r.id, p.id
 FROM public.roles r, public.permissions p
 WHERE r.name = 'guest'
 AND p.name IN ('jobs:view')
+ON CONFLICT DO NOTHING;
+
+-- I. Operations mappings
+INSERT INTO public.role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM public.roles r, public.permissions p
+WHERE r.name = 'operations'
+AND p.name IN ('jobs:view', 'profiles:view', 'moderation:view', 'moderation:action', 'support:view', 'support:manage', 'analytics:view', 'fraud:view', 'audit:view')
+ON CONFLICT DO NOTHING;
+
+-- J. Finance Admin mappings
+INSERT INTO public.role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM public.roles r, public.permissions p
+WHERE r.name = 'finance_admin'
+AND p.name IN ('jobs:view', 'profiles:view', 'wallet:view', 'finance:view', 'finance:manage', 'analytics:view', 'analytics:export', 'audit:view')
+ON CONFLICT DO NOTHING;
+
+-- K. Trust & Safety mappings
+INSERT INTO public.role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM public.roles r, public.permissions p
+WHERE r.name = 'trust_safety'
+AND p.name IN ('jobs:view', 'jobs:delete', 'profiles:view', 'profiles:verify', 'moderation:view', 'moderation:action', 'fraud:view', 'fraud:manage', 'support:view', 'audit:view')
+ON CONFLICT DO NOTHING;
+
+-- L. Analyst mappings
+INSERT INTO public.role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM public.roles r, public.permissions p
+WHERE r.name = 'analyst'
+AND p.name IN ('jobs:view', 'profiles:view', 'analytics:view', 'analytics:export', 'finance:view', 'audit:view')
 ON CONFLICT DO NOTHING;
 
 -- 4. SEED DEFAULT LANGUAGES
@@ -156,12 +204,12 @@ ON CONFLICT (name_key) DO NOTHING;
 
 -- 7. SEED OPPORTUNITY TYPES
 INSERT INTO public.opportunity_types (name_key) VALUES
-('types.permanent', 'types.desc.permanent'),
-('types.part_time', 'types.desc.part_time'),
-('types.internship', 'types.desc.internship'),
-('types.freelance', 'types.desc.freelance'),
-('types.daily_wage', 'types.desc.daily_wage'),
-('types.hourly', 'types.desc.hourly'),
-('types.weekly_contract', 'types.desc.weekly_contract'),
-('types.temporary', 'types.desc.temporary')
+('types.permanent'),
+('types.part_time'),
+('types.internship'),
+('types.freelance'),
+('types.daily_wage'),
+('types.hourly'),
+('types.weekly_contract'),
+('types.temporary')
 ON CONFLICT (name_key) DO NOTHING;

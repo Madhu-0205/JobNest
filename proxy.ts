@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 /**
- * Enterprise HTTP Request Lifecycle Proxy (Next.js Middleware).
+ * Enterprise HTTP Request Lifecycle Proxy (Next.js Proxy).
  * - Injects Correlation IDs and Request IDs
  * - Standardizes headers for tracecontext propagation
  * - Synchronizes and refreshes Supabase Auth session cookies
