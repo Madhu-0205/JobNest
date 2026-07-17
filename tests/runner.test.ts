@@ -2,7 +2,7 @@ import { test, expect } from "vitest";
 import { verifySignUpValidation, verifyLoginValidation, verifyUserAgentParsing, verifyRateLimiting } from "./unit/auth.test";
 import { verifyGeohashEncoding, verifyDistanceCalculations, verifyETAEstimation, verifyGPSSecurity } from "./unit/geospatial.test";
 import { verifyRequestContextPropagation, verifyResultMonadSuccess, verifyResultMonadFailure } from "./unit/infra.test";
-import { verifyOpportunitySchema, verifyApplicationSchema, verifyOfferSchema } from "./unit/opportunity.test";
+import { verifyOpportunitySchema, verifyApplicationSchema, verifyOfferSchema, verifyTransactionScenario } from "./unit/opportunity.test";
 import { verifyEnvLoading } from "./unit/env.test";
 
 test("Environment - verifyEnvLoading", () => {
@@ -63,4 +63,8 @@ test("Opportunity - verifyApplicationSchema", () => {
 
 test("Opportunity - verifyOfferSchema", () => {
   expect(verifyOfferSchema()).toBe(true);
+});
+
+test("Opportunity - verifyTransactionScenario", async () => {
+  expect(await verifyTransactionScenario()).toBe(true);
 });

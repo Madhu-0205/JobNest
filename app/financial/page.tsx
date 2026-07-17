@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ProductShell } from "@/components/ProductShell";
 import { useWallet } from "@/hooks/useWallet";
 import { useEscrow } from "@/hooks/useEscrow";
 import { useInvoices } from "@/hooks/useInvoices";
@@ -115,23 +116,8 @@ export default function FinancialDashboard() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-background text-foreground">
-      {/* Luxury Gold Header */}
-      <header className="sticky top-0 z-40 w-full glass-panel border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-linear-to-r from-amber-500 to-amber-600 flex items-center justify-center text-background font-extrabold text-lg">
-              ₹
-            </span>
-            <Typography variant="h3" as="span" className="font-bold tracking-tight text-xl">
-              JobNest Financial cockpit
-            </Typography>
-          </div>
-        </div>
-      </header>
-
-      {/* Grid Panels */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <ProductShell>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left column: Wallet board & ledger audit */}
         <div className="lg:col-span-1 flex flex-col gap-6">
@@ -482,7 +468,7 @@ export default function FinancialDashboard() {
 
         </div>
 
-      </main>
-    </div>
+      </div>
+    </ProductShell>
   );
 }

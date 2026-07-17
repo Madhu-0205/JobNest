@@ -70,7 +70,7 @@ export function MapControls() {
         variant="outline"
         size="icon"
         onClick={handleToggleFullscreen}
-        className="w-10 h-10 rounded-xl glass-card border border-primary/20 bg-background/95 text-primary hover:bg-primary/5 flex items-center justify-center"
+        className="hidden md:flex w-10 h-10 rounded-xl glass-card border border-primary/20 bg-background/95 text-primary hover:bg-primary/5 items-center justify-center"
       >
         <Maximize className="w-4 h-4" />
       </Button>

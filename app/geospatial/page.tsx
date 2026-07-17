@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useI18n } from "@/lib/i18n/context";
+import { ProductShell } from "@/components/ProductShell";
 import { MaplibreMap, MapMarker, MapGeofence } from "@/components/MaplibreMap";
 import { OfflineMapIndicator } from "@/components/OfflineMapIndicator";
-import { useGeolocation } from "@/hooks/useGeolocation";
+import { useCurrentLocation } from "@/hooks/useCurrentLocation";
 import { useGeofencing } from "@/hooks/useGeofencing";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -15,7 +17,7 @@ import { NormalizedAddress, RouteResult, SpoofCheckResult } from "@/utils/geospa
 
 export default function GeospatialDashboard() {
   // Locale State
-  const [locale, setLocale] = useState("en");
+  const { locale } = useI18n();
 
   // Map Coordinates Center
   const [centerLat, setCenterLat] = useState(12.9716); // Bangalore standard default coordinates
@@ -63,7 +65,7 @@ export default function GeospatialDashboard() {
   const [newPresetLabel, setNewPresetLabel] = useState("My Work Farm");
 
   // Geolocation Hook & Controls
-  const geoControls = useGeolocation();
+  const geoControls = useCurrentLocation();
   
   // Geofencing state tracker
   const { activeFences } = useGeofencing({
@@ -287,43 +289,8 @@ export default function GeospatialDashboard() {
   });
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-40 w-full glass-panel border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-linear-to-r from-primary to-amber-600 flex items-center justify-center text-background font-extrabold text-lg">
-              J
-            </span>
-            <Typography variant="h3" as="span" className="font-bold tracking-tight text-xl">
-              JobNest Geospatial Intelligence
-            </Typography>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <select
-              value={locale}
-              onChange={(e) => setLocale(e.target.value)}
-              className="bg-muted text-foreground text-xs font-semibold px-2 py-1.5 rounded-lg border border-border outline-none cursor-pointer"
-              aria-label="Select locale language"
-            >
-              <option value="en">English (EN)</option>
-              <option value="hi">हिंदी (HI)</option>
-              <option value="te">తెలుగు (TE)</option>
-              <option value="ta">தமிழ் (TA)</option>
-              <option value="kn">ಕನ್ನಡ (KN)</option>
-              <option value="mr">मराठी (MR)</option>
-            </select>
-
-            <Badge variant="primary" className="text-xs">
-              Phase 5 Active
-            </Badge>
-          </div>
-        </div>
-      </header>
-
-      {/* Content layout */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <ProductShell>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Columns - Configuration Panels */}
         <div className="lg:col-span-1 flex flex-col gap-6">
@@ -683,7 +650,7 @@ export default function GeospatialDashboard() {
 
         </div>
 
-      </main>
-    </div>
+      </div>
+    </ProductShell>
   );
 }

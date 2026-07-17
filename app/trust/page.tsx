@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ProductShell } from "@/components/ProductShell";
 import { useVerification } from "@/hooks/useVerification";
 import { useSafetySOS } from "@/hooks/useSafetySOS";
 import { useDisputes } from "@/hooks/useDisputes";
@@ -475,7 +476,8 @@ export default function TrustDashboard() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-background text-foreground">
+    <ProductShell>
+      <div className="hidden">
       {/* Luxury Header */}
       <header className="sticky top-0 z-40 w-full glass-panel border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -513,9 +515,20 @@ export default function TrustDashboard() {
           </div>
         </div>
       </header>
+      </div>
 
-      {/* Main Content Grid */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="flex justify-between items-center gap-4 mb-4">
+        <div>
+          <Typography variant="h2" className="font-bold gold-gradient-text">{t.title}</Typography>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="primary" className="text-xs">
+            Phase 5 Audit Active
+          </Badge>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Column: Trust Scoring & Badges */}
         <div className="lg:col-span-1 flex flex-col gap-6">
@@ -982,8 +995,7 @@ export default function TrustDashboard() {
           </Card>
 
         </div>
-
-      </main>
-    </div>
+      </div>
+    </ProductShell>
   );
 }

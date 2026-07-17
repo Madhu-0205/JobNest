@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { ProductShell } from "@/components/ProductShell";
 import { usePresence } from "@/hooks/usePresence";
 import { useChat } from "@/hooks/useChat";
 import { useLiveTracking } from "@/hooks/useLiveTracking";
@@ -163,40 +164,28 @@ export default function RealtimeDashboard() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-background text-foreground">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-40 w-full glass-panel border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-linear-to-r from-primary to-amber-600 flex items-center justify-center text-background font-extrabold text-lg">
-              R
-            </span>
-            <Typography variant="h3" as="span" className="font-bold tracking-tight text-xl">
-              JobNest Live Operations Cockpit
-            </Typography>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <label className="text-xs font-semibold text-muted-foreground mr-1">Context Profile:</label>
-            <select
-              value={activeProfile}
-              onChange={(e) => setActiveProfile(e.target.value as "worker" | "employer")}
-              className="bg-muted text-foreground text-xs font-semibold px-2 py-1.5 rounded-lg border border-border outline-none cursor-pointer"
-              aria-label="Select active profile simulation context"
-            >
-              <option value="worker">Arun (Worker)</option>
-              <option value="employer">Nisha (Employer)</option>
-            </select>
-
-            <Badge variant={offlineSync.isOffline ? "danger" : "success"} className="text-xs">
-              {offlineSync.isOffline ? "⚠️ Offline Mode" : "🟢 Live Sync Active"}
-            </Badge>
-          </div>
+    <ProductShell>
+      <div className="flex justify-between items-center gap-4 mb-4">
+        <div>
+          <Typography variant="h2" className="font-bold gold-gradient-text">Live Operations Cockpit</Typography>
         </div>
-      </header>
-
-      {/* Main Operations Panels Layout */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-semibold text-muted-foreground">Simulation Profile:</label>
+          <select
+            value={activeProfile}
+            onChange={(e) => setActiveProfile(e.target.value as "worker" | "employer")}
+            className="bg-muted text-foreground text-xs font-semibold px-2 py-1 rounded-lg border border-border outline-none cursor-pointer"
+            aria-label="Select active profile simulation context"
+          >
+            <option value="worker">Arun (Worker)</option>
+            <option value="employer">Nisha (Employer)</option>
+          </select>
+          <Badge variant={offlineSync.isOffline ? "danger" : "success"} className="text-xs">
+            {offlineSync.isOffline ? "⚠️ Offline Mode" : "🟢 Live Sync Active"}
+          </Badge>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Column: Presence & Chat Window */}
         <div className="lg:col-span-1 flex flex-col gap-6">
@@ -506,7 +495,7 @@ export default function RealtimeDashboard() {
           </Card>
 
         </div>
-      </main>
-    </div>
+      </div>
+    </ProductShell>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n/context";
+import { ProductShell } from "@/components/ProductShell";
 import { useSemanticSearch } from "@/hooks/useSemanticSearch";
 import { useAiRecommendations } from "@/hooks/useAiRecommendations";
 import { useProfileEnhancement } from "@/hooks/useProfileEnhancement";
@@ -236,12 +238,6 @@ const FRAUD_ALERTS: FraudAlert[] = [
 // Dashboard Component
 // ─────────────────────────────────────────────────────────────────
 
-const LANGUAGES = [
-  { code: "en", label: "English" }, { code: "hi", label: "हिन्दी" },
-  { code: "te", label: "తెలుగు" }, { code: "ta", label: "தமிழ்" },
-  { code: "kn", label: "ಕನ್ನಡ" },
-];
-
 const TARGET_LANGUAGES = [
   { code: "hi", label: "Hindi" }, { code: "te", label: "Telugu" },
   { code: "ta", label: "Tamil" }, { code: "kn", label: "Kannada" },
@@ -252,7 +248,8 @@ const TARGET_LANGUAGES = [
 ];
 
 export default function AIDashboard() {
-  const [lang, setLang] = useState("en");
+  const { locale } = useI18n();
+  const lang = locale;
   const t = TRANSLATIONS[lang] || TRANSLATIONS["en"];
 
   // Semantic Search
@@ -305,27 +302,11 @@ export default function AIDashboard() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0d1b2a 70%, #0a0a1a 100%)", padding: "32px 24px" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-
+    <ProductShell>
+      <div className="flex flex-col gap-6" style={{ fontFamily: "var(--font-inter, -apple-system, sans-serif)" }}>
+        
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 16 }}>
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                style={{
-                  padding: "6px 16px", borderRadius: 20, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
-                  background: lang === l.code ? "linear-gradient(135deg, #7c3aed, #06b6d4)" : "rgba(255,255,255,0.06)",
-                  color: lang === l.code ? "#fff" : "rgba(255,255,255,0.5)",
-                  transition: "all 0.3s ease",
-                }}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
           <Typography variant="h1" style={{ background: "linear-gradient(135deg, #7c3aed, #06b6d4, #10b981)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: 36, fontWeight: 800, letterSpacing: -1 }}>
             🧠 {t.title}
           </Typography>
@@ -600,6 +581,6 @@ export default function AIDashboard() {
         </div>
 
       </div>
-    </div>
+    </ProductShell>
   );
 }

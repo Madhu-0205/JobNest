@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useI18n } from "@/lib/i18n/context";
+import { ProductShell } from "@/components/ProductShell";
 import { useAdminAnalytics } from "@/hooks/useAdminAnalytics";
 import { useModeration } from "@/hooks/useModeration";
 import { useSupport } from "@/hooks/useSupport";
@@ -229,19 +231,10 @@ const TABS: { key: Tab; icon: string }[] = [
   { key: "reports", icon: "📈" },
 ];
 
-const LANGS: { code: Lang; label: string }[] = [
-  { code: "en", label: "EN" }, { code: "hi", label: "हि" },
-  { code: "te", label: "తె" }, { code: "ta", label: "த" },
-  { code: "kn", label: "ಕ" },
-];
-
-// ─────────────────────────────────────────────────────────────────
-// Main Dashboard Component
-// ─────────────────────────────────────────────────────────────────
-
 export default function AdminDashboard() {
+  const { locale } = useI18n();
   const [tab, setTab] = useState<Tab>("overview");
-  const [lang, setLang] = useState<Lang>("en");
+  const lang = (["en", "hi", "te", "ta", "kn"].includes(locale) ? locale : "en") as Lang;
   const t = T[lang];
 
   const analytics = useAdminAnalytics();
@@ -298,28 +291,8 @@ export default function AdminDashboard() {
   const kpis = analytics.dashboard?.kpis;
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #04040f 0%, #0d0d1e 40%, #050d1a 100%)", color: "#fff", fontFamily: "var(--font-inter, -apple-system, sans-serif)" }}>
-
-      {/* ── Top Bar ─────────────────────────────────────────── */}
-      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.02)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 100 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 800, background: "linear-gradient(135deg, #7c3aed, #06b6d4, #10b981)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-            🏢 {t.title}
-          </h1>
-          <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{t.subtitle}</p>
-        </div>
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          {/* Live pulse */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 20, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 6px #10b981", display: "block", animation: "pulse 2s infinite" }} />
-            <span style={{ fontSize: 11, color: "#10b981" }}>Live</span>
-          </div>
-          {/* Language switcher */}
-          {LANGS.map((l) => (
-            <button key={l.code} onClick={() => setLang(l.code)} style={{ padding: "4px 10px", borderRadius: 12, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700, background: lang === l.code ? "linear-gradient(135deg,#7c3aed,#06b6d4)" : "rgba(255,255,255,0.06)", color: lang === l.code ? "#fff" : "rgba(255,255,255,0.4)", transition: "all 0.2s" }}>{l.label}</button>
-          ))}
-        </div>
-      </div>
+    <ProductShell>
+      <div className="flex flex-col gap-6" style={{ fontFamily: "var(--font-inter, -apple-system, sans-serif)" }}>
 
       {/* ── Tab Navigation ──────────────────────────────────── */}
       <div style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "0 24px", display: "flex", gap: 4, overflowX: "auto" }}>
@@ -900,6 +873,7 @@ export default function AdminDashboard() {
         )}
 
       </div>
-    </div>
+      </div>
+    </ProductShell>
   );
 }

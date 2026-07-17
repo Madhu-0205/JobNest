@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
@@ -24,7 +26,8 @@ import {
   LogOut,
   Sliders,
   CheckCircle,
-  Lock
+  Lock,
+  Loader2
 } from "lucide-react";
 
 // UI Primitive Components
@@ -37,7 +40,20 @@ import { Input } from "@/components/ui/Input";
 
 // Sub-components & hooks
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { MapView } from "@/components/maps/MapView";
+import dynamic from "next/dynamic";
+
+const MapView = dynamic(
+  () => import("@/components/maps/MapView").then((mod) => mod.MapView),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[550px] rounded-3xl overflow-hidden border border-primary/10 shadow-xl bg-card flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <span className="text-xs text-muted-foreground">Loading interactive neighborhood map...</span>
+      </div>
+    ),
+  }
+);
 
 // Server action imports
 import { signInAction, signUpAction } from "@/features/auth/actions";
@@ -52,10 +68,23 @@ export default function PremiumHomePage() {
   // ─────────────────────────────────────────────────────────
   // STATE MANAGEMENT
   // ─────────────────────────────────────────────────────────
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, user, login, signup, logout } = useAuth();
+  const router = useRouter();
   const [userRole, setUserRole] = useState<UserRole>("worker");
   const [activeTab, setActiveTab] = useState<AppTab>("dashboard");
-  const userName = "Arun Kumar";
+  const userName = user?.name || "Arun Kumar";
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === "worker" && !user.onboardingCompleted) {
+        router.push("/onboarding");
+      } else if (user.role === "employer" && !user.employerOnboardingCompleted) {
+        router.push("/employer/onboarding");
+      } else {
+        router.push(user.role === "admin" ? "/admin" : `/${user.role}`);
+      }
+    }
+  }, [isAuthenticated, user, router]);
 
   // Onboarding & Modal States
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -180,13 +209,13 @@ export default function PremiumHomePage() {
           password: signupForm.password || "SecurePass123!",
         });
         if (result.success) {
-          setIsAuthenticated(true);
+          await login(signupForm.email || "demo@jobnest.io", signupForm.role || "worker", signupForm.displayName);
           setShowAuthModal(false);
           setSuccessMessage("Successfully authenticated.");
         } else {
           // Dev bypass for sandbox testing if Supabase is offline/mock
           console.warn("Auth action error, activating Sandbox mode:", result.error);
-          setIsAuthenticated(true);
+          await login(signupForm.email || "demo@jobnest.io", signupForm.role || "worker", signupForm.displayName);
           setShowAuthModal(false);
           setSuccessMessage("Logged in (Sandbox Dev Mode).");
         }
@@ -231,14 +260,12 @@ export default function PremiumHomePage() {
         preferredWorkArea: "Guntur",
         travelDistanceKm: 15,
       });
-      setKycStatus("pending");
-      setIsAuthenticated(true);
+      await signup(signupForm.email, signupForm.role, signupForm.displayName || signupForm.username || "Arun Kumar");
       setShowAuthModal(false);
       setSuccessMessage("Onboarding profile saved successfully!");
     } catch {
       // Sandbox fallback
-      setKycStatus("pending");
-      setIsAuthenticated(true);
+      await signup(signupForm.email, signupForm.role, signupForm.displayName || signupForm.username || "Arun Kumar");
       setShowAuthModal(false);
       setSuccessMessage("Profile saved in Sandbox Mode.");
     } finally {
@@ -388,7 +415,7 @@ export default function PremiumHomePage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setIsAuthenticated(false);
+                    logout();
                     setSuccessMessage("Logged out successfully.");
                   }}
                   className="flex items-center gap-1 text-xs"
@@ -444,24 +471,24 @@ export default function PremiumHomePage() {
               exit={{ opacity: 0, y: -15 }}
               className="flex flex-col gap-12 py-10"
             >
-              {/* Premium Hero section with gold glow overlay */}
-              <div className="relative text-center py-20 flex flex-col items-center gap-6 overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-b from-card/30 via-background to-background">
+              {/* Premium Hero section with gold glow overlay & integrated map */}
+              <div className="relative text-center py-10 flex flex-col items-center gap-6 overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-b from-card/30 via-background to-background px-4 md:px-8">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
                 
                 <Badge variant="primary" className="mb-2 border-primary/30 text-primary bg-primary/5">
                   🌟 AI-Powered Hyperlocal Opportunity Engine
                 </Badge>
                 
-                <Typography variant="h1" className="max-w-4xl tracking-tight leading-none text-5xl md:text-6xl font-extrabold">
+                <Typography variant="h1" className="max-w-4xl tracking-tight leading-none text-4xl md:text-5xl font-extrabold">
                   Connecting Skilled Locals with <span className="gold-gradient-text block sm:inline">Nearby Opportunities</span>
                 </Typography>
                 
-                <Typography variant="lead" className="max-w-2xl text-base md:text-lg text-muted-foreground">
+                <Typography variant="lead" className="max-w-2xl text-xs md:text-sm text-muted-foreground">
                   Find handymen, farmers, local service experts, or publish active gigs in your municipality with escrow protection, translation support, and live telemetry tracking.
                 </Typography>
 
                 {/* Hybrid AI Input box */}
-                <div className="w-full max-w-2xl flex flex-col sm:flex-row gap-2.5 p-2 rounded-2xl glass-panel border border-border/80 shadow-luxury mt-6">
+                <div className="w-full max-w-2xl flex flex-col sm:flex-row gap-2.5 p-2 rounded-2xl glass-panel border border-border/80 shadow-luxury mt-2 z-10">
                   <div className="flex-1 flex items-center gap-2 px-3">
                     <Search className="w-5 h-5 text-primary" />
                     <input
@@ -479,57 +506,99 @@ export default function PremiumHomePage() {
                 </div>
 
                 {AIResponsePanel()}
-              </div>
 
-              {/* Hyperlocal Live Map Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                <div className="lg:col-span-2 flex flex-col gap-4">
-                  <div className="flex justify-between items-center">
-                    <Typography variant="h3" className="font-bold flex items-center gap-2">
-                      <MapIcon className="w-5 h-5 text-primary" />
-                      Live Neighborhood Opportunities Map
-                    </Typography>
-                    <Badge variant="success">Realtime Telemetry</Badge>
-                  </div>
+                {/* Hero Interactive Map */}
+                <div className="w-full max-w-5xl mt-6 rounded-3xl overflow-hidden border border-border bg-card shadow-2xl relative">
                   <MapView mode="landing" />
                 </div>
-                <div className="flex flex-col gap-4 justify-between glass-card p-6 rounded-2xl">
-                  <div className="flex flex-col gap-3">
+              </div>
+
+              {/* Nearby Opportunities and Workers Below the Map */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Column 1: Nearby Opportunities Feed */}
+                <div className="flex flex-col gap-4 glass-card p-6 rounded-2xl">
+                  <div className="flex flex-col gap-1.5 border-b border-border/50 pb-3">
                     <Badge variant="secondary" className="w-fit">Beta Network</Badge>
-                    <Typography variant="h4" className="font-bold">Nearby Gigs Feed</Typography>
+                    <Typography variant="h3" className="font-bold flex items-center gap-2 text-foreground">
+                      <MapIcon className="w-5 h-5 text-primary" />
+                      Nearby Gigs Feed
+                    </Typography>
                     <Typography variant="muted" className="text-xs">
-                      Live posts within 3 km of Guntur, AP. Click to apply instantly.
+                      Live posts within 3 km of your current coordinates. Click to apply.
                     </Typography>
                   </div>
 
-                  <div className="flex flex-col gap-3.5 my-4">
-                    <div className="p-3 bg-secondary/40 border border-border rounded-xl hover:border-primary/20 transition-all">
+                  <div className="flex flex-col gap-3.5 my-2">
+                    <div className="p-3 bg-secondary/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-start mb-1.5">
                         <span className="text-xs font-semibold text-primary">Plumbing Leak Fix</span>
                         <span className="text-[10px] text-emerald-400 font-mono">₹500/hr</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">Fixing domestic pipe joints in village layout. Expected duration: 2 hours.</p>
+                      <p className="text-[11px] text-muted-foreground">Fixing domestic pipe joints in village layout. Expected duration: 2 hours.</p>
                       <div className="flex gap-2 mt-2 items-center text-[10px] text-muted">
                         <MapPin className="w-3.5 h-3.5 text-primary" />
-                        <span>1.4 miles away • Active</span>
+                        <span>1.4 km away • Active</span>
                       </div>
                     </div>
 
-                    <div className="p-3 bg-secondary/40 border border-border rounded-xl hover:border-primary/20 transition-all">
+                    <div className="p-3 bg-secondary/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-start mb-1.5">
                         <span className="text-xs font-semibold text-primary">Agriculture Field Helper</span>
                         <span className="text-[10px] text-emerald-400 font-mono">₹3,000 fixed</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">Harvesting support needed for organic farm paddy field.</p>
+                      <p className="text-[11px] text-muted-foreground">Harvesting support needed for organic farm paddy field.</p>
                       <div className="flex gap-2 mt-2 items-center text-[10px] text-muted">
                         <MapPin className="w-3.5 h-3.5 text-primary" />
-                        <span>2.8 miles away • Urgent</span>
+                        <span>2.8 km away • Urgent</span>
                       </div>
                     </div>
                   </div>
 
-                  <Button variant="outline" className="w-full justify-between" onClick={() => { setAuthTab("signup"); setShowAuthModal(true); }}>
-                    <span>Join to view all 47 jobs</span>
+                  <Button variant="outline" className="w-full justify-between mt-2" onClick={() => { setAuthTab("signup"); setShowAuthModal(true); }}>
+                    <span>Join to view all 47 gigs</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Column 2: Nearby Workers Preview */}
+                <div className="flex flex-col gap-4 glass-card p-6 rounded-2xl">
+                  <div className="flex flex-col gap-1.5 border-b border-border/50 pb-3">
+                    <Badge variant="secondary" className="w-fit">Verified Locals</Badge>
+                    <Typography variant="h3" className="font-bold flex items-center gap-2 text-foreground">
+                      <Award className="w-5 h-5 text-primary" />
+                      Nearby Service Providers
+                    </Typography>
+                    <Typography variant="muted" className="text-xs">
+                      Highest-rated local technicians and handymen active in Guntur.
+                    </Typography>
+                  </div>
+
+                  <div className="flex flex-col gap-3.5 my-2">
+                    <div className="p-3 bg-secondary/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all cursor-pointer flex justify-between items-center">
+                      <div>
+                        <span className="text-xs font-semibold text-foreground block">Arun Kumar</span>
+                        <span className="text-[10px] text-muted-foreground">Carpenter • 5 Years Exp</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-bold text-amber-500 block">4.9 ★</span>
+                        <span className="text-[9px] text-emerald-400 font-mono">Available Now</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-secondary/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all cursor-pointer flex justify-between items-center">
+                      <div>
+                        <span className="text-xs font-semibold text-foreground block">Suresh Prasad</span>
+                        <span className="text-[10px] text-muted-foreground">Electrician • 3 Years Exp</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-bold text-amber-500 block">4.8 ★</span>
+                        <span className="text-[9px] text-emerald-400 font-mono">Available Now</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button variant="outline" className="w-full justify-between mt-2" onClick={() => { setAuthTab("signup"); setShowAuthModal(true); }}>
+                    <span>Register as Worker / Employer</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -860,6 +929,38 @@ export default function PremiumHomePage() {
   function RenderWorkerDashboard() {
     return (
       <div className="flex flex-col gap-6">
+        {/* Worker Live Gigs Map Hero */}
+        <div className="flex flex-col gap-4 animate-fade-in">
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div>
+              <Typography variant="h2" className="font-bold gold-gradient-text">Hyperlocal Live Gigs Map</Typography>
+              <Typography variant="muted" className="text-xs">
+                Real-time active gigs. Center on your location and click any marker to apply.
+              </Typography>
+            </div>
+            {/* Live Stats Row */}
+            <div className="flex flex-wrap gap-2.5 bg-muted/40 p-2.5 rounded-xl border border-border/40 text-xs">
+              <div className="px-2 border-r border-border/40">
+                <span className="text-[10px] text-muted-foreground block uppercase">Location</span>
+                <span className="font-semibold text-foreground font-mono">Guntur Central</span>
+              </div>
+              <div className="px-2 border-r border-border/40">
+                <span className="text-[10px] text-muted-foreground block uppercase">Nearby Jobs</span>
+                <span className="font-semibold text-primary">5 active</span>
+              </div>
+              <div className="px-2 border-r border-border/40">
+                <span className="text-[10px] text-muted-foreground block uppercase">Avg Distance</span>
+                <span className="font-semibold text-foreground">1.4 km</span>
+              </div>
+              <div className="px-2">
+                <span className="text-[10px] text-muted-foreground block uppercase">Response ETA</span>
+                <span className="font-semibold text-emerald-400">12 mins</span>
+              </div>
+            </div>
+          </div>
+          <MapView mode="worker" />
+        </div>
+
         {/* Worker Summary Banner */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
           <Card className="glass-card flex flex-col justify-between p-5 md:col-span-2">
@@ -923,15 +1024,6 @@ export default function PremiumHomePage() {
               </div>
             )}
           </Card>
-        </div>
-
-        {/* Worker Live Gigs Map */}
-        <div className="flex flex-col gap-4">
-          <Typography variant="h3" className="font-bold flex items-center gap-2">
-            <MapIcon className="w-5 h-5 text-primary" />
-            Hyperlocal Gigs Map
-          </Typography>
-          <MapView mode="worker" />
         </div>
 
         {/* Nearby Gigs & Recommendations */}
@@ -1004,10 +1096,37 @@ export default function PremiumHomePage() {
       <div className="flex flex-col gap-6">
         {/* Employer Live Workers Map */}
         <div className="flex flex-col gap-4">
-          <Typography variant="h3" className="font-bold flex items-center gap-2">
-            <MapIcon className="w-5 h-5 text-primary" />
-            Nearby Available Workers Map
-          </Typography>
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div>
+              <Typography variant="h2" className="font-bold gold-gradient-text">Nearby Available Workers Map</Typography>
+              <Typography variant="muted" className="text-xs">
+                Real-time active service providers nearby. Click a worker pin to view rating and book.
+              </Typography>
+            </div>
+            {/* Live Stats Row */}
+            <div className="flex flex-wrap gap-2.5 bg-muted/40 p-2.5 rounded-xl border border-border/40 text-xs">
+              <div className="px-2 border-r border-border/40">
+                <span className="text-[10px] text-muted-foreground block uppercase">Active Handymen</span>
+                <span className="font-semibold text-foreground">3 online</span>
+              </div>
+              <div className="px-2 border-r border-border/40">
+                <span className="text-[10px] text-muted-foreground block uppercase">Availability</span>
+                <span className="font-semibold text-emerald-400">Available Now</span>
+              </div>
+              <div className="px-2 border-r border-border/40">
+                <span className="text-[10px] text-muted-foreground block uppercase">Avg Trust Score</span>
+                <span className="font-semibold text-foreground">95% score</span>
+              </div>
+              <div className="px-2 border-r border-border/40">
+                <span className="text-[10px] text-muted-foreground block uppercase">Avg Distance</span>
+                <span className="font-semibold text-foreground">1.5 km</span>
+              </div>
+              <div className="px-2">
+                <span className="text-[10px] text-muted-foreground block uppercase">Live Status</span>
+                <span className="font-semibold text-primary">Sync active</span>
+              </div>
+            </div>
+          </div>
           <MapView mode="employer" />
         </div>
 
@@ -1134,7 +1253,8 @@ export default function PremiumHomePage() {
       <div className="flex flex-col gap-6">
         <Typography variant="h2" className="font-bold gold-gradient-text">Book Local Services</Typography>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-in">
           {["Plumber", "Electrician", "Farmer Help", "Carpenter"].map((cat) => (
             <button
               key={cat}
@@ -1160,6 +1280,69 @@ export default function PremiumHomePage() {
             Home Help & Services Map
           </Typography>
           <MapView mode="resident" />
+        </div>
+
+        {/* Nearby Service Providers Cards List */}
+        <div className="flex flex-col gap-4">
+          <Typography variant="h3" className="font-bold flex items-center gap-2">
+            <Award className="w-5 h-5 text-primary" />
+            Nearby Available Handymen & Service Providers
+          </Typography>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col justify-between gap-3 hover:border-primary/30 transition-all">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">AK</div>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block">Arun Kumar</span>
+                    <span className="text-[10px] text-muted-foreground">Carpenter • 1.2 km away</span>
+                  </div>
+                </div>
+                <Badge variant="primary" className="text-[9px]">96% Trust</Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Expert in wood joinery, tables assembly, and home repairs.</p>
+              <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
+                <span className="text-xs font-mono font-bold text-emerald-400">₹400/day</span>
+                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => { setActiveTab("chat"); setSuccessMessage("Contacted Arun Kumar!"); }}>Book Now</Button>
+              </div>
+            </div>
+
+            <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col justify-between gap-3 hover:border-primary/30 transition-all">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">SP</div>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block">Suresh Prasad</span>
+                    <span className="text-[10px] text-muted-foreground">Electrician • 1.5 km away</span>
+                  </div>
+                </div>
+                <Badge variant="primary" className="text-[9px]">98% Trust</Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Expert in household wiring, fuse joints, and fan installs.</p>
+              <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
+                <span className="text-xs font-mono font-bold text-emerald-400">₹500/day</span>
+                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => { setActiveTab("chat"); setSuccessMessage("Contacted Suresh Prasad!"); }}>Book Now</Button>
+              </div>
+            </div>
+
+            <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col justify-between gap-3 hover:border-primary/30 transition-all">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">KR</div>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block">Kiran Rao</span>
+                    <span className="text-[10px] text-muted-foreground">Plumber • 3.2 km away</span>
+                  </div>
+                </div>
+                <Badge variant="primary" className="text-[9px]">92% Trust</Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Expert in pipe leak fix, drain cleaning, and bathroom fittings.</p>
+              <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
+                <span className="text-xs font-mono font-bold text-emerald-400">₹450/day</span>
+                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => { setActiveTab("chat"); setSuccessMessage("Contacted Kiran Rao!"); }}>Book Now</Button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Resident Bookings & Escrow Manager */}
