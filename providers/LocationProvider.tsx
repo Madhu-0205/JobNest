@@ -44,6 +44,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
 
   const watchIdRef = useRef<number | null>(null);
   const lastLocationRef = useRef<{ lat: number; lng: number; timestamp: number } | null>(null);
+  const latitudeRef = useRef<number | null>(null);
 
   // Sync offline status
   useEffect(() => {
@@ -62,6 +63,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       if (cached) {
         const parsed = JSON.parse(cached);
         setLatitude(parsed.lat);
+        latitudeRef.current = parsed.lat;
         setLongitude(parsed.lng);
         setAccuracy(parsed.accuracy);
         setLocationSource(parsed.source || "preset");
@@ -79,6 +81,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
 
   const updateLocationState = useCallback((lat: number, lng: number, acc: number | null, src: LocationSource) => {
     setLatitude(lat);
+    latitudeRef.current = lat;
     setLongitude(lng);
     setAccuracy(acc);
     setLocationSource(src);
@@ -177,7 +180,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
           setPermissionStatus("denied");
           setErrorMessage("Location permission was denied.");
           // Fall back to Bangalore default if no cached location is present
-          if (latitude === null) {
+          if (latitudeRef.current === null) {
             updateLocationState(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng, null, "preset");
           }
         } else {
@@ -186,7 +189,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       },
       options
     );
-  }, [batteryOptimized, detectSpoofing, updateLocationState, latitude]);
+  }, [batteryOptimized, detectSpoofing, updateLocationState]);
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     setPermissionStatus("loading");
@@ -210,7 +213,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         (error) => {
           logger.warn(`[LocationProvider] Geolocation request denied or failed: ${error.message}`);
           setPermissionStatus("denied");
-          if (latitude === null) {
+          if (latitudeRef.current === null) {
             updateLocationState(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng, null, "preset");
           }
           resolve(false);
@@ -218,7 +221,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         { enableHighAccuracy: true, timeout: 5000 }
       );
     });
-  }, [startTracking, updateLocationState, latitude]);
+  }, [startTracking, updateLocationState]);
 
   const updateLocation = useCallback((lat: number, lng: number, source: LocationSource) => {
     updateLocationState(lat, lng, 10, source);
@@ -246,7 +249,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         setPermissionStatus(result.state as LocationPermissionStatus);
         if (result.state === "granted") {
           startTracking();
-        } else if (result.state === "prompt" && latitude === null) {
+        } else if (result.state === "prompt" && latitudeRef.current === null) {
           // Default center preset initially
           updateLocationState(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng, null, "preset");
         }
@@ -272,7 +275,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         navigator.geolocation.clearWatch(watchIdRef.current);
       }
     };
-  }, [startTracking, updateLocationState, latitude]);
+  }, [startTracking, updateLocationState]);
 
   return (
     <LocationContext.Provider
