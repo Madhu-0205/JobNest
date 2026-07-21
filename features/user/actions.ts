@@ -8,7 +8,10 @@ import {
   experienceSchema,
   educationSchema,
   certificationSchema,
-  portfolioItemSchema
+  portfolioItemSchema,
+  workerOnboardingSchema,
+  employerOnboardingSchema,
+  residentOnboardingSchema
 } from "./schemas";
 import { z } from "zod";
 import { runWithRequestContext } from "@/lib/observability/request-context-helper";
@@ -251,3 +254,177 @@ export async function uploadKycDocumentAction(formData: unknown): Promise<Action
     }
   });
 }
+
+/**
+ * Server Action: Unified Worker Onboarding save.
+ */
+export async function saveWorkerOnboardingAction(formData: unknown): Promise<ActionResult<void>> {
+  return executeAction("saveWorkerOnboardingAction", async () => {
+    const validated = workerOnboardingSchema.parse(formData);
+    const supabase = await createServerClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized.");
+
+    // 1. Update main profile
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        display_name: validated.fullName,
+        phone: validated.phone,
+        avatar_url: validated.avatarUrl || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    if (profileError) throw new Error(profileError.message);
+
+    // 2. Format Point geography string representation for spatial query fields
+    const pointString = `POINT(${validated.longitude} ${validated.latitude})`;
+
+    // 3. Upsert worker profile details
+    const { error: workerError } = await supabase
+      .from("worker_profiles")
+      .upsert({
+        user_id: user.id,
+        job_title: validated.jobTitle,
+        bio: validated.bio,
+        experience_years: validated.experienceYears,
+        service_radius_meters: validated.serviceRadiusMeters,
+        location: pointString,
+        expected_salary: validated.expectedSalary,
+        availability: validated.availability,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (workerError) throw new Error(workerError.message);
+
+    // 4. Update Skills (Worker skills mapping)
+    await supabase.from("worker_skills").delete().eq("worker_id", user.id);
+
+    for (const skillName of validated.skills) {
+      let { data: skill } = await supabase
+        .from("skills")
+        .select("id")
+        .eq("name", skillName)
+        .maybeSingle();
+
+      if (!skill) {
+        const { data: newSkill, error: insertError } = await supabase
+          .from("skills")
+          .insert({ name: skillName, category: "General" })
+          .select("id")
+          .single();
+        if (insertError) throw new Error(insertError.message);
+        skill = newSkill;
+      }
+
+      if (skill) {
+        await supabase
+          .from("worker_skills")
+          .insert({ worker_id: user.id, skill_id: skill.id });
+      }
+    }
+
+    // 5. Update Languages
+    await supabase.from("user_languages").delete().eq("user_id", user.id);
+    for (const langName of validated.languages) {
+      let { data: lang } = await supabase
+        .from("languages")
+        .select("id")
+        .eq("name", langName)
+        .maybeSingle();
+
+      if (!lang) {
+        const code = langName.substring(0, 2).toLowerCase();
+        const { data: newLang, error: insertError } = await supabase
+          .from("languages")
+          .insert({ code, name: langName })
+          .select("id")
+          .single();
+        if (insertError) throw new Error(insertError.message);
+        lang = newLang;
+      }
+
+      if (lang) {
+        await supabase
+          .from("user_languages")
+          .insert({ user_id: user.id, language_id: lang.id, proficiency: "fluent" });
+      }
+    }
+  });
+}
+
+/**
+ * Server Action: Unified Employer Onboarding save.
+ */
+export async function saveEmployerOnboardingAction(formData: unknown): Promise<ActionResult<void>> {
+  return executeAction("saveEmployerOnboardingAction", async () => {
+    const validated = employerOnboardingSchema.parse(formData);
+    const supabase = await createServerClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized.");
+
+    // 1. Update main profile
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        display_name: validated.ownerName,
+        phone: validated.phoneNumber,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    if (profileError) throw new Error(profileError.message);
+
+    // 2. Format Point geography
+    const pointString = `POINT(${validated.longitude} ${validated.latitude})`;
+
+    // 3. Upsert employer profile details
+    const { error: employerError } = await supabase
+      .from("employer_profiles")
+      .upsert({
+        user_id: user.id,
+        company_name: validated.companyName,
+        industry: validated.industry,
+        bio: validated.bio,
+        gst_number: validated.gstNumber,
+        location: pointString,
+        categories: validated.categories,
+        budget_range_min: validated.budgetRangeMin,
+        budget_range_max: validated.budgetRangeMax,
+        verification_status: "pending",
+        updated_at: new Date().toISOString(),
+      });
+
+    if (employerError) throw new Error(employerError.message);
+  });
+}
+
+/**
+ * Server Action: Unified Resident Onboarding save.
+ */
+export async function saveResidentOnboardingAction(formData: unknown): Promise<ActionResult<void>> {
+  return executeAction("saveResidentOnboardingAction", async () => {
+    const validated = residentOnboardingSchema.parse(formData);
+    const supabase = await createServerClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized.");
+
+    // 1. Upsert resident profile details
+    const { error: residentError } = await supabase
+      .from("resident_profiles")
+      .upsert({
+        user_id: user.id,
+        saved_address: validated.savedAddress,
+        preferred_language: validated.preferredLanguage,
+        payment_method: validated.paymentMethod,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (residentError) throw new Error(residentError.message);
+  });
+}
+

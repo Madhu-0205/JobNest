@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/providers/AuthProvider";
+import { saveWorkerOnboardingAction } from "@/features/user/actions";
 import { useI18n } from "@/lib/i18n/context";
 import { useCurrentLocation } from "@/hooks/useCurrentLocation";
 import { Typography } from "@/components/ui/Typography";
@@ -97,14 +98,12 @@ export default function WorkerOnboardingPage() {
         router.push("/worker");
       } else {
         // Skip auth screens (1-3) and start from Step 4 (Location)
-        if (step < 4) {
-          setStep(4);
-        }
+        setStep((prevStep) => (prevStep < 4 ? 4 : prevStep));
         setFullName(user.name);
         setEmail(user.email);
       }
     }
-  }, [isAuthenticated, user, router, step]);
+  }, [isAuthenticated, user, router]);
 
   // Sync Geolocation permission grant
   useEffect(() => {
@@ -268,6 +267,26 @@ export default function WorkerOnboardingPage() {
   const handleCompleteOnboarding = async () => {
     setLoading(true);
     try {
+      const result = await saveWorkerOnboardingAction({
+        fullName,
+        phone: phoneNumber,
+        avatarUrl: profilePhoto || "",
+        jobTitle: selectedSkills[0] || "Worker Partner",
+        bio: aboutBio,
+        experienceYears: Number(experience),
+        serviceRadiusMeters: workRadius,
+        latitude: latitude || 16.3067,
+        longitude: longitude || 80.4365,
+        skills: selectedSkills,
+        languages: [locale === "en" ? "English" : locale === "hi" ? "Hindi" : locale === "te" ? "Telugu" : "Other"],
+        expectedSalary: earnings,
+        availability,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error.message);
+      }
+
       await updateProfile({
         name: fullName,
         phoneNumber,
@@ -287,12 +306,14 @@ export default function WorkerOnboardingPage() {
       setTimeout(() => {
         router.push("/worker");
       }, 1500);
-    } catch {
-      setErrorMsg("Failed to save profile. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to save profile. Please try again.";
+      setErrorMsg(message);
     } finally {
       setLoading(false);
     }
   };
+
 
   // Framer Motion Animation Settings
   const slideVariants = {
@@ -488,9 +509,9 @@ export default function WorkerOnboardingPage() {
 
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest justify-center">
-                      <div className="h-[1px] bg-border/40 flex-1" />
+                      <div className="h-px bg-border/40 flex-1" />
                       <span>or continue with</span>
-                      <div className="h-[1px] bg-border/40 flex-1" />
+                      <div className="h-px bg-border/40 flex-1" />
                     </div>
                     <Button
                       variant="ghost"

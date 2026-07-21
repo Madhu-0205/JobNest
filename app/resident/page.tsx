@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { ProductShell } from "@/components/ProductShell";
 import { useAuth } from "@/providers/AuthProvider";
+import { saveResidentOnboardingAction } from "@/features/user/actions";
 import { Typography } from "@/components/ui/Typography";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -15,8 +16,18 @@ import {
   Award,
   Shield,
   Lock,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from "lucide-react";
+import {
+  createBookingAction,
+  releaseBookingPayoutAction,
+  disputeBookingAction,
+  getBookingsAction,
+  getWorkersAction,
+  BookingResponse,
+  WorkerProfileResponse
+} from "@/features/booking/actions";
 
 const MapView = dynamic(
   () => import("@/components/maps/MapView").then((mod) => mod.MapView),
@@ -31,14 +42,209 @@ const MapView = dynamic(
   }
 );
 
-import { Loader2 } from "lucide-react";
-
 export default function ResidentDashboardPage() {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const router = useRouter();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Onboarding state
+  const [savedAddress, setSavedAddress] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("English");
+  const [paymentMethod, setPaymentMethod] = useState("UPI");
+
+  // Dashboard dynamic states
+  const [workers, setWorkers] = useState<WorkerProfileResponse[]>([]);
+  const [bookings, setBookings] = useState<BookingResponse[]>([]);
+
+  const loadData = async () => {
+    try {
+      const workersRes = await getWorkersAction();
+      if (workersRes.success && workersRes.data) {
+        setWorkers(workersRes.data);
+      }
+      const bookingsRes = await getBookingsAction();
+      if (bookingsRes.success && bookingsRes.data) {
+        setBookings(bookingsRes.data);
+      }
+    } catch (err: unknown) {
+      console.error("Failed to load resident dashboard dataset:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (user && user.residentOnboardingCompleted) {
+      loadData();
+    }
+  }, [user]);
 
   if (!user) return null;
+
+  if (!user.residentOnboardingCompleted) {
+    const handleOnboardingSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      setErrorMsg(null);
+      try {
+        const result = await saveResidentOnboardingAction({
+          savedAddress,
+          preferredLanguage,
+          paymentMethod,
+        });
+        if (!result.success) {
+          throw new Error(result.error.message);
+        }
+        await updateProfile({
+          savedAddress,
+          preferredLanguage,
+          paymentMethod,
+          residentOnboardingCompleted: true,
+        });
+        setSuccessMessage("Onboarding profile saved successfully!");
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to save onboarding details.";
+        setErrorMsg(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <ProductShell>
+        <div className="flex flex-col items-center justify-center min-h-[70vh] py-12 px-4">
+          <Card className="glass-card w-full max-w-md p-6 flex flex-col gap-6 shadow-2xl">
+            <div className="text-center">
+              <span className="w-12 h-12 rounded-full bg-linear-to-r from-amber-500 to-amber-600 flex items-center justify-center text-background font-extrabold text-lg mx-auto shadow-md mb-3">
+                JN
+              </span>
+              <Typography variant="h3" className="font-bold gold-gradient-text">Resident Onboarding</Typography>
+              <Typography variant="muted" className="text-xs mt-1">
+                Complete your details to start booking nearby services.
+              </Typography>
+            </div>
+
+            <form onSubmit={handleOnboardingSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-foreground/80">Saved Home Address</label>
+                <textarea
+                  required
+                  value={savedAddress}
+                  onChange={(e) => setSavedAddress(e.target.value)}
+                  placeholder="Enter your complete home address (district, city, pincode)"
+                  className="p-3 bg-secondary/30 border border-border rounded-xl text-xs text-foreground focus:outline-hidden focus:border-primary/50 min-h-[80px]"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-foreground/80">Preferred Communication Language</label>
+                <select
+                  value={preferredLanguage}
+                  onChange={(e) => setPreferredLanguage(e.target.value)}
+                  className="p-3 bg-secondary/30 border border-border rounded-xl text-xs text-foreground focus:outline-hidden focus:border-primary/50"
+                >
+                  <option value="English">English</option>
+                  <option value="Hindi">Hindi / हिंदी</option>
+                  <option value="Telugu">Telugu / తెలుగు</option>
+                  <option value="Tamil">Tamil / தமிழ்</option>
+                  <option value="Kannada">Kannada / కన్నడ</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-foreground/80">Default Payment Method</label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="p-3 bg-secondary/30 border border-border rounded-xl text-xs text-foreground focus:outline-hidden focus:border-primary/50"
+                >
+                  <option value="UPI">UPI (Google Pay, PhonePe, Paytm)</option>
+                  <option value="Card">Credit or Debit Card</option>
+                  <option value="NetBanking">Net Banking</option>
+                  <option value="Cash">Cash on Delivery</option>
+                </select>
+              </div>
+
+              {errorMsg && (
+                <div className="p-3 bg-red-950/60 border border-red-500/30 text-red-300 text-xs rounded-xl">
+                  {errorMsg}
+                </div>
+              )}
+
+              <Button variant="primary" type="submit" className="w-full mt-2" isLoading={loading}>
+                Complete Resident Onboarding
+              </Button>
+            </form>
+          </Card>
+        </div>
+      </ProductShell>
+    );
+  }
+
+  const handleBookHandyman = async (workerId: string, serviceType: string, price: number) => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await createBookingAction({
+        workerId,
+        serviceType,
+        price,
+        description: `Handyman service request for ${serviceType}.`
+      });
+      if (!res.success) {
+        throw new Error(res.error?.message || "Booking creation failed.");
+      }
+      setSuccessMessage(`Booking request registered for ${serviceType}! Escrow funds locked.`);
+      await loadData();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Booking failed.";
+      setErrorMsg(msg);
+      setTimeout(() => setErrorMsg(null), 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRaiseDispute = async (bookingId: string) => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await disputeBookingAction(bookingId, "Service parameters dispute raised by resident.");
+      if (!res.success) {
+        throw new Error(res.error?.message || "Dispute request failed.");
+      }
+      setSuccessMessage("Dispute raised. Safety audit team notified.");
+      await loadData();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Dispute failed.";
+      setErrorMsg(msg);
+      setTimeout(() => setErrorMsg(null), 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReleasePayout = async (bookingId: string) => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await releaseBookingPayoutAction(bookingId);
+      if (!res.success) {
+        throw new Error(res.error?.message || "Payout release transaction failed.");
+      }
+      setSuccessMessage("Escrow funds released successfully to worker wallet!");
+      await loadData();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Payout release failed.";
+      setErrorMsg(msg);
+      setTimeout(() => setErrorMsg(null), 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ProductShell>
@@ -78,6 +284,12 @@ export default function ResidentDashboardPage() {
           </div>
         )}
 
+        {errorMsg && (
+          <div className="bg-red-950/80 border border-red-500/30 text-red-300 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg text-xs font-semibold">
+            {errorMsg}
+          </div>
+        )}
+
         {/* Nearby Service Providers Cards List */}
         <div className="flex flex-col gap-4">
           <Typography variant="h3" className="font-bold flex items-center gap-2">
@@ -85,59 +297,41 @@ export default function ResidentDashboardPage() {
             Nearby Available Handymen & Service Providers
           </Typography>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col justify-between gap-3 hover:border-primary/30 transition-all">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">AK</div>
-                  <div>
-                    <span className="text-xs font-bold text-foreground block">Arun Kumar</span>
-                    <span className="text-[10px] text-muted-foreground">Carpenter • 1.2 km away</span>
+            {workers.slice(0, 3).map((w) => (
+              <div key={w.user_id} className="p-4 bg-card/60 border border-border rounded-xl flex flex-col justify-between gap-3 hover:border-primary/30 transition-all">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">
+                      {w.full_name?.substring(0, 2).toUpperCase() || "HM"}
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-foreground block">{w.full_name}</span>
+                      <span className="text-[10px] text-muted-foreground">{w.job_title} • {w.experience_years}y experience</span>
+                    </div>
                   </div>
+                  <Badge variant="primary" className="text-[9px]">95% Trust</Badge>
                 </div>
-                <Badge variant="primary" className="text-[9px]">96% Trust</Badge>
+                <p className="text-[11px] text-muted-foreground">{w.bio}</p>
+                <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
+                  <span className="text-xs font-mono font-bold text-emerald-400">₹{w.expected_salary}/day</span>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="h-7 px-3 text-[10px] rounded-lg"
+                    isLoading={loading}
+                    onClick={() => handleBookHandyman(w.user_id, w.job_title, w.expected_salary)}
+                  >
+                    Book Now
+                  </Button>
+                </div>
               </div>
-              <p className="text-[11px] text-muted-foreground">Expert in wood joinery, tables assembly, and home repairs.</p>
-              <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
-                <span className="text-xs font-mono font-bold text-emerald-400">₹400/day</span>
-                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => { setSuccessMessage("Booking request sent to Arun Kumar!"); setTimeout(() => setSuccessMessage(null), 3000); }}>Book Now</Button>
-              </div>
-            </div>
+            ))}
 
-            <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col justify-between gap-3 hover:border-primary/30 transition-all">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">SP</div>
-                  <div>
-                    <span className="text-xs font-bold text-foreground block">Suresh Prasad</span>
-                    <span className="text-[10px] text-muted-foreground">Electrician • 1.5 km away</span>
-                  </div>
-                </div>
-                <Badge variant="primary" className="text-[9px]">98% Trust</Badge>
+            {workers.length === 0 && (
+              <div className="col-span-3 text-center py-6 text-xs text-muted-foreground bg-card/10 border border-dashed border-border rounded-xl">
+                No active registered service providers found in this sector.
               </div>
-              <p className="text-[11px] text-muted-foreground">Expert in household wiring, fuse joints, and fan installs.</p>
-              <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
-                <span className="text-xs font-mono font-bold text-emerald-400">₹500/day</span>
-                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => { setSuccessMessage("Booking request sent to Suresh Prasad!"); setTimeout(() => setSuccessMessage(null), 3000); }}>Book Now</Button>
-              </div>
-            </div>
-
-            <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col justify-between gap-3 hover:border-primary/30 transition-all">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">KR</div>
-                  <div>
-                    <span className="text-xs font-bold text-foreground block">Kiran Rao</span>
-                    <span className="text-[10px] text-muted-foreground">Plumber • 3.2 km away</span>
-                  </div>
-                </div>
-                <Badge variant="primary" className="text-[9px]">92% Trust</Badge>
-              </div>
-              <p className="text-[11px] text-muted-foreground">Expert in pipe leak fix, drain cleaning, and bathroom fittings.</p>
-              <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
-                <span className="text-xs font-mono font-bold text-emerald-400">₹450/day</span>
-                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => { setSuccessMessage("Booking request sent to Kiran Rao!"); setTimeout(() => setSuccessMessage(null), 3000); }}>Book Now</Button>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -154,21 +348,33 @@ export default function ResidentDashboardPage() {
               </Typography>
             </div>
 
-            <div className="my-6 p-4 bg-secondary/40 border border-border rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
-                  <Lock className="w-5 h-5" />
-                </span>
-                <div>
-                  <span className="text-xs font-bold block">Job: Leak joint repair in Guntur</span>
-                  <span className="text-[10px] text-muted">Contractor: Arun Kumar • Locked: ₹1,500</span>
-                </div>
-              </div>
+            <div className="flex flex-col gap-3 my-4">
+              {bookings.filter(b => ["pending", "in_progress", "completed"].includes(b.status)).map(b => (
+                <div key={b.id} className="p-4 bg-secondary/40 border border-border rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                      <Lock className="w-5 h-5" />
+                    </span>
+                    <div>
+                      <span className="text-xs font-bold block">Job: {b.service_type} ({b.status})</span>
+                      <span className="text-[10px] text-muted">Contractor: {wName(wList(b.worker))} • Locked: ₹{b.price}</span>
+                    </div>
+                  </div>
 
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => { setSuccessMessage("Dispute raised. Safety audit initiated."); setTimeout(() => setSuccessMessage(null), 3000); }}>Raise Dispute</Button>
-                <Button variant="primary" size="sm" onClick={() => { setSuccessMessage("Escrow funds released to worker balance!"); setTimeout(() => setSuccessMessage(null), 3000); }}>Release Payout</Button>
-              </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleRaiseDispute(b.id)}>Raise Dispute</Button>
+                    {b.status === "completed" && (
+                      <Button variant="primary" size="sm" onClick={() => handleReleasePayout(b.id)}>Release Payout</Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {bookings.filter(b => ["pending", "in_progress", "completed"].includes(b.status)).length === 0 && (
+                <div className="text-center py-6 text-xs text-muted-foreground bg-secondary/10 border border-dashed border-border rounded-xl">
+                  No active bookings or funded escrows.
+                </div>
+              )}
             </div>
 
             <div className="text-[10px] text-muted flex gap-2">
@@ -180,18 +386,18 @@ export default function ResidentDashboardPage() {
           <Card className="glass-card p-5 flex flex-col justify-between">
             <Typography variant="h4" className="font-bold">Bookings History</Typography>
             <div className="flex flex-col gap-3 my-4">
-              <div className="flex justify-between items-center text-xs pb-1 border-b border-border">
-                <span>Wiring Fix</span>
-                <span className="font-semibold text-emerald-400">Completed</span>
-              </div>
-              <div className="flex justify-between items-center text-xs pb-1 border-b border-border">
-                <span>Paddy Harvester</span>
-                <span className="font-semibold text-emerald-400">Completed</span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span>Table Assembly</span>
-                <span className="font-semibold text-emerald-400">Completed</span>
-              </div>
+              {bookings.filter(b => ["resolved", "disputed"].includes(b.status)).map(b => (
+                <div key={b.id} className="flex justify-between items-center text-xs pb-1 border-b border-border">
+                  <span>{b.service_type}</span>
+                  <span className={`font-semibold ${b.status === "resolved" ? "text-emerald-400" : "text-red-400"}`}>{b.status}</span>
+                </div>
+              ))}
+
+              {bookings.filter(b => ["resolved", "disputed"].includes(b.status)).length === 0 && (
+                <div className="text-center py-6 text-xs text-muted-foreground">
+                  No past resolved contracts.
+                </div>
+              )}
             </div>
             <Button variant="outline" size="sm" className="w-full">View Receipts Ledger</Button>
           </Card>
@@ -199,4 +405,18 @@ export default function ResidentDashboardPage() {
       </div>
     </ProductShell>
   );
+}
+
+// Helpers to resolve type warnings
+interface ProfileRef {
+  display_name?: string | null;
+  full_name?: string | null;
+}
+
+function wList(w: unknown): ProfileRef | null {
+  return w as ProfileRef | null;
+}
+
+function wName(p: ProfileRef | null): string {
+  return p?.display_name || p?.full_name || "Handyman";
 }

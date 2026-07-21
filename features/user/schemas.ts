@@ -11,6 +11,43 @@ export const workerProfileSchema = z.object({
   travelDistanceKm: z.number().int().min(0).optional(),
 });
 
+export const workerOnboardingSchema = z.object({
+  fullName: z.string().min(2, "Name must be at least 2 characters."),
+  phone: z.string().min(10, "Phone number must be at least 10 characters."),
+  avatarUrl: z.string().url().optional().or(z.string().length(0)),
+  jobTitle: z.string().min(2, "Job title must be at least 2 characters."),
+  bio: z.string().min(10, "Bio must be at least 10 characters."),
+  experienceYears: z.number().int().min(0),
+  serviceRadiusMeters: z.number().int().min(100),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  skills: z.array(z.string()),
+  languages: z.array(z.string()), // Array of language names or codes
+  expectedSalary: z.number().min(0),
+  availability: z.enum(["full-time", "part-time", "weekends"]),
+});
+
+export const employerOnboardingSchema = z.object({
+  companyName: z.string().min(2, "Company name must be at least 2 characters."),
+  gstNumber: z.string().length(15, "GST number must be 15 characters.").optional().or(z.string().length(0)),
+  industry: z.string().min(2, "Industry must be at least 2 characters."),
+  bio: z.string().min(10, "Company description must be at least 10 characters."),
+  categories: z.array(z.string()),
+  budgetRangeMin: z.number().min(0),
+  budgetRangeMax: z.number().min(0),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  ownerName: z.string().min(2, "Owner name is required."),
+  phoneNumber: z.string().min(10, "Phone number is required."),
+});
+
+export const residentOnboardingSchema = z.object({
+  savedAddress: z.string().min(10, "Saved address must be at least 10 characters."),
+  preferredLanguage: z.string().min(2, "Preferred language is required."),
+  paymentMethod: z.string().min(2, "Payment method is required."),
+});
+
+
 export const employerProfileSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters.").optional(),
   companyWebsite: z.string().url("Invalid website URL format.").or(z.string().length(0)).optional(),

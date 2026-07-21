@@ -86,7 +86,7 @@ export default function WalletPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
           {/* Balance card */}
-          <Card className="glass-card p-6 flex flex-col justify-between md:col-span-1 bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+          <Card className="glass-card p-6 flex flex-col justify-between md:col-span-1 bg-linear-to-br from-primary/10 to-transparent border-primary/20">
             <div className="flex justify-between items-start">
               <span className="text-xs text-muted uppercase font-mono tracking-wider">Available Balance</span>
               <Wallet className="w-5 h-5 text-primary" />

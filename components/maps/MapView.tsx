@@ -29,12 +29,41 @@ import { ShieldAlert, Share2, Loader2, CloudOff } from "lucide-react";
 import { logger } from "@/services/logger";
 import { geocodeAddressAction } from "@/features/geospatial/actions";
 
+export interface MapJob {
+  id: string;
+  title: string;
+  district?: string;
+  distanceMeters: number;
+  description?: string;
+  salaryMin: number;
+  salaryMax: number;
+  latitude: number;
+  longitude: number;
+  [key: string]: unknown;
+}
+
+export interface MapWorker {
+  userId: string;
+  jobTitle: string;
+  experienceYears: number;
+  hourlyRate?: number;
+  bio?: string;
+  availability?: string;
+  latitude: number;
+  longitude: number;
+  distanceMeters: number;
+  trustScore?: number;
+  [key: string]: unknown;
+}
+
 interface MapViewProps {
   mode: MapMode;
   onSelectEntity?: (id: string | null) => void;
+  jobs?: MapJob[];
+  workers?: MapWorker[];
 }
 
-export function MapView({ mode, onSelectEntity }: MapViewProps) {
+export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWorkers }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const {
     latitude,
@@ -61,10 +90,16 @@ export function MapView({ mode, onSelectEntity }: MapViewProps) {
   const [deniedSearchQuery, setDeniedSearchQuery] = useState("");
   const [deniedSearchLoading, setDeniedSearchLoading] = useState(false);
 
-  // Fetching spatial datasets
-  const { jobs } = useNearbyJobs(activeLat, activeLng, selectedRadius);
-  const { workers } = useNearbyWorkers(activeLat, activeLng, selectedRadius);
+  // Fetching spatial datasets (bypass if props provided)
+  const fetchJobsRadius = propJobs ? 0 : selectedRadius;
+  const fetchWorkersRadius = propWorkers ? 0 : selectedRadius;
+  
+  const { jobs: fetchedJobs } = useNearbyJobs(activeLat, activeLng, fetchJobsRadius);
+  const { workers: fetchedWorkers } = useNearbyWorkers(activeLat, activeLng, fetchWorkersRadius);
   useNearbyResidents(activeLat, activeLng, selectedRadius);
+  
+  const jobs = propJobs || fetchedJobs;
+  const workers = propWorkers || fetchedWorkers;
 
   // Tracking route simulation point coords
   const trackingTarget = mode === "tracking" && workers.length > 0 ? workers[0] : null;
@@ -389,7 +424,7 @@ export function MapView({ mode, onSelectEntity }: MapViewProps) {
           <div className="flex flex-col gap-4 text-foreground">
             {/* Header info with Photo, Name, Rating */}
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-primary/20 to-primary/40 flex items-center justify-center text-primary font-bold text-lg shadow-inner">
+              <div className="w-12 h-12 rounded-xl bg-linear-to-tr from-primary/20 to-primary/40 flex items-center justify-center text-primary font-bold text-lg shadow-inner">
                 {job.title.substring(0, 2).toUpperCase()}
               </div>
               <div className="flex-1">
@@ -449,7 +484,7 @@ export function MapView({ mode, onSelectEntity }: MapViewProps) {
           <div className="flex flex-col gap-4 text-foreground">
             {/* Header info with Photo, Name, Rating */}
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-primary/30 to-amber-600/30 flex items-center justify-center text-primary font-bold text-base border border-primary/20 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-linear-to-tr from-primary/30 to-amber-600/30 flex items-center justify-center text-primary font-bold text-base border border-primary/20 shadow-sm">
                 {displayName.split(" ").map(n => n[0]).join("")}
               </div>
               <div className="flex-1">

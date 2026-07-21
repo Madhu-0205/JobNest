@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/providers/AuthProvider";
+import { saveEmployerOnboardingAction } from "@/features/user/actions";
 import { useCurrentLocation } from "@/hooks/useCurrentLocation";
 import { useI18n } from "@/lib/i18n/context";
 import { Typography } from "@/components/ui/Typography";
@@ -283,6 +284,24 @@ export default function EmployerOnboardingPage() {
   const handleCompleteOnboarding = async () => {
     setLoading(true);
     try {
+      const result = await saveEmployerOnboardingAction({
+        companyName: businessName,
+        gstNumber: gstNumber || "",
+        industry: businessType || "Services",
+        bio: businessDesc || "Local business hiring verified local workers.",
+        categories: selectedCategories,
+        budgetRangeMin: Number(budgetMin) || 0,
+        budgetRangeMax: Number(budgetMax) || 0,
+        latitude: latitude || 16.3067,
+        longitude: longitude || 80.4365,
+        ownerName,
+        phoneNumber,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error.message);
+      }
+
       await updateProfile({
         name: ownerName,
         phoneNumber,
@@ -305,8 +324,9 @@ export default function EmployerOnboardingPage() {
       setTimeout(() => {
         router.push("/employer");
       }, 1500);
-    } catch {
-      setErrorMsg("Failed to persist details. Check local storage.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to persist details. Check database.";
+      setErrorMsg(message);
     } finally {
       setLoading(false);
     }

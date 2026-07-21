@@ -42,6 +42,10 @@ export interface UserProfile {
   budgetRangeMax?: number;
   hiringUrgency?: boolean;
   employerOnboardingCompleted?: boolean;
+  savedAddress?: string;
+  preferredLanguage?: string;
+  paymentMethod?: string;
+  residentOnboardingCompleted?: boolean;
 }
 
 interface AuthContextType {

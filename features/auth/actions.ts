@@ -11,8 +11,11 @@ import {
   updateProfileSchema
 } from "./schemas";
 import { z } from "zod";
+import { headers } from "next/headers";
 import { runWithRequestContext } from "@/lib/observability/request-context-helper";
 import { logRequestLifecycle } from "@/lib/observability/request-logger";
+import { rateLimiter } from "@/lib/security/rate-limiter";
+import { logger } from "@/lib/observability/logger";
 
 export type ActionResult<T> =
   | { success: true; data: T }
@@ -60,6 +63,10 @@ async function executeAction<T>(
  */
 export async function signUpAction(formData: unknown): Promise<ActionResult<{ userId: string }>> {
   return executeAction("signUpAction", async () => {
+    const ip = (await headers()).get("x-forwarded-for") || "unknown-ip";
+    const { success } = await rateLimiter.check("signup", ip);
+    if (!success) throw new Error("Too Many Requests");
+
     const validated = signUpSchema.parse(formData);
     const supabase = await createServerClient();
 
@@ -77,6 +84,9 @@ export async function signUpAction(formData: unknown): Promise<ActionResult<{ us
     });
 
     if (error) {
+      if (error.message.includes("already registered") || error.status === 422) {
+        throw new Error("Registration failed. Invalid details or account already exists.");
+      }
       throw new Error(error.message);
     }
 
@@ -93,16 +103,22 @@ export async function signUpAction(formData: unknown): Promise<ActionResult<{ us
  */
 export async function signInAction(formData: unknown): Promise<ActionResult<{ userId: string }>> {
   return executeAction("signInAction", async () => {
+    const ip = (await headers()).get("x-forwarded-for") || "unknown-ip";
+    const { success } = await rateLimiter.check("login", ip);
+    if (!success) throw new Error("Too Many Requests");
+
     const validated = loginSchema.parse(formData);
+
     const supabase = await createServerClient();
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: validated.email,
       password: validated.password,
     });
-
+    
     if (error) {
-      throw new Error(error.message);
+      // Throw the REAL Supabase error instead of a generic one
+      throw new Error(`Supabase Auth Error: ${error.message} (Code: ${error.code})`);
     }
 
     if (!data.user) {
@@ -131,6 +147,10 @@ export async function signOutAction(): Promise<ActionResult<void>> {
  */
 export async function forgotPasswordAction(formData: unknown): Promise<ActionResult<void>> {
   return executeAction("forgotPasswordAction", async () => {
+    const ip = (await headers()).get("x-forwarded-for") || "unknown-ip";
+    const { success } = await rateLimiter.check("passwordReset", ip);
+    if (!success) throw new Error("Too Many Requests");
+
     const validated = forgotPasswordSchema.parse(formData);
     const supabase = await createServerClient();
 
@@ -139,8 +159,9 @@ export async function forgotPasswordAction(formData: unknown): Promise<ActionRes
     });
 
     if (error) {
-      throw new Error(error.message);
+      logger.warn(`Password reset ignored to prevent enumeration: ${error.message}`);
     }
+    // Always succeed generically
   });
 }
 
@@ -210,7 +231,7 @@ export async function updateProfileAction(formData: unknown): Promise<ActionResu
 }
 
 /**
- * Server Action: Permamently deletes the user account using high-privilege admin SDK.
+ * Server Action: Permanently deletes the user account using high-privilege admin SDK.
  */
 export async function deleteAccountAction(): Promise<ActionResult<void>> {
   return executeAction("deleteAccountAction", async () => {
@@ -224,5 +245,32 @@ export async function deleteAccountAction(): Promise<ActionResult<void>> {
     if (error) {
       throw new Error(error.message);
     }
+  });
+}
+
+/**
+ * Server Action: Exports all personal user data (GDPR Article 20 Data Portability).
+ */
+export async function exportUserDataAction(): Promise<ActionResult<{ user: unknown; profile: unknown }>> {
+  return executeAction("exportUserDataAction", async () => {
+    const supabase = await createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized.");
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        created_at: user.created_at,
+        last_sign_in_at: user.last_sign_in_at,
+      },
+      profile: profile ?? null,
+    };
   });
 }

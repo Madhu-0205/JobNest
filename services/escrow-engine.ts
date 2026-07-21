@@ -38,8 +38,9 @@ export class EscrowEngine {
       if (error) throw error;
 
       return { success: true, escrowId: data.id };
-    } catch {
-      return { success: true, escrowId: crypto.randomUUID() };
+    } catch (error) {
+      logger.error(`[EscrowEngine] Failed to create escrow:`, error as Record<string, unknown>);
+      throw error;
     }
   }
 
@@ -72,8 +73,9 @@ export class EscrowEngine {
 
       logger.info(`[EscrowEngine] Escrow ${escrowId} funded from payer wallet: ${escrow.amount} INR`);
       return true;
-    } catch {
-      return true;
+    } catch (error) {
+      logger.error(`[EscrowEngine] Failed to fund escrow from wallet:`, error as Record<string, unknown>);
+      throw error;
     }
   }
 
@@ -160,8 +162,8 @@ export class EscrowEngine {
       logger.info(`[EscrowEngine] Escrow ${escrowId} released. Net: ${netToPayee} INR, Commission: ${currentCommission} INR`);
       return { success: true, released: netToPayee, commission: currentCommission };
     } catch (err) {
-      logger.warn(`[EscrowEngine] Bypassing release database writes: ${err instanceof Error ? err.message : String(err)}`);
-      return { success: true, released: releaseAmount * 0.95, commission: releaseAmount * 0.05 };
+      logger.error(`[EscrowEngine] Release operation failed:`, err as Record<string, unknown>);
+      throw err;
     }
   }
 
@@ -181,8 +183,9 @@ export class EscrowEngine {
 
       logger.info(`[EscrowEngine] Escrow ${escrowId} marked disputed. Holdings suspended.`);
       return true;
-    } catch {
-      return true;
+    } catch (error) {
+      logger.error(`[EscrowEngine] Dispute lock operation failed:`, error as Record<string, unknown>);
+      throw error;
     }
   }
 }

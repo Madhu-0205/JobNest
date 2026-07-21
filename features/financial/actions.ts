@@ -102,13 +102,9 @@ export async function initiatePaymentAction(formData: unknown): Promise<ActionRe
         amount: validated.amount,
         paymentId: payment.id,
       };
-    } catch {
-      logger.info(`Bypassed database. Initialized simulated gateway orders details.`);
-      return {
-        orderId: `order_${Math.random().toString(36).substring(2, 9)}`,
-        amount: validated.amount,
-        paymentId: crypto.randomUUID(),
-      };
+    } catch (error) {
+      logger.error("Payment initiation failed:", error as Record<string, unknown>);
+      throw error;
     }
   });
 }
@@ -162,12 +158,9 @@ export async function requestPayoutAction(formData: unknown): Promise<ActionResu
         payoutId: payout.id,
         remainingBalance: debResult.newBalance,
       };
-    } catch {
-      logger.info(`Bypassed database. Processed simulated ${validated.method} payout request.`);
-      return {
-        payoutId: crypto.randomUUID(),
-        remainingBalance: 50.00,
-      };
+    } catch (error) {
+      logger.error("Payout request failed:", error as Record<string, unknown>);
+      throw error;
     }
   });
 }
@@ -212,13 +205,9 @@ export async function manageEscrowReleaseAction(
         netReleased: releaseResult.released,
         commission: releaseResult.commission,
       };
-    } catch {
-      logger.info("Bypassed database. Processed simulated escrow release execution.");
-      return {
-        success: true,
-        netReleased: amount * 0.95,
-        commission: amount * 0.05,
-      };
+    } catch (error) {
+      logger.error("Escrow release management failed:", error as Record<string, unknown>);
+      throw error;
     }
   });
 }
@@ -257,12 +246,9 @@ export async function applyCouponAction(formData: unknown): Promise<ActionResult
         discountValue,
         newAmount: 1000.00, // mock base rate reference
       };
-    } catch {
-      logger.info(`Bypassed database. Applied simulated coupon ${validated.code}.`);
-      return {
-        discountValue: 15.00, // mock 15% discount
-        newAmount: 850.00,
-      };
+    } catch (error) {
+      logger.error("Apply coupon failed:", error as Record<string, unknown>);
+      throw error;
     }
   });
 }
