@@ -10,6 +10,7 @@ import {
   reportSchema
 } from "./schemas";
 import { z } from "zod";
+import { rateLimiter } from "@/lib/security/rate-limiter";
 import { runWithRequestContext } from "@/lib/observability/request-context-helper";
 import { logRequestLifecycle } from "@/lib/observability/request-logger";
 import { ActionResult } from "@/features/auth/actions";
@@ -57,6 +58,10 @@ export async function createOpportunityAction(formData: unknown): Promise<Action
     
     // Check permission to post jobs
     const userId = await AuthorizationGuard.assertPermission(PERMISSIONS.JOBS_CREATE);
+
+    const { success } = await rateLimiter.check("createOpportunity", userId);
+    if (!success) throw new Error("Too Many Requests. You have reached the limit for creating opportunities.");
+
     const supabase = await createServerClient();
 
     // Map address Point geometry
@@ -144,6 +149,10 @@ export async function applyOpportunityAction(formData: unknown): Promise<ActionR
   return executeAction("applyOpportunityAction", async () => {
     const validated = applicationSchema.parse(formData);
     const userId = await AuthorizationGuard.assertPermission(PERMISSIONS.JOBS_APPLY);
+
+    const { success } = await rateLimiter.check("jobApply", userId);
+    if (!success) throw new Error("Too Many Requests. You have reached the limit for applying to opportunities.");
+
     const supabase = await createServerClient();
 
     // Verify opportunity is published
@@ -400,38 +409,22 @@ export async function submitReportAction(formData: unknown): Promise<ActionResul
  */
 export async function getOpportunityByIdAction(opportunityId: string): Promise<ActionResult<Record<string, unknown>>> {
   return executeAction("getOpportunityByIdAction", async () => {
-    try {
-      const supabase = await createServerClient();
-      const { data, error } = await supabase
-        .from("opportunities")
-        .select(`
-          *,
-          opportunity_categories ( name_key ),
-          opportunity_types ( name_key )
-        `)
-        .eq("id", opportunityId)
-        .single();
+    const supabase = await createServerClient();
+    const { data, error } = await supabase
+      .from("opportunities")
+      .select(`
+        *,
+        opportunity_categories ( name_key ),
+        opportunity_types ( name_key ),
+        employer_profiles ( company_name, verification_status )
+      `)
+      .eq("id", opportunityId)
+      .single();
 
-      if (error) throw error;
-      return data as Record<string, unknown>;
-    } catch (err) {
-      console.warn("getOpportunityByIdAction: DB fetch failed or mock. Using fallback registry.", err);
-      return {
-        id: opportunityId,
-        title: "Wooden Furniture Varnish",
-        description: "Varnish polish coating needed for office tables and chairs. Payer provides lacquer. Must have sander tools.",
-        pricing_model: "daily",
-        salary_min: 3000,
-        salary_max: 4000,
-        hiring_radius_meters: 5000,
-        pincode: "522002",
-        status: "published",
-        created_at: new Date().toISOString(),
-        opportunity_categories: { name_key: "categories.trades" },
-        opportunity_types: { name_key: "types.daily_wage" },
-        requiredSkills: ["Sanding", "Wood polish"]
-      };
+    if (error) {
+      throw error;
     }
+    return data as Record<string, unknown>;
   });
 }
 

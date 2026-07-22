@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/services/logger";
 import { AIProviderService } from "@/services/ai-provider-service";
+import { aiTranslateSchema } from "@/lib/validation/api-schemas";
+import { AbuseProtection } from "@/lib/security/abuse-protection";
 
 const LANGUAGE_NAMES: Record<string, string> = {
   hi: "Hindi", te: "Telugu", ta: "Tamil", kn: "Kannada",
@@ -13,17 +15,17 @@ const LANGUAGE_NAMES: Record<string, string> = {
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as {
-      text?: string;
-      targetLanguage?: string;
-    };
-
-    if (!body.text || !body.targetLanguage) {
+    const rawBody = await req.json();
+    const parseResult = aiTranslateSchema.safeParse(rawBody);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { success: false, error: "text and targetLanguage are required." },
+        { success: false, error: "Validation failed", details: parseResult.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+    const body = parseResult.data;
+
+    AbuseProtection.validateAIPrompt(body.text);
 
     const langName = LANGUAGE_NAMES[body.targetLanguage] || body.targetLanguage;
 

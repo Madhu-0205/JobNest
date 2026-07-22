@@ -9,6 +9,7 @@ import {
   couponApplySchema
 } from "./schemas";
 import { z } from "zod";
+import { rateLimiter } from "@/lib/security/rate-limiter";
 import { runWithRequestContext } from "@/lib/observability/request-context-helper";
 import { logRequestLifecycle } from "@/lib/observability/request-logger";
 import { ActionResult } from "@/features/auth/actions";
@@ -58,6 +59,10 @@ export async function initiatePaymentAction(formData: unknown): Promise<ActionRe
   return executeAction("initiatePaymentAction", async () => {
     const validated = paymentIntentSchema.parse(formData);
     const userId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_EDIT_OWN);
+
+    const { success } = await rateLimiter.check("paymentCreation", userId);
+    if (!success) throw new Error("Too Many Requests. Payment initiation limit exceeded.");
+
     const supabase = await createServerClient();
 
     try {
@@ -76,9 +81,15 @@ export async function initiatePaymentAction(formData: unknown): Promise<ActionRe
         };
       }
 
-      // 2. Call gateway creation API adapter
+      // 2. Call gateway creation API adapter.
+      // Thread escrow/opportunity context into Razorpay order notes so the
+      // webhook handler can auto-fund the escrow after capture.
+      const orderNotes: Record<string, string> = {};
+      if (validated.escrowId) orderNotes["escrow_id"] = validated.escrowId;
+      if (validated.opportunityId) orderNotes["opportunity_id"] = validated.opportunityId;
+
       const adapter = PaymentGatewayService.getAdapter(validated.gateway);
-      const order = await adapter.createOrder(validated.amount, validated.currency);
+      const order = await adapter.createOrder(validated.amount, validated.currency, orderNotes);
 
       // 3. Log to payments table
       const { data: payment, error } = await supabase
@@ -238,13 +249,27 @@ export async function applyCouponAction(formData: unknown): Promise<ActionResult
         throw new Error("Coupon validity range has expired.");
       }
 
-      // Return simulated discount offsets (e.g. 100 flat discount or 10% off)
+      // Compute real discount against the provided amount.
+      // If no amount was supplied in the payload, use coupon's min_spend as baseline.
+      const baseAmount = (validated as { amount?: number }).amount ?? Number(coupon.min_spend);
       const isPercent = coupon.discount_type === "percentage";
-      const discountValue = isPercent ? Number(coupon.value) : Number(coupon.value);
+
+      let discountValue: number;
+      if (isPercent) {
+        discountValue = baseAmount * (Number(coupon.value) / 100);
+        // Cap if coupon has a max_discount ceiling
+        if (coupon.max_discount !== null) {
+          discountValue = Math.min(discountValue, Number(coupon.max_discount));
+        }
+      } else {
+        discountValue = Number(coupon.value);
+      }
+
+      const newAmount = Math.max(0, baseAmount - discountValue);
 
       return {
         discountValue,
-        newAmount: 1000.00, // mock base rate reference
+        newAmount,
       };
     } catch (error) {
       logger.error("Apply coupon failed:", error as Record<string, unknown>);

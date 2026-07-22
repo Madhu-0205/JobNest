@@ -1,28 +1,28 @@
 "use client";
 
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/Badge";import { useI18n } from "@/lib/i18n/context";
 import { useCurrentLocation } from "@/providers/LocationProvider";
-import { Signal, ShieldAlert, WifiOff, Zap } from "lucide-react";
+import { Signal, ShieldAlert, WifiOff } from "lucide-react";
 
-export function LiveStatusIndicator() {
-  const { accuracy, isSpoofed, isOffline, batteryOptimized, locationSource } = useCurrentLocation();
+export function LiveStatusIndicator() {const { t: i18nT } = useI18n();
+  const { accuracy, isSpoofed, isOffline, locationSource } = useCurrentLocation();
 
   if (isOffline) {
     return (
       <Badge variant="danger" className="flex items-center gap-1 font-mono text-[10px] bg-red-950/80 text-red-300 border-red-800">
         <WifiOff className="w-3 h-3 animate-pulse" />
-        <span>OFFLINE CACHE</span>
-      </Badge>
-    );
+        <span>{i18nT("OFFLINE CACHE")}</span>
+      </Badge>);
+
   }
 
   if (isSpoofed) {
     return (
       <Badge variant="danger" className="flex items-center gap-1 font-mono text-[10px] bg-red-950/80 text-red-300 border-red-800 animate-bounce">
         <ShieldAlert className="w-3 h-3" />
-        <span>GPS BLOCKED: SPOOFING DETECTED</span>
-      </Badge>
-    );
+        <span>{i18nT("GPS BLOCKED: SPOOFING DETECTED")}</span>
+      </Badge>);
+
   }
 
   // Signal strength based on accuracy value in meters
@@ -36,7 +36,7 @@ export function LiveStatusIndicator() {
       signalText = "MEDIUM LOCK";
       signalColor = "bg-yellow-950/80 text-yellow-300 border-yellow-800";
     }
-  } else if (locationSource === "preset" || locationSource === "manual") {
+  } else if (locationSource === "cached" || locationSource === "manual") {
     signalText = "MANUAL ZONE";
     signalColor = "bg-primary/20 text-primary border-primary/30";
   }
@@ -48,13 +48,7 @@ export function LiveStatusIndicator() {
         <span>{signalText} {accuracy ? `(${Math.round(accuracy)}m)` : ""}</span>
       </Badge>
 
-      {batteryOptimized && (
-        <Badge variant="outline" className="flex items-center gap-1 font-mono text-[10px] bg-blue-950/80 text-blue-300 border-blue-800">
-          <Zap className="w-3 h-3" />
-          <span>BATTERY OPTIMIZED</span>
-        </Badge>
-      )}
-    </div>
-  );
+    </div>);
+
 }
 export default LiveStatusIndicator;

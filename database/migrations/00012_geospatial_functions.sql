@@ -46,7 +46,11 @@ RETURNS TABLE (
     salary_min NUMERIC,
     salary_max NUMERIC,
     pincode VARCHAR,
-    distance_meters NUMERIC
+    distance_meters NUMERIC,
+    latitude NUMERIC,
+    longitude NUMERIC,
+    employer_name VARCHAR,
+    verification_status VARCHAR
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -59,8 +63,13 @@ BEGIN
         o.salary_min,
         o.salary_max,
         o.pincode,
-        ST_Distance(o.location, ST_SetSRID(ST_MakePoint(user_lon, user_lat), 4326)::geography) AS distance_meters
+        ST_Distance(o.location, ST_SetSRID(ST_MakePoint(user_lon, user_lat), 4326)::geography) AS distance_meters,
+        ST_Y(o.location::geometry)::NUMERIC AS latitude,
+        ST_X(o.location::geometry)::NUMERIC AS longitude,
+        COALESCE(ep.company_name, 'Local Employer')::VARCHAR AS employer_name,
+        COALESCE(ep.verification_status, 'unverified')::VARCHAR AS verification_status
     FROM public.opportunities o
+    LEFT JOIN public.employer_profiles ep ON o.employer_id = ep.user_id
     WHERE o.status = 'published'
       AND ST_DWithin(o.location, ST_SetSRID(ST_MakePoint(user_lon, user_lat), 4326)::geography, max_distance_meters)
     ORDER BY distance_meters ASC

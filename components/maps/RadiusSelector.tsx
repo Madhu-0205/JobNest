@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/lib/i18n/context";
 
 interface RadiusSelectorProps {
   currentRadius: number;
@@ -17,6 +18,7 @@ const RADIUS_OPTIONS = [
 ];
 
 export function RadiusSelector({ currentRadius, onChange }: RadiusSelectorProps) {
+  const { t: i18nT } = useI18n();
   return (
     <div className="flex gap-1.5 overflow-x-auto py-1 px-0.5 scrollbar-none w-full max-w-md">
       {RADIUS_OPTIONS.map((opt) => {
@@ -33,7 +35,7 @@ export function RadiusSelector({ currentRadius, onChange }: RadiusSelectorProps)
                 : "bg-background/90 text-foreground border-border hover:bg-primary/5 hover:text-primary"
             }`}
           >
-            {opt.label}
+            {i18nT(opt.label)}
           </Button>
         );
       })}

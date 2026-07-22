@@ -20,13 +20,23 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    const supabase = await createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized." } }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     if (!userId) {
       return NextResponse.json({ success: false, error: { code: "BAD_REQUEST", message: "userId parameter is required." } }, { status: 400 });
     }
 
-    const supabase = await createServerClient();
+    if (userId !== user.id) {
+      return NextResponse.json({ success: false, error: { code: "FORBIDDEN", message: "Cannot access reviews for another user." } }, { status: 403 });
+    }
+
     const { data: reviews } = await supabase
       .from("reviews")
       .select(`

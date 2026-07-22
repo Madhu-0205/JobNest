@@ -1,6 +1,5 @@
 import { HttpClient } from "@/lib/http/client";
 import { logger } from "@/lib/observability/logger";
-import { env } from "@/config/env";
 import { GPSSecurityValidator, GPSPing } from "@/lib/security/gps-validator";
 
 import {
@@ -193,10 +192,14 @@ export class GeospatialService {
     criteria: "fastest" | "shortest" | "alternative" = "fastest",
     waypoints: LatLon[] = []
   ): Promise<RouteResult> {
-    const apiKey = env.NEXT_PUBLIC_APP_URL.includes("localhost") ? "" : "mock-api-key";
+    const apiKey = process.env["OPENROUTE_SERVICE_API_KEY"] || "";
     
     if (!apiKey) {
-      // Fallback straight-line waypoint generator
+      if (process.env["NODE_ENV"] === "production") {
+        throw new Error("Routing service unavailable: OPENROUTE_SERVICE_API_KEY is not configured.");
+      }
+      
+      // Fallback straight-line waypoint generator for local development
       const speedRates = {
         "foot-walking": 1.4, // 5 km/h
         "cycling-regular": 4.2, // 15 km/h
@@ -274,7 +277,7 @@ export class GeospatialService {
 
       const raw = await response.json() as {
         routes: {
-          geometry: string; // polyline encoder or coords list depending on format
+          geometry: string;
           summary: {
             distance: number;
             duration: number;
@@ -290,11 +293,8 @@ export class GeospatialService {
         }[];
       };
 
-      // Map ORS coordinates fallback from mock or parsed structures
-      // Note: Full ORS JSON responses contain raw coordinates list inside features[0].geometry
       const route = raw.routes[0];
       
-      // Parse coordinates dummy from features array depending on endpoint structure
       return {
         distanceMeters: Math.round(route.summary.distance),
         durationSeconds: Math.round(route.summary.duration),
@@ -303,19 +303,8 @@ export class GeospatialService {
         criteria,
       };
     } catch (err) {
-      logger.error("Routing calculation failed via ORS, falling back to mock routing.", err);
-      // fallback
-      const totalDistance = this.calculateDistance(start, end);
-      return {
-        distanceMeters: Math.round(totalDistance),
-        durationSeconds: Math.round(totalDistance / 12.0),
-        coordinates: [
-          [start.longitude, start.latitude],
-          [end.longitude, end.latitude],
-        ],
-        mode,
-        criteria,
-      };
+      logger.error("Routing calculation failed via ORS:", err);
+      throw new Error("Routing service temporarily unavailable.");
     }
   }
 

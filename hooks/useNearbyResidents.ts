@@ -19,7 +19,7 @@ export function useNearbyResidents(latitude: number | null, longitude: number | 
   const [error, setError] = useState<string | null>(null);
 
   const fetchResidents = useCallback(async () => {
-    if (latitude === null || longitude === null) return;
+    if (latitude === null || longitude === null || radiusMeters <= 0) return;
     setLoading(true);
     setError(null);
     try {

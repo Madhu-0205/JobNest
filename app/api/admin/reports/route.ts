@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { logger } from "@/services/logger";
 import { AuthorizationGuard } from "@/lib/authorization/guard";
 import { PERMISSIONS } from "@/lib/authorization/permissions";
+import { adminReportSchema } from "@/lib/validation/api-schemas";
 
 const REPORT_TYPES = [
   { type: "daily_summary", label: "Daily Platform Summary", description: "All KPIs for a single day" },
@@ -64,15 +65,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
     }
 
-    const body = await req.json() as {
-      reportType?: string;
-      periodStart?: string;
-      periodEnd?: string;
-    };
-
-    if (!body.reportType) {
-      return NextResponse.json({ success: false, error: "reportType parameter is required." }, { status: 400 });
+    const rawBody = await req.json();
+    const parseResult = adminReportSchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Validation failed", details: parseResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+    const body = parseResult.data;
 
     const supabase = await createServerClient();
     const { data, error } = await supabase.from("report_exports").insert({

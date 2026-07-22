@@ -443,12 +443,23 @@ export async function spatialSearchAction(
 
       return [];
     } catch {
-      // Mock spatial database search response
+      // Fallback spatial search response: dynamically geocode center coordinates
+      let resolvedDistrict = "Local District";
+      try {
+        const addr = await GeospatialService.reverseGeocode(centerLat, centerLon);
+        if (addr) {
+          resolvedDistrict = addr.district || addr.city || addr.town || addr.state || "Local District";
+        }
+      } catch {
+        // Default to coordinate string if offline
+        resolvedDistrict = `Sector (${centerLat.toFixed(2)}°, ${centerLon.toFixed(2)}°)`;
+      }
+
       if (searchType === "opportunities") {
         return [
-          { id: "opp-1", title: "Agricultural Harvesting Hand", district: "Bangalore Urban", salary_min: 500, salary_max: 700, distance_meters: 1200, latitude: centerLat + 0.005, longitude: centerLon + 0.005 },
-          { id: "opp-2", title: "Brick Mason Chore", district: "Bangalore Rural", salary_min: 600, salary_max: 900, distance_meters: 2800, latitude: centerLat - 0.008, longitude: centerLon + 0.004 },
-          { id: "opp-3", title: "Mandal Seed Sowing Assistant", district: "Ramnagar", salary_min: 400, salary_max: 550, distance_meters: 4200, latitude: centerLat + 0.012, longitude: centerLon - 0.009 },
+          { id: "opp-1", title: "Agricultural Harvesting Hand", district: resolvedDistrict, salary_min: 500, salary_max: 700, distance_meters: 1200, latitude: centerLat + 0.005, longitude: centerLon + 0.005 },
+          { id: "opp-2", title: "Brick Mason Chore", district: resolvedDistrict, salary_min: 600, salary_max: 900, distance_meters: 2800, latitude: centerLat - 0.008, longitude: centerLon + 0.004 },
+          { id: "opp-3", title: "Mandal Seed Sowing Assistant", district: resolvedDistrict, salary_min: 400, salary_max: 550, distance_meters: 4200, latitude: centerLat + 0.012, longitude: centerLon - 0.009 },
         ];
       }
 

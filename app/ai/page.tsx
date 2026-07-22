@@ -76,7 +76,7 @@ const TRANSLATIONS: Record<string, TranslationEntry> = {
     median: "Median",
     high: "High",
     matched: "Matched",
-    missing: "Missing",
+    missing: "Missing"
   },
   hi: {
     title: "एआई इंटेलिजेंस प्लेटफ़ॉर्म",
@@ -105,7 +105,7 @@ const TRANSLATIONS: Record<string, TranslationEntry> = {
     median: "मध्यम",
     high: "उच्च",
     matched: "मिलान",
-    missing: "गायब",
+    missing: "गायब"
   },
   te: {
     title: "AI ఇంటెలిజెన్స్ ప్లాట్‌ఫారం",
@@ -134,7 +134,7 @@ const TRANSLATIONS: Record<string, TranslationEntry> = {
     median: "మధ్యస్థ",
     high: "ఎక్కువ",
     matched: "సరిపోలింది",
-    missing: "లేదు",
+    missing: "లేదు"
   },
   ta: {
     title: "AI நுண்ணறிவு தளம்",
@@ -163,7 +163,7 @@ const TRANSLATIONS: Record<string, TranslationEntry> = {
     median: "நடுத்தர",
     high: "அதிகம்",
     matched: "பொருத்தம்",
-    missing: "காணவில்லை",
+    missing: "காணவில்லை"
   },
   kn: {
     title: "AI ಬುದ್ಧಿಮತ್ತೆ ಪ್ಲಾಟ್‌ಫಾರ್ಮ್",
@@ -192,8 +192,8 @@ const TRANSLATIONS: Record<string, TranslationEntry> = {
     median: "ಮಧ್ಯಮ",
     high: "ಹೆಚ್ಚು",
     matched: "ಹೊಂದಾಣಿಕೆ",
-    missing: "ಕಾಣೆ",
-  },
+    missing: "ಕಾಣೆ"
+  }
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -211,12 +211,12 @@ interface SalaryBand {
 }
 
 const SALARY_DATA: SalaryBand[] = [
-  { category: "Plumbing", region: "Bangalore Urban", low: 500, median: 800, high: 1200, trend: "rising", sampleSize: 342 },
-  { category: "House Cleaning", region: "Bangalore Urban", low: 400, median: 650, high: 1000, trend: "rising", sampleSize: 567 },
-  { category: "Carpentry", region: "Bangalore Urban", low: 600, median: 900, high: 1500, trend: "rising", sampleSize: 198 },
-  { category: "Electrical", region: "Bangalore Urban", low: 550, median: 850, high: 1400, trend: "rising", sampleSize: 276 },
-  { category: "Delivery", region: "Bangalore Urban", low: 400, median: 700, high: 1100, trend: "stable", sampleSize: 634 },
-];
+{ category: "Plumbing", region: "Bangalore Urban", low: 500, median: 800, high: 1200, trend: "rising", sampleSize: 342 },
+{ category: "House Cleaning", region: "Bangalore Urban", low: 400, median: 650, high: 1000, trend: "rising", sampleSize: 567 },
+{ category: "Carpentry", region: "Bangalore Urban", low: 600, median: 900, high: 1500, trend: "rising", sampleSize: 198 },
+{ category: "Electrical", region: "Bangalore Urban", low: 550, median: 850, high: 1400, trend: "rising", sampleSize: 276 },
+{ category: "Delivery", region: "Bangalore Urban", low: 400, median: 700, high: 1100, trend: "stable", sampleSize: 634 }];
+
 
 interface FraudAlert {
   id: string;
@@ -228,26 +228,26 @@ interface FraudAlert {
 }
 
 const FRAUD_ALERTS: FraudAlert[] = [
-  { id: "fa1", type: "Spam Profile", severity: "high", description: "Duplicate profile detected with identical bio text across 3 accounts.", detectedAt: "2026-07-15T14:23:00Z", userId: "user-x1" },
-  { id: "fa2", type: "Bot Activity", severity: "critical", description: "Automated application pattern: 47 applications in 2 minutes.", detectedAt: "2026-07-15T13:45:00Z", userId: "user-x2" },
-  { id: "fa3", type: "Fake Review", severity: "medium", description: "Identical 5-star reviews submitted from same IP address cluster.", detectedAt: "2026-07-15T12:10:00Z", userId: "user-x3" },
-  { id: "fa4", type: "GPS Spoofing", severity: "high", description: "Impossible travel speed detected: 850 km/h between check-ins.", detectedAt: "2026-07-15T11:30:00Z", userId: "user-x4" },
-];
+{ id: "fa1", type: "Spam Profile", severity: "high", description: "Duplicate profile detected with identical bio text across 3 accounts.", detectedAt: "2026-07-15T14:23:00Z", userId: "user-x1" },
+{ id: "fa2", type: "Bot Activity", severity: "critical", description: "Automated application pattern: 47 applications in 2 minutes.", detectedAt: "2026-07-15T13:45:00Z", userId: "user-x2" },
+{ id: "fa3", type: "Fake Review", severity: "medium", description: "Identical 5-star reviews submitted from same IP address cluster.", detectedAt: "2026-07-15T12:10:00Z", userId: "user-x3" },
+{ id: "fa4", type: "GPS Spoofing", severity: "high", description: "Impossible travel speed detected: 850 km/h between check-ins.", detectedAt: "2026-07-15T11:30:00Z", userId: "user-x4" }];
+
 
 // ─────────────────────────────────────────────────────────────────
 // Dashboard Component
 // ─────────────────────────────────────────────────────────────────
 
 const TARGET_LANGUAGES = [
-  { code: "hi", label: "Hindi" }, { code: "te", label: "Telugu" },
-  { code: "ta", label: "Tamil" }, { code: "kn", label: "Kannada" },
-  { code: "ml", label: "Malayalam" }, { code: "mr", label: "Marathi" },
-  { code: "gu", label: "Gujarati" }, { code: "pa", label: "Punjabi" },
-  { code: "bn", label: "Bengali" }, { code: "od", label: "Odia" },
-  { code: "en", label: "English" },
-];
+{ code: "hi", label: "Hindi" }, { code: "te", label: "Telugu" },
+{ code: "ta", label: "Tamil" }, { code: "kn", label: "Kannada" },
+{ code: "ml", label: "Malayalam" }, { code: "mr", label: "Marathi" },
+{ code: "gu", label: "Gujarati" }, { code: "pa", label: "Punjabi" },
+{ code: "bn", label: "Bengali" }, { code: "od", label: "Odia" },
+{ code: "en", label: "English" }];
 
-export default function AIDashboard() {
+
+export default function AIDashboard() {const { t: i18nT } = useI18n();
   const { locale } = useI18n();
   const lang = locale;
   const t = TRANSLATIONS[lang] || TRANSLATIONS["en"];
@@ -275,7 +275,7 @@ export default function AIDashboard() {
   const [requiredSkills] = useState(["plumbing", "pipe fitting", "electrical wiring", "safety certification", "welding"]);
   const matchedSkills = requiredSkills.filter((s) => profileSkills.includes(s));
   const missingSkills = requiredSkills.filter((s) => !profileSkills.includes(s));
-  const matchPct = Math.round((matchedSkills.length / requiredSkills.length) * 100);
+  const matchPct = Math.round(matchedSkills.length / requiredSkills.length * 100);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -322,7 +322,7 @@ export default function AIDashboard() {
           <Card style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#c4b5fd" }}>🔍 {t.semanticSearch}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>pgvector + PostGIS hybrid</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("pgvector + PostGIS hybrid")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
@@ -332,16 +332,16 @@ export default function AIDashboard() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(124,58,237,0.3)", color: "#fff", flex: 1 }}
-                />
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(124,58,237,0.3)", color: "#fff", flex: 1 }} />
+                
                 <Button onClick={handleSearch} disabled={semanticSearch.loading} style={{ background: "linear-gradient(135deg, #7c3aed, #6d28d9)", border: "none", color: "#fff", borderRadius: 8 }}>
                   {semanticSearch.loading ? "..." : t.search}
                 </Button>
               </div>
 
               <div style={{ maxHeight: 280, overflowY: "auto" }}>
-                {semanticSearch.results.map((r) => (
-                  <div key={r.id} style={{ padding: "12px 16px", marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 10, borderLeft: "3px solid #7c3aed" }}>
+                {semanticSearch.results.map((r) =>
+                <div key={r.id} style={{ padding: "12px 16px", marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 10, borderLeft: "3px solid #7c3aed" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                       <span style={{ color: "#e0d4fc", fontWeight: 600, fontSize: 14 }}>{r.title}</span>
                       <Badge style={{ background: `rgba(124,58,237,${r.similarity})`, color: "#fff", fontSize: 11 }}>
@@ -349,16 +349,16 @@ export default function AIDashboard() {
                       </Badge>
                     </div>
                     <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, margin: 0 }}>{r.description}</p>
-                    {r.distance != null && (
-                      <span style={{ color: "#06b6d4", fontSize: 11 }}>📍 {t.distance}: {r.distance >= 1000 ? `${(r.distance / 1000).toFixed(1)} km` : `${r.distance}m`}</span>
-                    )}
+                    {r.distance != null &&
+                  <span style={{ color: "#06b6d4", fontSize: 11 }}>📍 {t.distance}: {r.distance >= 1000 ? `${(r.distance / 1000).toFixed(1)} km` : `${r.distance}m`}</span>
+                  }
                   </div>
-                ))}
-                {semanticSearch.results.length === 0 && !semanticSearch.loading && (
-                  <p style={{ color: "rgba(255,255,255,0.3)", textAlign: "center", fontSize: 13, padding: 20 }}>
-                    Enter a natural language query to search opportunities...
-                  </p>
                 )}
+                {semanticSearch.results.length === 0 && !semanticSearch.loading &&
+                <p style={{ color: "rgba(255,255,255,0.3)", textAlign: "center", fontSize: 13, padding: 20 }}>{i18nT("Enter a natural language query to search opportunities...")}
+
+                </p>
+                }
               </div>
             </CardContent>
           </Card>
@@ -367,7 +367,7 @@ export default function AIDashboard() {
           <Card style={{ background: "rgba(6,182,212,0.08)", border: "1px solid rgba(6,182,212,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#67e8f9" }}>⚡ {t.recommendations}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>Composite weighted ranking</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Composite weighted ranking")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
@@ -377,8 +377,8 @@ export default function AIDashboard() {
               </div>
 
               <div style={{ maxHeight: 280, overflowY: "auto" }}>
-                {recommendations.recommendation?.candidates.map((c, i) => (
-                  <div key={c.id} style={{ padding: "12px 16px", marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 10, borderLeft: `3px solid ${i === 0 ? "#fbbf24" : i === 1 ? "#94a3b8" : i === 2 ? "#b45309" : "#06b6d4"}` }}>
+                {recommendations.recommendation?.candidates.map((c, i) =>
+                <div key={c.id} style={{ padding: "12px 16px", marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 10, borderLeft: `3px solid ${i === 0 ? "#fbbf24" : i === 1 ? "#94a3b8" : i === 2 ? "#b45309" : "#06b6d4"}` }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                       <span style={{ color: "#e0f2fe", fontWeight: 600, fontSize: 14 }}>
                         {i < 3 ? ["🥇", "🥈", "🥉"][i] : `#${i + 1}`} {c.name}
@@ -390,23 +390,23 @@ export default function AIDashboard() {
                     <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, margin: "0 0 6px" }}>{c.title}</p>
                     <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                       {[
-                        { label: "Skills", value: c.skillScore, color: "#7c3aed" },
-                        { label: "Trust", value: c.trustScore, color: "#10b981" },
-                        { label: "Distance", value: c.distanceScore, color: "#06b6d4" },
-                        { label: "Rating", value: c.ratingScore, color: "#f59e0b" },
-                      ].map((d) => (
-                        <span key={d.label} style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: `${d.color}22`, color: d.color }}>
+                    { label: "Skills", value: c.skillScore, color: "#7c3aed" },
+                    { label: "Trust", value: c.trustScore, color: "#10b981" },
+                    { label: "Distance", value: c.distanceScore, color: "#06b6d4" },
+                    { label: "Rating", value: c.ratingScore, color: "#f59e0b" }].
+                    map((d) =>
+                    <span key={d.label} style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: `${d.color}22`, color: d.color }}>
                           {d.label}: {(d.value * 100).toFixed(0)}%
                         </span>
-                      ))}
+                    )}
                     </div>
                   </div>
-                ))}
-                {!recommendations.recommendation && !recommendations.loading && (
-                  <p style={{ color: "rgba(255,255,255,0.3)", textAlign: "center", fontSize: 13, padding: 20 }}>
-                    Click Generate to compute ranked recommendations...
-                  </p>
                 )}
+                {!recommendations.recommendation && !recommendations.loading &&
+                <p style={{ color: "rgba(255,255,255,0.3)", textAlign: "center", fontSize: 13, padding: 20 }}>{i18nT("Click Generate to compute ranked recommendations...")}
+
+                </p>
+                }
               </div>
             </CardContent>
           </Card>
@@ -419,29 +419,29 @@ export default function AIDashboard() {
           <Card style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#6ee7b7" }}>✨ {t.profileEnhancer}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>Ollama-powered profile optimization</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Ollama-powered profile optimization")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}>
-                <Input id="enhance-name" value={enhanceName} onChange={(e) => setEnhanceName(e.target.value)} placeholder="Full Name" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
-                <Input id="enhance-desc" value={enhanceDesc} onChange={(e) => setEnhanceDesc(e.target.value)} placeholder="Current Description" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
-                <Input id="enhance-skills" value={enhanceSkills} onChange={(e) => setEnhanceSkills(e.target.value)} placeholder="Skills (comma separated)" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
+                <Input id="enhance-name" value={enhanceName} onChange={(e) => setEnhanceName(e.target.value)} placeholder={i18nT("Full Name")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
+                <Input id="enhance-desc" value={enhanceDesc} onChange={(e) => setEnhanceDesc(e.target.value)} placeholder={i18nT("Current Description")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
+                <Input id="enhance-skills" value={enhanceSkills} onChange={(e) => setEnhanceSkills(e.target.value)} placeholder={i18nT("Skills (comma separated)")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
                 <Button onClick={handleEnhance} disabled={profileAi.loading} style={{ background: "linear-gradient(135deg, #059669, #10b981)", border: "none", color: "#fff", borderRadius: 8 }}>
                   {profileAi.loading ? "Enhancing..." : `${t.enhance} Profile`}
                 </Button>
               </div>
 
-              {profileAi.result && (
-                <div style={{ padding: 16, background: "rgba(16,185,129,0.1)", borderRadius: 10, border: "1px solid rgba(16,185,129,0.2)" }}>
-                  <p style={{ color: "#6ee7b7", fontSize: 11, fontWeight: 700, textTransform: "uppercase", marginBottom: 6 }}>{t.enhanced} Description</p>
+              {profileAi.result &&
+              <div style={{ padding: 16, background: "rgba(16,185,129,0.1)", borderRadius: 10, border: "1px solid rgba(16,185,129,0.2)" }}>
+                  <p style={{ color: "#6ee7b7", fontSize: 11, fontWeight: 700, textTransform: "uppercase", marginBottom: 6 }}>{t.enhanced}{i18nT("Description")}</p>
                   <p style={{ color: "#d1fae5", fontSize: 13, lineHeight: 1.6, margin: 0 }}>{profileAi.result.enhanced}</p>
                   <div style={{ marginTop: 10, display: "flex", gap: 4, flexWrap: "wrap" }}>
-                    {profileAi.result.suggestions.map((s, i) => (
-                      <span key={i} style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, background: "rgba(16,185,129,0.15)", color: "#6ee7b7" }}>💡 {s}</span>
-                    ))}
+                    {profileAi.result.suggestions.map((s, i) =>
+                  <span key={i} style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, background: "rgba(16,185,129,0.15)", color: "#6ee7b7" }}>💡 {s}</span>
+                  )}
                   </div>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
 
@@ -449,7 +449,7 @@ export default function AIDashboard() {
           <Card style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#fcd34d" }}>🌐 {t.translation}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>11 Indian languages</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("11 Indian languages")}</CardDescription>
             </CardHeader>
             <CardContent>
               <textarea
@@ -457,32 +457,32 @@ export default function AIDashboard() {
                 value={translateText}
                 onChange={(e) => setTranslateText(e.target.value)}
                 rows={3}
-                style={{ width: "100%", padding: 12, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 8, color: "#fff", fontSize: 13, resize: "vertical", fontFamily: "inherit" }}
-              />
+                style={{ width: "100%", padding: 12, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 8, color: "#fff", fontSize: 13, resize: "vertical", fontFamily: "inherit" }} />
+              
               <div style={{ display: "flex", gap: 8, margin: "10px 0" }}>
                 <select
                   id="target-lang"
                   value={targetLang}
                   onChange={(e) => setTargetLang(e.target.value)}
-                  style={{ flex: 1, padding: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 8, color: "#fff", fontSize: 13 }}
-                >
-                  {TARGET_LANGUAGES.map((l) => (
-                    <option key={l.code} value={l.code} style={{ background: "#1a1a2e" }}>{l.label}</option>
-                  ))}
+                  style={{ flex: 1, padding: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 8, color: "#fff", fontSize: 13 }}>
+                  
+                  {TARGET_LANGUAGES.map((l) =>
+                  <option key={l.code} value={l.code} style={{ background: "#1a1a2e" }}>{l.label}</option>
+                  )}
                 </select>
                 <Button onClick={handleTranslate} disabled={translation.loading} style={{ background: "linear-gradient(135deg, #d97706, #f59e0b)", border: "none", color: "#fff", borderRadius: 8 }}>
                   {translation.loading ? "..." : t.translate}
                 </Button>
               </div>
 
-              {translation.result && (
-                <div style={{ padding: 16, background: "rgba(245,158,11,0.1)", borderRadius: 10, border: "1px solid rgba(245,158,11,0.2)" }}>
+              {translation.result &&
+              <div style={{ padding: 16, background: "rgba(245,158,11,0.1)", borderRadius: 10, border: "1px solid rgba(245,158,11,0.2)" }}>
                   <p style={{ color: "#fcd34d", fontSize: 11, fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>
                     {t.translated} ({translation.result.targetLanguageName})
                   </p>
                   <p style={{ color: "#fef3c7", fontSize: 14, lineHeight: 1.6, margin: 0 }}>{translation.result.translated}</p>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </div>
@@ -494,11 +494,11 @@ export default function AIDashboard() {
           <Card style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#a5b4fc" }}>💰 {t.salaryIntel}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>Regional wage bands (INR/day)</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Regional wage bands (INR/day)")}</CardDescription>
             </CardHeader>
             <CardContent>
-              {SALARY_DATA.map((s) => (
-                <div key={s.category} style={{ padding: "10px 12px", marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 8 }}>
+              {SALARY_DATA.map((s) =>
+              <div key={s.category} style={{ padding: "10px 12px", marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 8 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                     <span style={{ color: "#c7d2fe", fontWeight: 600, fontSize: 13 }}>{s.category}</span>
                     <Badge style={{ background: s.trend === "rising" ? "rgba(16,185,129,0.2)" : "rgba(148,163,184,0.2)", color: s.trend === "rising" ? "#6ee7b7" : "#94a3b8", fontSize: 10 }}>
@@ -508,18 +508,18 @@ export default function AIDashboard() {
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, position: "relative" }}>
                       <div style={{
-                        position: "absolute", left: `${(s.low / s.high) * 100}%`,
-                        width: `${((s.median - s.low) / s.high) * 100}%`,
-                        height: "100%", background: "linear-gradient(90deg, #6366f1, #818cf8)", borderRadius: 3,
-                      }} />
+                      position: "absolute", left: `${s.low / s.high * 100}%`,
+                      width: `${(s.median - s.low) / s.high * 100}%`,
+                      height: "100%", background: "linear-gradient(90deg, #6366f1, #818cf8)", borderRadius: 3
+                    }} />
                     </div>
                     <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, whiteSpace: "nowrap" }}>
                       ₹{s.low}–₹{s.high}
                     </span>
                   </div>
-                  <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{s.sampleSize} samples</span>
+                  <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{s.sampleSize}{i18nT("samples")}</span>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
 
@@ -527,7 +527,7 @@ export default function AIDashboard() {
           <Card style={{ background: "rgba(236,72,153,0.08)", border: "1px solid rgba(236,72,153,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#f9a8d4" }}>🎯 {t.skillGap}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>Profile vs. Opportunity</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Profile vs. Opportunity")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ textAlign: "center", marginBottom: 16 }}>
@@ -544,17 +544,17 @@ export default function AIDashboard() {
               <div style={{ marginBottom: 12 }}>
                 <p style={{ color: "#6ee7b7", fontSize: 11, fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>✅ {t.matched}</p>
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                  {matchedSkills.map((s) => (
-                    <Badge key={s} style={{ background: "rgba(16,185,129,0.15)", color: "#6ee7b7", fontSize: 11 }}>{s}</Badge>
-                  ))}
+                  {matchedSkills.map((s) =>
+                  <Badge key={s} style={{ background: "rgba(16,185,129,0.15)", color: "#6ee7b7", fontSize: 11 }}>{s}</Badge>
+                  )}
                 </div>
               </div>
               <div>
                 <p style={{ color: "#fca5a5", fontSize: 11, fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }}>❌ {t.missing}</p>
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                  {missingSkills.map((s) => (
-                    <Badge key={s} style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", fontSize: 11 }}>{s}</Badge>
-                  ))}
+                  {missingSkills.map((s) =>
+                  <Badge key={s} style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", fontSize: 11 }}>{s}</Badge>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -564,23 +564,23 @@ export default function AIDashboard() {
           <Card style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#fca5a5" }}>🛡️ {t.fraudMonitor}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>Real-time threat detection</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Real-time threat detection")}</CardDescription>
             </CardHeader>
             <CardContent>
-              {FRAUD_ALERTS.map((f) => (
-                <div key={f.id} style={{ padding: "10px 12px", marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 8, borderLeft: `3px solid ${severityColor(f.severity)}` }}>
+              {FRAUD_ALERTS.map((f) =>
+              <div key={f.id} style={{ padding: "10px 12px", marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 8, borderLeft: `3px solid ${severityColor(f.severity)}` }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                     <span style={{ color: "#fecaca", fontWeight: 600, fontSize: 12 }}>{f.type}</span>
                     <Badge style={{ background: `${severityColor(f.severity)}22`, color: severityColor(f.severity), fontSize: 10, textTransform: "uppercase" }}>{f.severity}</Badge>
                   </div>
                   <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, margin: 0 }}>{f.description}</p>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         </div>
 
       </div>
-    </ProductShell>
-  );
+    </ProductShell>);
+
 }

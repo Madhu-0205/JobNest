@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useCurrentLocation } from "@/providers/LocationProvider";
 
 export interface RankedCandidate {
   id: string;
@@ -27,15 +28,23 @@ export function useAiRecommendations() {
   const [recommendation, setRecommendation] = useState<RecommendationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const { latitude, longitude } = useCurrentLocation();
 
   const fetchRecommendations = useCallback(async (
-    type: "worker" | "employer" | "opportunity" = "worker"
+    type: "worker" | "employer" | "opportunity" = "worker",
+    radius: number = 50000
   ) => {
+    if (latitude === null || longitude === null) {
+      setError("Waiting for live location to fetch recommendations.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`/api/ai/recommendations?type=${type}`);
+      const res = await fetch(`/api/ai/recommendations?type=${type}&lat=${latitude}&lng=${longitude}&radius=${radius}`);
       const data = await res.json();
 
       if (data.success) {
@@ -48,7 +57,7 @@ export function useAiRecommendations() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [latitude, longitude]);
 
   return { recommendation, loading, error, fetchRecommendations };
 }

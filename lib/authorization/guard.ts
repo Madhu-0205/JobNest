@@ -36,6 +36,12 @@ export class AuthorizationGuard {
       .map((ur) => ur.roles?.name as RoleName)
       .filter((name): name is RoleName => !!name);
 
+    // Fallback: check JWT metadata roles (e.g. app_metadata or user_metadata) if DB table is unpopulated
+    const metadataRole = (user.app_metadata?.["role"] || user.user_metadata?.["role"]) as RoleName | undefined;
+    if (metadataRole && !roles.includes(metadataRole)) {
+      roles.push(metadataRole);
+    }
+
     // Verify permission mapping match
     const hasPermission = roles.some((role) => {
       const allowed = ROLE_PERMISSIONS[role];
@@ -70,6 +76,11 @@ export class AuthorizationGuard {
     const roles: RoleName[] = (userRoles || [])
       .map((ur) => ur.roles?.name as RoleName)
       .filter((name): name is RoleName => !!name);
+
+    const metadataRole = (user.app_metadata?.["role"] || user.user_metadata?.["role"]) as RoleName | undefined;
+    if (metadataRole && !roles.includes(metadataRole)) {
+      roles.push(metadataRole);
+    }
 
     if (!roles.includes(role) && !roles.includes("super_admin")) {
       throw new AuthorizationError(`Access denied. Required role: ${role}`);

@@ -85,12 +85,15 @@ export async function executeSemanticSearchAction(
 // ─────────────────────────────────────────────────────────────────
 
 export async function generateRecommendationsAction(
-  type: "worker" | "employer" | "opportunity"
+  type: "worker" | "employer" | "opportunity",
+  lat: number,
+  lng: number,
+  maxDistanceMeters: number = 50000
 ): Promise<ActionResult<{ candidates: RecommendationEngine extends never ? never : ReturnType<typeof transformCandidates> }>> {
   return executeAction("generateRecommendationsAction", async () => {
     const userId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VIEW);
 
-    const result = await RecommendationEngine.recommend(userId, type);
+    const result = await RecommendationEngine.recommend(userId, type, lat, lng, maxDistanceMeters);
     return { candidates: transformCandidates(result.candidates) };
   });
 }

@@ -7,11 +7,11 @@ export const createMockSupabase = () => {
   return {
     auth: {
       signUp: async (_credentials: { email: string }) => ({
-        data: { user: { id: "mock-user-id", email: _credentials.email } },
+        data: { user: { id: process.env["TEST_USER_ID"] || "test_mock_user_id", email: _credentials.email } },
         error: null,
       }),
       signInWithPassword: async (_credentials: { email: string }) => ({
-        data: { session: { access_token: "mock-token", user: { id: "mock-user-id", email: _credentials.email } } },
+        data: { session: { access_token: process.env["TEST_ACCESS_TOKEN"] || "test_mock_token", user: { id: process.env["TEST_USER_ID"] || "test_mock_user_id", email: _credentials.email } } },
         error: null,
       }),
       signOut: async () => ({ error: null }),

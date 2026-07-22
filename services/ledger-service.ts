@@ -56,11 +56,14 @@ export class LedgerService {
 
       logger.info(`[Ledger] Recorded double-entry transaction ${transactionId}: Balanced ${debit.amount} INR`);
       return true;
-    } catch {
-      logger.warn(
-        `[Ledger] Double-entry database insert bypassed. Simulated log: TX ${transactionId} - Debit ${debit.accountId || "Platform"} / Credit ${credit.accountId || "Platform"} - Amount: ${debit.amount} INR`
+    } catch (err) {
+      logger.error(
+        `[Ledger] Double-entry DB write failed for TX ${transactionId} — ` +
+          `Debit ${debit.accountId || "Platform"} / Credit ${credit.accountId || "Platform"} — ` +
+          `Amount: ${debit.amount} INR`,
+        err as Record<string, unknown>
       );
-      return true;
+      throw err; // Propagate so callers can decide to roll back or alert
     }
   }
 

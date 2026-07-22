@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState } from "react";import { useI18n } from "@/lib/i18n/context";
 import { Search, Loader2, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -14,7 +14,7 @@ interface MapSearchProps {
   placeholder?: string;
 }
 
-export function MapSearch({ onSearch, onSelectCoordinates, placeholder = "Search gigs (e.g. 'electrician within 5 km')..." }: MapSearchProps) {
+export function MapSearch({ onSearch, onSelectCoordinates, placeholder = "Search gigs (e.g. 'electrician within 5 km')..." }: MapSearchProps) {const { t: i18nT } = useI18n();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const { flyTo } = useMapInstance();
@@ -63,27 +63,27 @@ export function MapSearch({ onSearch, onSelectCoordinates, placeholder = "Search
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={placeholder}
-          className="w-full bg-transparent border-0 border-none outline-none focus:outline-none focus:ring-0 text-xs py-2 pl-9 pr-2 text-foreground placeholder:text-muted-foreground"
-        />
+          placeholder={i18nT(placeholder)}
+          className="w-full bg-transparent border-0 border-none outline-none focus:outline-none focus:ring-0 text-xs py-2 pl-9 pr-2 text-foreground placeholder:text-muted-foreground" />
+        
         <div className="absolute left-3 top-2.5 text-muted-foreground">
-          {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-primary" />
-          ) : (
-            <Search className="w-4 h-4" />
-          )}
+          {loading ?
+          <Loader2 className="w-4 h-4 animate-spin text-primary" /> :
+
+          <Search className="w-4 h-4" />
+          }
         </div>
       </div>
       <Button
         type="submit"
         disabled={loading}
         size="sm"
-        className="h-8 px-4 rounded-xl flex items-center gap-1 font-bold text-xs shadow-sm bg-primary text-primary-foreground hover:bg-primary/95"
-      >
+        className="h-8 px-4 rounded-xl flex items-center gap-1 font-bold text-xs shadow-sm bg-primary text-primary-foreground hover:bg-primary/95">
+        
         <Sparkles className="w-3.5 h-3.5" />
-        <span>Ask AI</span>
+        <span>{i18nT("Ask AI")}</span>
       </Button>
-    </form>
-  );
+    </form>);
+
 }
 export default MapSearch;

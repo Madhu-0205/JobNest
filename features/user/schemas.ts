@@ -13,7 +13,7 @@ export const workerProfileSchema = z.object({
 
 export const workerOnboardingSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters."),
-  phone: z.string().min(10, "Phone number must be at least 10 characters."),
+  phone: z.string().regex(/^\+?[0-9]{10,15}$/, "Invalid phone number format."),
   avatarUrl: z.string().url().optional().or(z.string().length(0)),
   jobTitle: z.string().min(2, "Job title must be at least 2 characters."),
   bio: z.string().min(10, "Bio must be at least 10 characters."),
@@ -29,7 +29,7 @@ export const workerOnboardingSchema = z.object({
 
 export const employerOnboardingSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters."),
-  gstNumber: z.string().length(15, "GST number must be 15 characters.").optional().or(z.string().length(0)),
+  gstNumber: z.string().regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Zz][0-9A-Z]{1}$/i, "Invalid GSTIN format.").optional().or(z.string().length(0)),
   industry: z.string().min(2, "Industry must be at least 2 characters."),
   bio: z.string().min(10, "Company description must be at least 10 characters."),
   categories: z.array(z.string()),
@@ -38,7 +38,7 @@ export const employerOnboardingSchema = z.object({
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   ownerName: z.string().min(2, "Owner name is required."),
-  phoneNumber: z.string().min(10, "Phone number is required."),
+  phoneNumber: z.string().regex(/^\+?[0-9]{10,15}$/, "Invalid phone number format."),
 });
 
 export const residentOnboardingSchema = z.object({
@@ -59,6 +59,13 @@ export const kycDocumentSchema = z.object({
   documentType: z.enum(["Aadhar", "PAN", "Passport", "DrivingLicense", "VoterId"]),
   documentNumber: z.string().min(4, "Document verification number is required."),
   fileUrl: z.string().url("Invalid document upload file URL format."),
+}).superRefine((data, ctx) => {
+  if (data.documentType === "Aadhar" && !/^\d{12}$/.test(data.documentNumber)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid Aadhaar number.", path: ["documentNumber"] });
+  }
+  if (data.documentType === "PAN" && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(data.documentNumber)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid PAN number.", path: ["documentNumber"] });
+  }
 });
 
 export const experienceSchema = z.object({

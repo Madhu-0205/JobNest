@@ -2,12 +2,9 @@
 
 import { Button } from "@/components/ui/Button";
 import { useMapInstance } from "@/providers/MapProvider";
-import { useCurrentLocation } from "@/hooks/useCurrentLocation";
-import { Plus, Minus, Battery, BatteryCharging, Maximize } from "lucide-react";
-
+import { Plus, Minus, Maximize } from "lucide-react";
 export function MapControls() {
   const { map } = useMapInstance();
-  const { batteryOptimized, toggleBatteryOptimization } = useCurrentLocation();
 
   const handleZoomIn = () => {
     if (!map) return;
@@ -52,19 +49,6 @@ export function MapControls() {
         </Button>
       </div>
 
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={toggleBatteryOptimization}
-        className="w-10 h-10 rounded-xl glass-card border border-primary/20 bg-background/95 text-primary hover:bg-primary/5 flex items-center justify-center"
-        title={batteryOptimized ? "Battery Optimizer Active" : "Optimize Battery"}
-      >
-        {batteryOptimized ? (
-          <Battery className="w-5 h-5 text-amber-500 animate-pulse" />
-        ) : (
-          <BatteryCharging className="w-5 h-5" />
-        )}
-      </Button>
 
       <Button
         variant="outline"

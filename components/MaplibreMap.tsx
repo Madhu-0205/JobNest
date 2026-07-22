@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";import { useI18n } from "@/lib/i18n/context";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -44,8 +44,8 @@ export function MaplibreMap({
   markers = [],
   routeCoordinates = [],
   geofences = [],
-  isOffline = false,
-}: MaplibreMapProps) {
+  isOffline = false
+}: MaplibreMapProps) {const { t: i18nT } = useI18n();
   const mapContainer = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<maplibregl.Map | null>(null);
   const [styleLoaded, setStyleLoaded] = useState(false);
@@ -62,26 +62,26 @@ export function MaplibreMap({
           "osm-tiles": {
             type: "raster",
             tiles: [
-              "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            ],
+            "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+
             tileSize: 256,
-            attribution: "© OpenStreetMap contributors",
-          },
+            attribution: "© OpenStreetMap contributors"
+          }
         },
         layers: [
-          {
-            id: "osm-raster-layer",
-            type: "raster",
-            source: "osm-tiles",
-            minzoom: 0,
-            maxzoom: 19,
-          },
-        ],
+        {
+          id: "osm-raster-layer",
+          type: "raster",
+          source: "osm-tiles",
+          minzoom: 0,
+          maxzoom: 19
+        }]
+
       },
       center: [longitude, latitude],
-      zoom: zoom,
+      zoom: zoom
     });
 
     mapInstance.addControl(new maplibregl.NavigationControl(), "top-right");
@@ -112,18 +112,18 @@ export function MaplibreMap({
     markersRef.current = [];
 
     markers.forEach((markerInfo) => {
-      const popup = markerInfo.label
-        ? new maplibregl.Popup({ offset: 25 }).setHTML(
-            `<div class="text-xs font-semibold p-1 text-black">${markerInfo.label}</div>`
-          )
-        : undefined;
+      const popup = markerInfo.label ?
+      new maplibregl.Popup({ offset: 25 }).setHTML(
+        `<div class="text-xs font-semibold p-1 text-black">${markerInfo.label}</div>`
+      ) :
+      undefined;
 
       const marker = new maplibregl.Marker({
-        color: markerInfo.color || "#c5a880", // default gold
-      })
-        .setLngLat([markerInfo.longitude, markerInfo.latitude])
-        .setPopup(popup)
-        .addTo(map);
+        color: markerInfo.color || "#c5a880" // default gold
+      }).
+      setLngLat([markerInfo.longitude, markerInfo.latitude]).
+      setPopup(popup).
+      addTo(map);
 
       markersRef.current.push(marker);
     });
@@ -148,9 +148,9 @@ export function MaplibreMap({
           properties: {},
           geometry: {
             type: "LineString",
-            coordinates: routeCoordinates,
-          },
-        },
+            coordinates: routeCoordinates
+          }
+        }
       });
 
       map.addLayer({
@@ -159,13 +159,13 @@ export function MaplibreMap({
         source: routeSourceId,
         layout: {
           "line-join": "round",
-          "line-cap": "round",
+          "line-cap": "round"
         },
         paint: {
           "line-color": "#e0a96d", // Amber Route theme
           "line-width": 5,
-          "line-opacity": 0.85,
-        },
+          "line-opacity": 0.85
+        }
       });
     }
 
@@ -186,9 +186,9 @@ export function MaplibreMap({
         const coords = [...fence.boundary];
         // Ensure polygon is closed
         if (
-          coords[0][0] !== coords[coords.length - 1][0] ||
-          coords[0][1] !== coords[coords.length - 1][1]
-        ) {
+        coords[0][0] !== coords[coords.length - 1][0] ||
+        coords[0][1] !== coords[coords.length - 1][1])
+        {
           coords.push(coords[0]);
         }
 
@@ -197,18 +197,18 @@ export function MaplibreMap({
           properties: {},
           geometry: {
             type: "Polygon",
-            coordinates: [coords],
-          },
+            coordinates: [coords]
+          }
         };
       } else if (fence.radius && fence.latitude && fence.longitude) {
         // Generate circular polygon approximations for OpenStreetMap rendering
         const points = 64;
         const coords: [number, number][] = [];
-        const distanceX = fence.radius / (111320 * Math.cos((fence.latitude * Math.PI) / 180));
+        const distanceX = fence.radius / (111320 * Math.cos(fence.latitude * Math.PI / 180));
         const distanceY = fence.radius / 110540;
 
         for (let i = 0; i < points; i++) {
-          const theta = (i / points) * (2 * Math.PI);
+          const theta = i / points * (2 * Math.PI);
           const x = fence.longitude + distanceX * Math.cos(theta);
           const y = fence.latitude + distanceY * Math.sin(theta);
           coords.push([x, y]);
@@ -220,8 +220,8 @@ export function MaplibreMap({
           properties: {},
           geometry: {
             type: "Polygon",
-            coordinates: [coords],
-          },
+            coordinates: [coords]
+          }
         };
       }
 
@@ -230,7 +230,7 @@ export function MaplibreMap({
 
         map.addSource(sourceId, {
           type: "geojson",
-          data: geoJsonData,
+          data: geoJsonData
         });
 
         map.addLayer({
@@ -239,8 +239,8 @@ export function MaplibreMap({
           source: sourceId,
           paint: {
             "fill-color": color,
-            "fill-opacity": 0.15,
-          },
+            "fill-opacity": 0.15
+          }
         });
 
         map.addLayer({
@@ -250,8 +250,8 @@ export function MaplibreMap({
           paint: {
             "line-color": color,
             "line-width": 2,
-            "line-dasharray": [2, 2],
-          },
+            "line-dasharray": [2, 2]
+          }
         });
       }
     });
@@ -264,22 +264,22 @@ export function MaplibreMap({
           if (map.getLayer(`fence-line-${fence.id}`)) map.removeLayer(`fence-line-${fence.id}`);
           if (map.getSource(`fence-src-${fence.id}`)) map.removeSource(`fence-src-${fence.id}`);
         } catch {
+
           // ignore
-        }
-      });
+        }});
     };
   }, [map, styleLoaded, routeCoordinates, geofences]);
 
   return (
     <div className="relative w-full h-[450px] rounded-2xl overflow-hidden border border-border shadow-(--shadow-luxury) backdrop-blur-md">
       <div ref={mapContainer} className="w-full h-full" />
-      {isOffline && (
-        <div className="absolute bottom-4 left-4 bg-destructive/90 text-destructive-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 animate-pulse z-10">
-          <span>⚠️</span> Offline Mode • Map Cached
-        </div>
-      )}
-    </div>
-  );
+      {isOffline &&
+      <div className="absolute bottom-4 left-4 bg-destructive/90 text-destructive-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 animate-pulse z-10">
+          <span>⚠️</span>{i18nT("Offline Mode • Map Cached")}
+      </div>
+      }
+    </div>);
+
 }
 
 export default MaplibreMap;

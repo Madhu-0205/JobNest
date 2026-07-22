@@ -78,60 +78,17 @@ export function useWallet() {
       const data = await res.json();
 
       if (data.success) {
-        // 2. Trigger webhook mock response capture simulation
-        const orderId = data.data.orderId;
-        const webHookRes = await fetch("/api/financial/webhook", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-razorpay-signature": "sandbox_test_signature",
-          },
-          body: JSON.stringify({
-            event: "payment.captured",
-            payload: {
-              payment: {
-                entity: {
-                  id: `pay_${Math.random().toString(36).substring(2, 8)}`,
-                  order_id: orderId,
-                  amount: amount * 100, // paisa units
-                }
-              }
-            }
-          }),
-        });
-
-        const webHookData = await webHookRes.json();
-        if (webHookData.success) {
-          // Increment locally for instant UI update
-          setBalance((prev) => prev + amount);
-          const newTx: WalletTransaction = {
-            id: crypto.randomUUID(),
-            amount,
-            type: "credit",
-            category: "payment",
-            reference_id: orderId,
-            description: `Deposit loaded via ${gateway} checkout (Simulated)`,
-            created_at: new Date().toISOString(),
-          };
-          setTransactions((prev) => [newTx, ...prev]);
-          return { success: true };
-        }
+        // Payment order successfully initialized on server.
+        // In production, the client-side Razorpay/Stripe Checkout widget opens here.
+        // Once completed, the gateway webhooks update the backend ledger asynchronously.
+        // We trigger a refresh to fetch the verified balance from the server.
+        await fetchWallet();
+        return { success: true, orderId: data.data.orderId };
       }
       return { success: false, error: "Payment checkout failed." };
-    } catch {
-      // Offline fallback success
-      setBalance((prev) => prev + amount);
-      const newTx: WalletTransaction = {
-        id: crypto.randomUUID(),
-        amount,
-        type: "credit",
-        category: "payment",
-        reference_id: `order_${Math.random().toString(36).substring(2, 8)}`,
-        description: `Deposit loaded via ${gateway} checkout (Offline Sandbox)`,
-        created_at: new Date().toISOString(),
-      };
-      setTransactions((prev) => [newTx, ...prev]);
-      return { success: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Payment checkout failed.";
+      return { success: false, error: message };
     }
   };
 

@@ -15,7 +15,6 @@ import { z } from "zod";
 import { runWithRequestContext } from "@/lib/observability/request-context-helper";
 import { logRequestLifecycle } from "@/lib/observability/request-logger";
 import { ActionResult } from "@/features/auth/actions";
-import { logger } from "@/services/logger";
 import { TrustScoreEngine } from "@/services/trust-score-engine";
 import { SafetyService } from "@/services/safety-service";
 
@@ -62,7 +61,6 @@ export async function submitVerificationRequestAction(formData: unknown): Promis
     const userId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_EDIT_OWN);
     const supabase = await createServerClient();
 
-    try {
       // 1. Create verification request
       const { data: request, error: reqErr } = await supabase
         .from("verification_requests")
@@ -101,10 +99,6 @@ export async function submitVerificationRequestAction(formData: unknown): Promis
         });
 
       return { requestId: request.id };
-    } catch {
-      logger.info(`Bypassed database. Registered simulated ${validated.requestType} request.`);
-      return { requestId: crypto.randomUUID() };
-    }
   });
 }
 
@@ -117,8 +111,6 @@ export async function submitBusinessVerificationAction(formData: unknown): Promi
     const userId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_EDIT_OWN);
     const supabase = await createServerClient();
 
-    try {
-      // Create request first
       const { data: request } = await supabase
         .from("verification_requests")
         .insert({
@@ -150,10 +142,6 @@ export async function submitBusinessVerificationAction(formData: unknown): Promi
       if (error) throw error;
 
       return { businessId: biz.id };
-    } catch {
-      logger.info("Bypassed database. Registered simulated business GST details.");
-      return { businessId: crypto.randomUUID() };
-    }
   });
 }
 
@@ -166,7 +154,6 @@ export async function submitReviewAction(formData: unknown): Promise<ActionResul
     const reviewerId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_EDIT_OWN);
     const supabase = await createServerClient();
 
-    try {
       // 1. Write Rating
       const { data: rating, error: ratErr } = await supabase
         .from("ratings")
@@ -205,11 +192,6 @@ export async function submitReviewAction(formData: unknown): Promise<ActionResul
       await TrustScoreEngine.calculateAndUpdate(validated.revieweeId);
 
       return { reviewId: review.id };
-    } catch {
-      logger.info("Bypassed database review insert. Triggering simulated trust score update.");
-      await TrustScoreEngine.calculateAndUpdate(validated.revieweeId);
-      return { reviewId: crypto.randomUUID() };
-    }
   });
 }
 
@@ -222,7 +204,6 @@ export async function submitDisputeAction(formData: unknown): Promise<ActionResu
     const initiatorId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_EDIT_OWN);
     const supabase = await createServerClient();
 
-    try {
       const { data: dispute, error } = await supabase
         .from("disputes")
         .insert({
@@ -239,10 +220,6 @@ export async function submitDisputeAction(formData: unknown): Promise<ActionResu
       if (error) throw error;
 
       return { disputeId: dispute.id };
-    } catch {
-      logger.info("Bypassed database dispute insert. Returning simulated disputeId.");
-      return { disputeId: crypto.randomUUID() };
-    }
   });
 }
 
@@ -275,7 +252,6 @@ export async function submitReportAction(formData: unknown): Promise<ActionResul
     const reporterId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_EDIT_OWN);
     const supabase = await createServerClient();
 
-    try {
       // 1. Insert Report
       const { data: report, error: repErr } = await supabase
         .from("reports")
@@ -305,10 +281,6 @@ export async function submitReportAction(formData: unknown): Promise<ActionResul
       }
 
       return { reportId: report.id };
-    } catch {
-      logger.info(`Bypassed database. Registered simulated ${validated.category} report.`);
-      return { reportId: crypto.randomUUID() };
-    }
   });
 }
 
@@ -325,7 +297,6 @@ export async function performModeratorAction(
     const modId = await AuthorizationGuard.assertPermission(PERMISSIONS.PROFILES_VERIFY);
     const supabase = await createServerClient();
 
-    try {
       if (targetType === "kyc") {
         const { error } = await supabase
           .from("verification_requests")
@@ -425,9 +396,5 @@ export async function performModeratorAction(
       }
 
       return { success: true };
-    } catch {
-      logger.info(`Bypassed database. Processed simulated moderator action ${action} on ${targetType}:${targetId}`);
-      return { success: true };
-    }
   });
 }

@@ -7,7 +7,7 @@
  * Run: npx tsx tests/smoke/auth.test.ts
  */
 
-const BASE_URL = process.env["TEST_BASE_URL"] ?? "http://localhost:3000";
+export const BASE_URL = process.env["TEST_BASE_URL"] ?? "http://localhost:3000";
 
 interface TestCase {
   name: string;

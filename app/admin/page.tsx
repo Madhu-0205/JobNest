@@ -53,7 +53,7 @@ const T = {
     topSkills: "Top Skills", languageUsage: "Language Usage",
     villageCoverage: "Village vs Urban Coverage",
     trustDistribution: "Trust Score Distribution",
-    loadData: "Load Data",
+    loadData: "Load Data"
   },
   hi: {
     title: "एंटरप्राइज़ कमांड सेंटर",
@@ -77,7 +77,7 @@ const T = {
     topSkills: "शीर्ष कौशल", languageUsage: "भाषा उपयोग",
     villageCoverage: "गांव बनाम शहर कवरेज",
     trustDistribution: "विश्वास स्कोर वितरण",
-    loadData: "डेटा लोड करें",
+    loadData: "डेटा लोड करें"
   },
   te: {
     title: "ఎంటర్‌ప్రైజ్ కమాండ్ సెంటర్",
@@ -101,7 +101,7 @@ const T = {
     topSkills: "అగ్రశ్రేణి నైపుణ్యాలు", languageUsage: "భాష వినియోగం",
     villageCoverage: "గ్రామం vs పట్టణ కవరేజ్",
     trustDistribution: "నమ్మకం స్కోర్ పంపిణీ",
-    loadData: "డేటా లోడ్ చేయి",
+    loadData: "డేటా లోడ్ చేయి"
   },
   ta: {
     title: "நிறுவன கட்டளை மையம்",
@@ -125,7 +125,7 @@ const T = {
     topSkills: "சிறந்த திறன்கள்", languageUsage: "மொழி பயன்பாடு",
     villageCoverage: "கிராமம் vs நகரம் கவரேஜ்",
     trustDistribution: "நம்பிக்கை மதிப்பெண் விநியோகம்",
-    loadData: "தரவு ஏற்றவும்",
+    loadData: "தரவு ஏற்றவும்"
   },
   kn: {
     title: "ಎಂಟರ್‌ಪ್ರೈಸ್ ಕಮಾಂಡ್ ಸೆಂಟರ್",
@@ -149,8 +149,8 @@ const T = {
     topSkills: "ಅಗ್ರ ಕೌಶಲಗಳು", languageUsage: "ಭಾಷೆ ಬಳಕೆ",
     villageCoverage: "ಗ್ರಾಮ vs ನಗರ ಕವರೇಜ್",
     trustDistribution: "ನಂಬಿಕೆ ಸ್ಕೋರ್ ವಿತರಣೆ",
-    loadData: "ಡೇಟಾ ಲೋಡ್ ಮಾಡಿ",
-  },
+    loadData: "ಡೇಟಾ ಲೋಡ್ ಮಾಡಿ"
+  }
 } as const;
 
 type Lang = keyof typeof T;
@@ -160,25 +160,25 @@ type Lang = keyof typeof T;
 // ─────────────────────────────────────────────────────────────────
 
 const FRAUD_CASES = [
-  { id: "fc-1", title: "Automated Mass Application Bot", suspect: "user-bot-1", severity: "critical", status: "investigating", created_at: new Date(Date.now() - 7200000).toISOString() },
-  { id: "fc-2", title: "GPS Spoofing — Impossible Travel", suspect: "user-gps-2", severity: "high", status: "confirmed", created_at: new Date(Date.now() - 14400000).toISOString() },
-  { id: "fc-3", title: "Duplicate Identity — 3 Accounts", suspect: "user-dup-3", severity: "high", status: "open", created_at: new Date(Date.now() - 21600000).toISOString() },
-  { id: "fc-4", title: "Fake Employer Scam — Payment Evasion", suspect: "user-scam-4", severity: "critical", status: "action_taken", created_at: new Date(Date.now() - 28800000).toISOString() },
-  { id: "fc-5", title: "Review Manipulation Ring", suspect: "user-ring-5", severity: "medium", status: "investigating", created_at: new Date(Date.now() - 36000000).toISOString() },
-];
+{ id: "fc-1", title: "Automated Mass Application Bot", suspect: "user-bot-1", severity: "critical", status: "investigating", created_at: new Date(Date.now() - 7200000).toISOString() },
+{ id: "fc-2", title: "GPS Spoofing — Impossible Travel", suspect: "user-gps-2", severity: "high", status: "confirmed", created_at: new Date(Date.now() - 14400000).toISOString() },
+{ id: "fc-3", title: "Duplicate Identity — 3 Accounts", suspect: "user-dup-3", severity: "high", status: "open", created_at: new Date(Date.now() - 21600000).toISOString() },
+{ id: "fc-4", title: "Fake Employer Scam — Payment Evasion", suspect: "user-scam-4", severity: "critical", status: "action_taken", created_at: new Date(Date.now() - 28800000).toISOString() },
+{ id: "fc-5", title: "Review Manipulation Ring", suspect: "user-ring-5", severity: "medium", status: "investigating", created_at: new Date(Date.now() - 36000000).toISOString() }];
+
 
 const REPORT_TYPES = [
-  { type: "daily_summary", label: "Daily Platform Summary" },
-  { type: "weekly_revenue", label: "Weekly Revenue Report" },
-  { type: "monthly_analytics", label: "Monthly Analytics" },
-  { type: "worker_growth", label: "Worker Growth Report" },
-  { type: "employer_growth", label: "Employer Growth Report" },
-  { type: "fraud_summary", label: "Fraud Summary" },
-  { type: "trust_scores", label: "Trust Score Distribution" },
-  { type: "opportunity_analytics", label: "Opportunity Analytics" },
-  { type: "support_sla", label: "Support SLA Report" },
-  { type: "financial_reconciliation", label: "Financial Reconciliation" },
-];
+{ type: "daily_summary", label: "Daily Platform Summary" },
+{ type: "weekly_revenue", label: "Weekly Revenue Report" },
+{ type: "monthly_analytics", label: "Monthly Analytics" },
+{ type: "worker_growth", label: "Worker Growth Report" },
+{ type: "employer_growth", label: "Employer Growth Report" },
+{ type: "fraud_summary", label: "Fraud Summary" },
+{ type: "trust_scores", label: "Trust Score Distribution" },
+{ type: "opportunity_analytics", label: "Opportunity Analytics" },
+{ type: "support_sla", label: "Support SLA Report" },
+{ type: "financial_reconciliation", label: "Financial Reconciliation" }];
+
 
 // ─────────────────────────────────────────────────────────────────
 // Helpers
@@ -219,19 +219,19 @@ function statusColor(s: string) {
   return "#94a3b8";
 }
 
-const TABS: { key: Tab; icon: string }[] = [
-  { key: "overview", icon: "🏠" },
-  { key: "analytics", icon: "📊" },
-  { key: "moderation", icon: "🛡️" },
-  { key: "support", icon: "🎫" },
-  { key: "revenue", icon: "💰" },
-  { key: "fraud", icon: "🚨" },
-  { key: "config", icon: "⚙️" },
-  { key: "audit", icon: "📋" },
-  { key: "reports", icon: "📈" },
-];
+const TABS: {key: Tab;icon: string;}[] = [
+{ key: "overview", icon: "🏠" },
+{ key: "analytics", icon: "📊" },
+{ key: "moderation", icon: "🛡️" },
+{ key: "support", icon: "🎫" },
+{ key: "revenue", icon: "💰" },
+{ key: "fraud", icon: "🚨" },
+{ key: "config", icon: "⚙️" },
+{ key: "audit", icon: "📋" },
+{ key: "reports", icon: "📈" }];
 
-export default function AdminDashboard() {
+
+export default function AdminDashboard() {const { t: i18nT } = useI18n();
   const { locale } = useI18n();
   const [tab, setTab] = useState<Tab>("overview");
   const lang = (["en", "hi", "te", "ta", "kn"].includes(locale) ? locale : "en") as Lang;
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
       const res = await fetch(`/api/admin/audit?limit=30${search ? `&search=${search}` : ""}`);
       const data = await res.json();
       if (data.success) setAuditEntries(data.data.entries || []);
-    } catch { /* silent */ }
+    } catch {/* silent */}
     setAuditLoading(false);
   };
 
@@ -279,12 +279,12 @@ export default function AdminDashboard() {
         body: JSON.stringify({
           reportType: selectedReport,
           periodStart: new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0],
-          periodEnd: new Date().toISOString().split("T")[0],
-        }),
+          periodEnd: new Date().toISOString().split("T")[0]
+        })
       });
       const data = await res.json();
       if (data.success) setReportQueued(data.data.reportId);
-    } catch { /* silent */ }
+    } catch {/* silent */}
     setReportLoading(false);
   };
 
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
 
       {/* ── Tab Navigation ──────────────────────────────────── */}
       <div style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "0 24px", display: "flex", gap: 4, overflowX: "auto" }}>
-        {TABS.map(({ key, icon }) => (
+        {TABS.map(({ key, icon }) =>
           <button
             key={key}
             id={`admin-tab-${key}`}
@@ -305,22 +305,22 @@ export default function AdminDashboard() {
               padding: "12px 16px", border: "none", cursor: "pointer", background: "none", color: tab === key ? "#fff" : "rgba(255,255,255,0.4)",
               borderBottom: tab === key ? "2px solid #7c3aed" : "2px solid transparent",
               fontSize: 13, fontWeight: tab === key ? 700 : 400, whiteSpace: "nowrap",
-              transition: "all 0.2s",
-            }}
-          >
+              transition: "all 0.2s"
+            }}>
+            
             {icon} {t[key]}
           </button>
-        ))}
+          )}
       </div>
 
       {/* ── Main Content ─────────────────────────────────────── */}
       <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
 
         {/* ══════════════════════════════════════════════ OVERVIEW */}
-        {tab === "overview" && (
+        {tab === "overview" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>Platform Health</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>{i18nT("Platform Health")}</h2>
               <Button onClick={analytics.fetchDashboard} disabled={analytics.loading} style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                 {analytics.loading ? "Loading..." : `🔄 ${t.loadData}`}
               </Button>
@@ -329,16 +329,16 @@ export default function AdminDashboard() {
             {/* KPI Grid */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
               {[
-                { label: t.activeUsers, value: fmt(kpis?.activeUsers ?? 127438), icon: "👥", color: "#7c3aed", sub: `${fmt(kpis?.dailyActiveUsers ?? 18924)} DAU` },
-                { label: t.onlineWorkers, value: fmt(kpis?.onlineWorkers ?? 3841), icon: "🔨", color: "#10b981", sub: "Accepting jobs" },
-                { label: t.onlineEmployers, value: fmt(kpis?.onlineEmployers ?? 1204), icon: "🏢", color: "#06b6d4", sub: "Posting now" },
-                { label: t.liveJobs, value: fmt(kpis?.liveJobs ?? 2318), icon: "⚡", color: "#f59e0b", sub: `${fmt(kpis?.activeOpportunities ?? 12607)} opportunities` },
-                { label: t.dailyRevenue, value: fmtCurrency(kpis?.dailyRevenue ?? 284750), icon: "💹", color: "#10b981", sub: `${fmtCurrency(kpis?.monthlyRevenue ?? 6230000)} MTD` },
-                { label: "Active Escrows", value: fmt(kpis?.activeEscrows ?? 4122), icon: "🔒", color: "#8b5cf6", sub: `${fmtCurrency(kpis?.totalWalletBalance ?? 18450000)} in wallets` },
-                { label: t.fraudAlerts, value: kpis?.fraudAlerts ?? 23, icon: "🚨", color: "#ef4444", sub: `${kpis?.openDisputes ?? 134} open disputes` },
-                { label: t.aiRequests, value: fmt(kpis?.aiRequestsToday ?? 34567), icon: "🧠", color: "#a78bfa", sub: `${kpis?.apiSuccessRate ?? 99.7}% API health` },
-              ].map((item) => (
-                <Card key={item.label} style={{ background: `${item.color}0d`, border: `1px solid ${item.color}33`, borderRadius: 14 }}>
+              { label: t.activeUsers, value: fmt(kpis?.activeUsers ?? 127438), icon: "👥", color: "#7c3aed", sub: `${fmt(kpis?.dailyActiveUsers ?? 18924)} DAU` },
+              { label: t.onlineWorkers, value: fmt(kpis?.onlineWorkers ?? 3841), icon: "🔨", color: "#10b981", sub: "Accepting jobs" },
+              { label: t.onlineEmployers, value: fmt(kpis?.onlineEmployers ?? 1204), icon: "🏢", color: "#06b6d4", sub: "Posting now" },
+              { label: t.liveJobs, value: fmt(kpis?.liveJobs ?? 2318), icon: "⚡", color: "#f59e0b", sub: `${fmt(kpis?.activeOpportunities ?? 12607)} opportunities` },
+              { label: t.dailyRevenue, value: fmtCurrency(kpis?.dailyRevenue ?? 284750), icon: "💹", color: "#10b981", sub: `${fmtCurrency(kpis?.monthlyRevenue ?? 6230000)} MTD` },
+              { label: "Active Escrows", value: fmt(kpis?.activeEscrows ?? 4122), icon: "🔒", color: "#8b5cf6", sub: `${fmtCurrency(kpis?.totalWalletBalance ?? 18450000)} in wallets` },
+              { label: t.fraudAlerts, value: kpis?.fraudAlerts ?? 23, icon: "🚨", color: "#ef4444", sub: `${kpis?.openDisputes ?? 134} open disputes` },
+              { label: t.aiRequests, value: fmt(kpis?.aiRequestsToday ?? 34567), icon: "🧠", color: "#a78bfa", sub: `${kpis?.apiSuccessRate ?? 99.7}% API health` }].
+              map((item) =>
+              <Card key={item.label} style={{ background: `${item.color}0d`, border: `1px solid ${item.color}33`, borderRadius: 14 }}>
                   <CardContent style={{ padding: 20 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
@@ -350,14 +350,14 @@ export default function AdminDashboard() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
 
             {/* Growth Metrics */}
-            {analytics.dashboard?.userGrowth && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-                {analytics.dashboard.userGrowth.map((g) => (
-                  <div key={g.label} style={{ padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {analytics.dashboard?.userGrowth &&
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+                {analytics.dashboard.userGrowth.map((g) =>
+              <div key={g.label} style={{ padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{g.label}</p>
                       <p style={{ margin: "2px 0 0", fontSize: 18, fontWeight: 700, color: "#fff" }}>{typeof g.current === "number" && g.current > 100000 ? fmtCurrency(g.current) : fmt(g.current)}</p>
@@ -366,49 +366,49 @@ export default function AdminDashboard() {
                       <span style={{ fontSize: 13, fontWeight: 700, color: g.trend === "up" ? "#10b981" : g.trend === "down" ? "#ef4444" : "#94a3b8" }}>
                         {g.trend === "up" ? "↑" : g.trend === "down" ? "↓" : "→"} {Math.abs(g.changePercent).toFixed(1)}%
                       </span>
-                      <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.3)" }}>vs last period</p>
+                      <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{i18nT("vs last period")}</p>
                     </div>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
           </div>
-        )}
+          }
 
         {/* ══════════════════════════════════════════ ANALYTICS */}
-        {tab === "analytics" && (
+        {tab === "analytics" &&
           <div>
-            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>Business Analytics</h2>
+            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("Business Analytics")}</h2>
             {!analytics.dashboard && <Button onClick={analytics.fetchDashboard} style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", border: "none", color: "#fff", borderRadius: 8, marginBottom: 20 }}>{t.loadData}</Button>}
 
-            {analytics.dashboard && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16, marginBottom: 24 }}>
+            {analytics.dashboard &&
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16, marginBottom: 24 }}>
                 {[
-                  { label: t.conversionRate, value: `${analytics.dashboard.hireConversionRate}%`, color: "#10b981" },
-                  { label: t.completionRate, value: `${analytics.dashboard.completionRate}%`, color: "#06b6d4" },
-                  { label: t.cancellationRate, value: `${analytics.dashboard.cancellationRate}%`, color: "#ef4444" },
-                  { label: "Avg Response", value: `${analytics.dashboard.avgResponseTimeMinutes}m`, color: "#f59e0b" },
-                  { label: "Worker Retention", value: `${analytics.dashboard.workerRetentionRate}%`, color: "#7c3aed" },
-                  { label: "Employer Retention", value: `${analytics.dashboard.employerRetentionRate}%`, color: "#8b5cf6" },
-                  { label: "Avg Hire Time", value: `${analytics.dashboard.avgHireTimeHours}h`, color: "#06b6d4" },
-                  { label: "Avg Completion", value: `${analytics.dashboard.avgCompletionTimeHours}h`, color: "#10b981" },
-                ].map((m) => (
-                  <div key={m.label} style={{ padding: 16, background: "rgba(255,255,255,0.03)", borderRadius: 10, border: `1px solid ${m.color}33`, textAlign: "center" }}>
+              { label: t.conversionRate, value: `${analytics.dashboard.hireConversionRate}%`, color: "#10b981" },
+              { label: t.completionRate, value: `${analytics.dashboard.completionRate}%`, color: "#06b6d4" },
+              { label: t.cancellationRate, value: `${analytics.dashboard.cancellationRate}%`, color: "#ef4444" },
+              { label: "Avg Response", value: `${analytics.dashboard.avgResponseTimeMinutes}m`, color: "#f59e0b" },
+              { label: "Worker Retention", value: `${analytics.dashboard.workerRetentionRate}%`, color: "#7c3aed" },
+              { label: "Employer Retention", value: `${analytics.dashboard.employerRetentionRate}%`, color: "#8b5cf6" },
+              { label: "Avg Hire Time", value: `${analytics.dashboard.avgHireTimeHours}h`, color: "#06b6d4" },
+              { label: "Avg Completion", value: `${analytics.dashboard.avgCompletionTimeHours}h`, color: "#10b981" }].
+              map((m) =>
+              <div key={m.label} style={{ padding: 16, background: "rgba(255,255,255,0.03)", borderRadius: 10, border: `1px solid ${m.color}33`, textAlign: "center" }}>
                     <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{m.label}</p>
                     <p style={{ margin: "4px 0 0", fontSize: 24, fontWeight: 800, color: m.color }}>{m.value}</p>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
 
-            {analytics.dashboard && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+            {analytics.dashboard &&
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
                 {/* Top Skills */}
                 <Card style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", borderRadius: 14 }}>
                   <CardHeader><CardTitle style={{ color: "#c4b5fd" }}>🎯 {t.topSkills}</CardTitle></CardHeader>
                   <CardContent>
-                    {analytics.dashboard.skillPopularity.slice(0, 8).map((s) => (
-                      <div key={s.skill} style={{ marginBottom: 10 }}>
+                    {analytics.dashboard.skillPopularity.slice(0, 8).map((s) =>
+                  <div key={s.skill} style={{ marginBottom: 10 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                           <span style={{ fontSize: 13, color: "#e2e8f0" }}>{s.skill}</span>
                           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
@@ -419,10 +419,10 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                         <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2 }}>
-                          <div style={{ height: "100%", width: `${(s.count / 15000) * 100}%`, background: "linear-gradient(90deg,#7c3aed,#a78bfa)", borderRadius: 2 }} />
+                          <div style={{ height: "100%", width: `${s.count / 15000 * 100}%`, background: "linear-gradient(90deg,#7c3aed,#a78bfa)", borderRadius: 2 }} />
                         </div>
                       </div>
-                    ))}
+                  )}
                   </CardContent>
                 </Card>
 
@@ -432,12 +432,12 @@ export default function AdminDashboard() {
                     <CardHeader><CardTitle style={{ color: "#67e8f9", fontSize: 15 }}>🌐 {t.languageUsage}</CardTitle></CardHeader>
                     <CardContent>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                        {analytics.dashboard.languageUsage.map((l) => (
-                          <div key={l.language} style={{ flex: "1 1 120px", padding: "8px 12px", background: "rgba(255,255,255,0.04)", borderRadius: 8, display: "flex", justifyContent: "space-between" }}>
+                        {analytics.dashboard.languageUsage.map((l) =>
+                      <div key={l.language} style={{ flex: "1 1 120px", padding: "8px 12px", background: "rgba(255,255,255,0.04)", borderRadius: 8, display: "flex", justifyContent: "space-between" }}>
                             <span style={{ fontSize: 13, color: "#e2e8f0" }}>{l.language}</span>
                             <span style={{ fontSize: 13, fontWeight: 700, color: "#06b6d4" }}>{l.pct}%</span>
                           </div>
-                        ))}
+                      )}
                       </div>
                     </CardContent>
                   </Card>
@@ -445,8 +445,8 @@ export default function AdminDashboard() {
                   <Card style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: 14 }}>
                     <CardHeader><CardTitle style={{ color: "#6ee7b7", fontSize: 15 }}>🗺️ {t.villageCoverage}</CardTitle></CardHeader>
                     <CardContent>
-                      {analytics.dashboard.villageVsUrban.map((v) => (
-                        <div key={v.segment} style={{ marginBottom: 10 }}>
+                      {analytics.dashboard.villageVsUrban.map((v) =>
+                    <div key={v.segment} style={{ marginBottom: 10 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
                             <span style={{ fontSize: 13, color: "#d1fae5" }}>{v.segment}</span>
                             <span style={{ fontSize: 13, fontWeight: 700, color: "#10b981" }}>{v.pct}%</span>
@@ -455,47 +455,47 @@ export default function AdminDashboard() {
                             <div style={{ height: "100%", width: `${v.pct}%`, background: "linear-gradient(90deg,#059669,#10b981)", borderRadius: 3 }} />
                           </div>
                         </div>
-                      ))}
+                    )}
                     </CardContent>
                   </Card>
                 </div>
               </div>
-            )}
+            }
           </div>
-        )}
+          }
 
         {/* ══════════════════════════════════════════ MODERATION */}
-        {tab === "moderation" && (
+        {tab === "moderation" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Content Moderation Queue</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("Content Moderation Queue")}</h2>
               <Button onClick={moderation.fetchQueue} disabled={moderation.loading} style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                 {moderation.loading ? "Loading..." : `🔄 ${t.loadData}`}
               </Button>
             </div>
 
             {/* Stats */}
-            {moderation.stats && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 12, marginBottom: 20 }}>
+            {moderation.stats &&
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 12, marginBottom: 20 }}>
                 {[
-                  { label: t.pending, value: moderation.stats.pending, color: "#f59e0b" },
-                  { label: t.inReview, value: moderation.stats.inReview, color: "#06b6d4" },
-                  { label: t.resolvedToday, value: moderation.stats.resolvedToday, color: "#10b981" },
-                  { label: t.escalated, value: moderation.stats.escalated, color: "#ef4444" },
-                  { label: "Avg Resolve", value: `${moderation.stats.avgResolutionHours}h`, color: "#a78bfa" },
-                ].map((s) => (
-                  <div key={s.label} style={{ padding: 14, background: `${s.color}10`, border: `1px solid ${s.color}30`, borderRadius: 10, textAlign: "center" }}>
+              { label: t.pending, value: moderation.stats.pending, color: "#f59e0b" },
+              { label: t.inReview, value: moderation.stats.inReview, color: "#06b6d4" },
+              { label: t.resolvedToday, value: moderation.stats.resolvedToday, color: "#10b981" },
+              { label: t.escalated, value: moderation.stats.escalated, color: "#ef4444" },
+              { label: "Avg Resolve", value: `${moderation.stats.avgResolutionHours}h`, color: "#a78bfa" }].
+              map((s) =>
+              <div key={s.label} style={{ padding: 14, background: `${s.color}10`, border: `1px solid ${s.color}30`, borderRadius: 10, textAlign: "center" }}>
                     <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>{s.label}</p>
                     <p style={{ margin: "4px 0 0", fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</p>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
 
             {/* Queue Items */}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {moderation.items.map((item) => (
-                <div key={item.id} style={{ padding: 16, background: "rgba(255,255,255,0.03)", borderRadius: 12, border: `1px solid ${priorityColor(item.priority)}33`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+              {moderation.items.map((item) =>
+              <div key={item.id} style={{ padding: 16, background: "rgba(255,255,255,0.03)", borderRadius: 12, border: `1px solid ${priorityColor(item.priority)}33`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1 }}>
                     <div>
                       <div style={{ display: "flex", gap: 8, marginBottom: 4, alignItems: "center" }}>
@@ -504,7 +504,7 @@ export default function AdminDashboard() {
                         <Badge style={{ background: "rgba(255,255,255,0.05)", color: item.status === "in_review" ? "#06b6d4" : "#f59e0b", fontSize: 10 }}>{item.status}</Badge>
                       </div>
                       <p style={{ margin: 0, fontSize: 13, color: "#e2e8f0", fontWeight: 600 }}>{item.reason || "No reason provided"}</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.3)" }}>Content ID: {item.contentId} · {new Date(item.createdAt).toLocaleString()}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{i18nT("Content ID:")}{item.contentId} · {new Date(item.createdAt).toLocaleString()}</p>
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
@@ -519,56 +519,56 @@ export default function AdminDashboard() {
                     </Button>
                   </div>
                 </div>
-              ))}
-              {moderation.items.length === 0 && !moderation.loading && (
-                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>No items in queue. Click Load Data to fetch.</p>
               )}
+              {moderation.items.length === 0 && !moderation.loading &&
+              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("No items in queue. Click Load Data to fetch.")}</p>
+              }
             </div>
           </div>
-        )}
+          }
 
         {/* ══════════════════════════════════════════════ SUPPORT */}
-        {tab === "support" && (
+        {tab === "support" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Customer Support</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("Customer Support")}</h2>
               <Button onClick={support.fetchTickets} disabled={support.loading} style={{ background: "linear-gradient(135deg,#06b6d4,#0891b2)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                 {support.loading ? "Loading..." : `🔄 ${t.loadData}`}
               </Button>
             </div>
 
-            {support.stats && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 10, marginBottom: 20 }}>
+            {support.stats &&
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 10, marginBottom: 20 }}>
                 {[
-                  { label: t.openTickets, value: support.stats.open, color: "#f59e0b" },
-                  { label: "In Progress", value: support.stats.inProgress, color: "#06b6d4" },
-                  { label: "Waiting User", value: support.stats.waitingOnUser, color: "#94a3b8" },
-                  { label: t.escalated, value: support.stats.escalated, color: "#ef4444" },
-                  { label: t.resolvedToday, value: support.stats.resolvedToday, color: "#10b981" },
-                  { label: t.avgResponse, value: `${support.stats.avgResponseTimeMinutes}m`, color: "#a78bfa" },
-                  { label: t.slaBreached, value: support.stats.slaBreachCount, color: "#ff1744" },
-                ].map((s) => (
-                  <div key={s.label} style={{ padding: 12, background: `${s.color}10`, border: `1px solid ${s.color}30`, borderRadius: 10, textAlign: "center" }}>
+              { label: t.openTickets, value: support.stats.open, color: "#f59e0b" },
+              { label: "In Progress", value: support.stats.inProgress, color: "#06b6d4" },
+              { label: "Waiting User", value: support.stats.waitingOnUser, color: "#94a3b8" },
+              { label: t.escalated, value: support.stats.escalated, color: "#ef4444" },
+              { label: t.resolvedToday, value: support.stats.resolvedToday, color: "#10b981" },
+              { label: t.avgResponse, value: `${support.stats.avgResponseTimeMinutes}m`, color: "#a78bfa" },
+              { label: t.slaBreached, value: support.stats.slaBreachCount, color: "#ff1744" }].
+              map((s) =>
+              <div key={s.label} style={{ padding: 12, background: `${s.color}10`, border: `1px solid ${s.color}30`, borderRadius: 10, textAlign: "center" }}>
                     <p style={{ margin: 0, fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>{s.label}</p>
                     <p style={{ margin: "3px 0 0", fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</p>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {support.tickets.map((ticket) => (
-                <div key={ticket.id} style={{ padding: 16, background: "rgba(255,255,255,0.03)", borderRadius: 12, border: `1px solid ${ticket.slaBreached ? "#ef4444" : priorityColor(ticket.priority)}33` }}>
+              {support.tickets.map((ticket) =>
+              <div key={ticket.id} style={{ padding: 16, background: "rgba(255,255,255,0.03)", borderRadius: 12, border: `1px solid ${ticket.slaBreached ? "#ef4444" : priorityColor(ticket.priority)}33` }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
                       <div style={{ display: "flex", gap: 8, marginBottom: 6, alignItems: "center", flexWrap: "wrap" }}>
                         <Badge style={{ background: `${priorityColor(ticket.priority)}20`, color: priorityColor(ticket.priority), fontSize: 10, textTransform: "uppercase" }}>{ticket.priority}</Badge>
                         <Badge style={{ background: `${statusColor(ticket.status)}20`, color: statusColor(ticket.status), fontSize: 10 }}>{ticket.status}</Badge>
                         <Badge style={{ background: "rgba(255,255,255,0.05)", color: "#94a3b8", fontSize: 10 }}>{ticket.category}</Badge>
-                        {ticket.slaBreached && <Badge style={{ background: "rgba(239,68,68,0.2)", color: "#fca5a5", fontSize: 10 }}>⚠️ SLA BREACHED</Badge>}
-                        {!ticket.slaBreached && ticket.slaRemainingMinutes !== null && ticket.slaRemainingMinutes < 60 && (
-                          <Badge style={{ background: "rgba(245,158,11,0.2)", color: "#fcd34d", fontSize: 10 }}>⏰ {ticket.slaRemainingMinutes}m remaining</Badge>
-                        )}
+                        {ticket.slaBreached && <Badge style={{ background: "rgba(239,68,68,0.2)", color: "#fca5a5", fontSize: 10 }}>{i18nT("⚠️ SLA BREACHED")}</Badge>}
+                        {!ticket.slaBreached && ticket.slaRemainingMinutes !== null && ticket.slaRemainingMinutes < 60 &&
+                      <Badge style={{ background: "rgba(245,158,11,0.2)", color: "#fcd34d", fontSize: 10 }}>⏰ {ticket.slaRemainingMinutes}{i18nT("m remaining")}</Badge>
+                      }
                       </div>
                       <p style={{ margin: 0, fontSize: 14, color: "#e2e8f0", fontWeight: 600 }}>{ticket.subject}</p>
                       <p style={{ margin: "3px 0 0", fontSize: 11, color: "rgba(255,255,255,0.3)" }}>#{ticket.id} · {new Date(ticket.createdAt).toLocaleString()}</p>
@@ -583,63 +583,63 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-              ))}
-              {support.tickets.length === 0 && !support.loading && (
-                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>No tickets loaded. Click Load Data to fetch.</p>
               )}
+              {support.tickets.length === 0 && !support.loading &&
+              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("No tickets loaded. Click Load Data to fetch.")}</p>
+              }
             </div>
           </div>
-        )}
+          }
 
         {/* ══════════════════════════════════════════════ REVENUE */}
-        {tab === "revenue" && (
+        {tab === "revenue" &&
           <div>
-            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>Revenue & Financial Monitoring</h2>
+            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("Revenue & Financial Monitoring")}</h2>
             {!analytics.dashboard && <Button onClick={analytics.fetchDashboard} style={{ background: "linear-gradient(135deg,#10b981,#059669)", border: "none", color: "#fff", borderRadius: 8, marginBottom: 20 }}>{t.loadData}</Button>}
 
-            {analytics.dashboard && (
-              <div>
+            {analytics.dashboard &&
+            <div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
                   {[
-                    { label: "Daily Revenue", value: fmtCurrency(analytics.dashboard.kpis.dailyRevenue), icon: "📈", color: "#10b981" },
-                    { label: "Monthly Revenue", value: fmtCurrency(analytics.dashboard.kpis.monthlyRevenue), icon: "💹", color: "#059669" },
-                    { label: "Total Wallet Balance", value: fmtCurrency(analytics.dashboard.kpis.totalWalletBalance), icon: "👛", color: "#06b6d4" },
-                    { label: "Active Escrows", value: fmt(analytics.dashboard.kpis.activeEscrows), icon: "🔒", color: "#7c3aed" },
-                  ].map((m) => (
-                    <Card key={m.label} style={{ background: `${m.color}0d`, border: `1px solid ${m.color}33`, borderRadius: 14 }}>
+                { label: "Daily Revenue", value: fmtCurrency(analytics.dashboard.kpis.dailyRevenue), icon: "📈", color: "#10b981" },
+                { label: "Monthly Revenue", value: fmtCurrency(analytics.dashboard.kpis.monthlyRevenue), icon: "💹", color: "#059669" },
+                { label: "Total Wallet Balance", value: fmtCurrency(analytics.dashboard.kpis.totalWalletBalance), icon: "👛", color: "#06b6d4" },
+                { label: "Active Escrows", value: fmt(analytics.dashboard.kpis.activeEscrows), icon: "🔒", color: "#7c3aed" }].
+                map((m) =>
+                <Card key={m.label} style={{ background: `${m.color}0d`, border: `1px solid ${m.color}33`, borderRadius: 14 }}>
                       <CardContent style={{ padding: 20 }}>
                         <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>{m.label}</p>
                         <p style={{ margin: "4px 0 0", fontSize: 26, fontWeight: 800, color: m.color }}>{m.value}</p>
                         <span style={{ fontSize: 24 }}>{m.icon}</span>
                       </CardContent>
                     </Card>
-                  ))}
+                )}
                 </div>
 
                 {/* Revenue sparkline */}
                 <Card style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: 14, marginBottom: 16 }}>
-                  <CardHeader><CardTitle style={{ color: "#6ee7b7" }}>30-Day Revenue Trend</CardTitle></CardHeader>
+                  <CardHeader><CardTitle style={{ color: "#6ee7b7" }}>{i18nT("30-Day Revenue Trend")}</CardTitle></CardHeader>
                   <CardContent>
                     <svg viewBox={`0 0 600 80`} style={{ width: "100%", height: 80 }}>
                       {analytics.dashboard.revenueSeriesDaily.map((p, i) => {
-                        const x = (i / (analytics.dashboard!.revenueSeriesDaily.length - 1)) * 590 + 5;
+                      const x = i / (analytics.dashboard!.revenueSeriesDaily.length - 1) * 590 + 5;
+                      const minV = Math.min(...analytics.dashboard!.revenueSeriesDaily.map((d) => d.value));
+                      const maxV = Math.max(...analytics.dashboard!.revenueSeriesDaily.map((d) => d.value));
+                      const y = 75 - (p.value - minV) / (maxV - minV) * 65;
+                      return <circle key={i} cx={x} cy={y} r={2} fill="#10b981" opacity={0.8} />;
+                    })}
+                      <polyline
+                      fill="none"
+                      stroke="url(#revGrad)"
+                      strokeWidth={2}
+                      points={analytics.dashboard.revenueSeriesDaily.map((p, i) => {
+                        const x = i / (analytics.dashboard!.revenueSeriesDaily.length - 1) * 590 + 5;
                         const minV = Math.min(...analytics.dashboard!.revenueSeriesDaily.map((d) => d.value));
                         const maxV = Math.max(...analytics.dashboard!.revenueSeriesDaily.map((d) => d.value));
-                        const y = 75 - ((p.value - minV) / (maxV - minV)) * 65;
-                        return <circle key={i} cx={x} cy={y} r={2} fill="#10b981" opacity={0.8} />;
-                      })}
-                      <polyline
-                        fill="none"
-                        stroke="url(#revGrad)"
-                        strokeWidth={2}
-                        points={analytics.dashboard.revenueSeriesDaily.map((p, i) => {
-                          const x = (i / (analytics.dashboard!.revenueSeriesDaily.length - 1)) * 590 + 5;
-                          const minV = Math.min(...analytics.dashboard!.revenueSeriesDaily.map((d) => d.value));
-                          const maxV = Math.max(...analytics.dashboard!.revenueSeriesDaily.map((d) => d.value));
-                          const y = 75 - ((p.value - minV) / (maxV - minV)) * 65;
-                          return `${x},${y}`;
-                        }).join(" ")}
-                      />
+                        const y = 75 - (p.value - minV) / (maxV - minV) * 65;
+                        return `${x},${y}`;
+                      }).join(" ")} />
+                    
                       <defs>
                         <linearGradient id="revGrad"><stop offset="0%" stopColor="#059669" /><stop offset="100%" stopColor="#10b981" /></linearGradient>
                       </defs>
@@ -647,17 +647,17 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </div>
-            )}
+            }
           </div>
-        )}
+          }
 
         {/* ════════════════════════════════════════════════ FRAUD */}
-        {tab === "fraud" && (
+        {tab === "fraud" &&
           <div>
-            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>Fraud Operations Center</h2>
+            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("Fraud Operations Center")}</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {FRAUD_CASES.map((fc) => (
-                <div key={fc.id} style={{ padding: 18, background: "rgba(255,255,255,0.03)", borderRadius: 14, border: `1px solid ${severityColor(fc.severity)}44` }}>
+              {FRAUD_CASES.map((fc) =>
+              <div key={fc.id} style={{ padding: 18, background: "rgba(255,255,255,0.03)", borderRadius: 14, border: `1px solid ${severityColor(fc.severity)}44` }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
                       <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
@@ -669,65 +669,65 @@ export default function AdminDashboard() {
                         </Badge>
                       </div>
                       <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#fecaca" }}>{fc.title}</p>
-                      <p style={{ margin: "4px 0 0", fontSize: 12, color: "rgba(255,255,255,0.3)" }}>
-                        Suspect: {fc.suspect} · Opened {new Date(fc.created_at).toLocaleString()}
+                      <p style={{ margin: "4px 0 0", fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{i18nT("Suspect:")}
+                      {fc.suspect}{i18nT("· Opened")}{new Date(fc.created_at).toLocaleString()}
                       </p>
                     </div>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <Button style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", borderRadius: 6, fontSize: 12, padding: "6px 12px" }}>
-                        🔍 Investigate
-                      </Button>
-                      <Button style={{ background: "rgba(148,163,184,0.1)", border: "1px solid rgba(148,163,184,0.3)", color: "#94a3b8", borderRadius: 6, fontSize: 12, padding: "6px 12px" }}>
-                        Dismiss
-                      </Button>
+                      <Button style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", borderRadius: 6, fontSize: 12, padding: "6px 12px" }}>{i18nT("🔍 Investigate")}
+
+                    </Button>
+                      <Button style={{ background: "rgba(148,163,184,0.1)", border: "1px solid rgba(148,163,184,0.3)", color: "#94a3b8", borderRadius: 6, fontSize: 12, padding: "6px 12px" }}>{i18nT("Dismiss")}
+
+                    </Button>
                     </div>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </div>
-        )}
+          }
 
         {/* ══════════════════════════════════════════ CONFIGURATION */}
-        {tab === "config" && (
+        {tab === "config" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>System Configuration</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("System Configuration")}</h2>
               <Button onClick={config.fetchConfig} disabled={config.loading} style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                 {config.loading ? "Loading..." : `🔄 ${t.loadData}`}
               </Button>
             </div>
 
-            {config.config && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+            {config.config &&
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
                 {/* Feature Flags */}
                 <Card style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)", borderRadius: 14 }}>
                   <CardHeader>
                     <CardTitle style={{ color: "#fcd34d" }}>🚩 {t.featureFlags}</CardTitle>
-                    <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>Live platform feature toggles</CardDescription>
+                    <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Live platform feature toggles")}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {Object.entries(config.config.flags).map(([key, enabled]) => (
-                      <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                    {Object.entries(config.config.flags).map(([key, enabled]) =>
+                  <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                         <span style={{ fontSize: 13, color: "#e2e8f0", fontFamily: "monospace" }}>{key}</span>
                         <button
-                          id={`flag-${key.replace(/\./g, "-")}`}
-                          onClick={() => config.toggleFlag(key, !enabled)}
-                          disabled={config.saving}
-                          style={{
-                            width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer",
-                            background: enabled ? "linear-gradient(90deg,#10b981,#059669)" : "rgba(255,255,255,0.1)",
-                            position: "relative", transition: "background 0.3s",
-                          }}
-                        >
+                      id={`flag-${key.replace(/\./g, "-")}`}
+                      onClick={() => config.toggleFlag(key, !enabled)}
+                      disabled={config.saving}
+                      style={{
+                        width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer",
+                        background: enabled ? "linear-gradient(90deg,#10b981,#059669)" : "rgba(255,255,255,0.1)",
+                        position: "relative", transition: "background 0.3s"
+                      }}>
+                      
                           <span style={{
-                            position: "absolute", top: 2, left: enabled ? 22 : 2,
-                            width: 20, height: 20, borderRadius: "50%", background: "#fff",
-                            transition: "left 0.3s", display: "block",
-                          }} />
+                        position: "absolute", top: 2, left: enabled ? 22 : 2,
+                        width: 20, height: 20, borderRadius: "50%", background: "#fff",
+                        transition: "left 0.3s", display: "block"
+                      }} />
                         </button>
                       </div>
-                    ))}
+                  )}
                   </CardContent>
                 </Card>
 
@@ -735,11 +735,11 @@ export default function AdminDashboard() {
                 <Card style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 14 }}>
                   <CardHeader>
                     <CardTitle style={{ color: "#a5b4fc" }}>⚙️ {t.systemSettings}</CardTitle>
-                    <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>Core platform parameters</CardDescription>
+                    <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Core platform parameters")}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {config.config.settings.map((s) => (
-                      <div key={s.key} style={{ padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                    {config.config.settings.map((s) =>
+                  <div key={s.key} style={{ padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
                           <span style={{ fontSize: 12, color: "#a5b4fc", fontFamily: "monospace" }}>{s.key}</span>
                           <Badge style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", fontSize: 9 }}>{s.category}</Badge>
@@ -747,27 +747,27 @@ export default function AdminDashboard() {
                         <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{s.description}</p>
                         <p style={{ margin: "2px 0 0", fontSize: 13, fontWeight: 600, color: "#c7d2fe" }}>{JSON.stringify(s.value)}</p>
                       </div>
-                    ))}
+                  )}
                   </CardContent>
                 </Card>
               </div>
-            )}
+            }
           </div>
-        )}
+          }
 
         {/* ═══════════════════════════════════════════════ AUDIT */}
-        {tab === "audit" && (
+        {tab === "audit" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Audit Center</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("Audit Center")}</h2>
               <div style={{ display: "flex", gap: 8 }}>
                 <input
                   id="audit-search"
                   value={auditFilter}
                   onChange={(e) => setAuditFilter(e.target.value)}
-                  placeholder="Search actions..."
-                  style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: 13 }}
-                />
+                  placeholder={i18nT("Search actions...")}
+                  style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: 13 }} />
+                
                 <Button onClick={() => fetchAudit(auditFilter)} disabled={auditLoading} style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                   {auditLoading ? "..." : "Search"}
                 </Button>
@@ -778,7 +778,7 @@ export default function AdminDashboard() {
               {auditEntries.map((entry) => {
                 const catColors: Record<string, string> = {
                   admin: "#7c3aed", security: "#ef4444", financial: "#10b981",
-                  moderation: "#f59e0b", auth: "#06b6d4", kyc: "#a78bfa", support: "#06b6d4",
+                  moderation: "#f59e0b", auth: "#06b6d4", kyc: "#a78bfa", support: "#06b6d4"
                 };
                 const color = catColors[entry.category] || "#94a3b8";
                 return (
@@ -795,27 +795,27 @@ export default function AdminDashboard() {
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", flexShrink: 0 }}>
                       {new Date(entry.created_at).toLocaleTimeString()}
                     </span>
-                  </div>
-                );
+                  </div>);
+
               })}
-              {auditEntries.length === 0 && !auditLoading && (
-                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>Loading audit log...</p>
-              )}
+              {auditEntries.length === 0 && !auditLoading &&
+              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("Loading audit log...")}</p>
+              }
             </div>
           </div>
-        )}
+          }
 
         {/* ═══════════════════════════════════════════════ REPORTS */}
-        {tab === "reports" && (
+        {tab === "reports" &&
           <div>
-            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>Report Generation Center</h2>
+            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("Report Generation Center")}</h2>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
               {/* Generate */}
               <Card style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: 14 }}>
                 <CardHeader>
                   <CardTitle style={{ color: "#6ee7b7" }}>📊 {t.generateReport}</CardTitle>
-                  <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>Queue a new export</CardDescription>
+                  <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Queue a new export")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -823,27 +823,27 @@ export default function AdminDashboard() {
                       id="report-type-select"
                       value={selectedReport}
                       onChange={(e) => setSelectedReport(e.target.value)}
-                      style={{ padding: "10px 12px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 8, color: "#fff", fontSize: 13 }}
-                    >
-                      {REPORT_TYPES.map((r) => (
-                        <option key={r.type} value={r.type} style={{ background: "#0d0d1e" }}>{r.label}</option>
-                      ))}
+                      style={{ padding: "10px 12px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 8, color: "#fff", fontSize: 13 }}>
+                      
+                      {REPORT_TYPES.map((r) =>
+                      <option key={r.type} value={r.type} style={{ background: "#0d0d1e" }}>{r.label}</option>
+                      )}
                     </select>
                     <Button
                       id="generate-report-btn"
                       onClick={handleGenerateReport}
                       disabled={reportLoading}
-                      style={{ background: "linear-gradient(135deg,#059669,#10b981)", border: "none", color: "#fff", borderRadius: 8, padding: "10px 20px", fontWeight: 700 }}
-                    >
+                      style={{ background: "linear-gradient(135deg,#059669,#10b981)", border: "none", color: "#fff", borderRadius: 8, padding: "10px 20px", fontWeight: 700 }}>
+                      
                       {reportLoading ? "Queuing..." : `⚡ ${t.generateReport}`}
                     </Button>
 
-                    {reportQueued && (
-                      <div style={{ padding: 12, background: "rgba(16,185,129,0.1)", borderRadius: 8, border: "1px solid rgba(16,185,129,0.2)" }}>
+                    {reportQueued &&
+                    <div style={{ padding: 12, background: "rgba(16,185,129,0.1)", borderRadius: 8, border: "1px solid rgba(16,185,129,0.2)" }}>
                         <p style={{ margin: 0, fontSize: 12, color: "#6ee7b7" }}>✅ {t.reportQueued}</p>
                         <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>{reportQueued}</p>
                       </div>
-                    )}
+                    }
                   </div>
                 </CardContent>
               </Card>
@@ -851,29 +851,29 @@ export default function AdminDashboard() {
               {/* Available Reports */}
               <Card style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 14 }}>
                 <CardHeader>
-                  <CardTitle style={{ color: "#a5b4fc" }}>📁 Available Reports</CardTitle>
-                  <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>One-click generation</CardDescription>
+                  <CardTitle style={{ color: "#a5b4fc" }}>{i18nT("📁 Available Reports")}</CardTitle>
+                  <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("One-click generation")}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {REPORT_TYPES.map((r) => (
-                    <div key={r.type} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  {REPORT_TYPES.map((r) =>
+                  <div key={r.type} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                       <span style={{ fontSize: 13, color: "#c7d2fe" }}>{r.label}</span>
                       <Button
-                        onClick={() => { setSelectedReport(r.type); setTab("reports"); }}
-                        style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc", borderRadius: 6, fontSize: 11, padding: "4px 10px" }}
-                      >
-                        Select
-                      </Button>
+                      onClick={() => {setSelectedReport(r.type);setTab("reports");}}
+                      style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc", borderRadius: 6, fontSize: 11, padding: "4px 10px" }}>{i18nT("Select")}
+
+
+                    </Button>
                     </div>
-                  ))}
+                  )}
                 </CardContent>
               </Card>
             </div>
           </div>
-        )}
+          }
 
       </div>
       </div>
-    </ProductShell>
-  );
+    </ProductShell>);
+
 }

@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { logger } from "@/services/logger";
 import { AuthorizationGuard } from "@/lib/authorization/guard";
 import { PERMISSIONS } from "@/lib/authorization/permissions";
+import { adminConfigSchema } from "@/lib/validation/api-schemas";
 
 /**
  * GET /api/admin/config — Secure feature flags and system settings.
@@ -52,10 +53,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Access denied. Insufficient privileges." }, { status: 403 });
     }
 
-    const body = await req.json() as { flagKey?: string; isEnabled?: boolean; targetType?: string; targetId?: string };
-    if (!body.flagKey) {
-      return NextResponse.json({ success: false, error: "flagKey parameter is required." }, { status: 400 });
+    const rawBody = await req.json();
+    const parseResult = adminConfigSchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Validation failed", details: parseResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+    const body = parseResult.data;
 
     const supabase = await createServerClient();
     const { error } = await supabase.from("feature_flag_overrides").insert({

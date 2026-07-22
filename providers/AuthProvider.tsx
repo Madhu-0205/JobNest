@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 export type UserRole = "worker" | "employer" | "resident" | "admin";
 
@@ -68,83 +69,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Load from localStorage on mount
-    const storedAuth = localStorage.getItem("jobnest_auth");
-    const storedUser = localStorage.getItem("jobnest_user");
+    const supabase = createBrowserClient();
     
-    if (storedAuth === "true" && storedUser) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(storedUser));
-    }
-    setIsInitialized(true);
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUser({
+          name: session.user.user_metadata?.['display_name'] || session.user.email?.split("@")[0] || "User",
+          email: session.user.email || "",
+          role: (session.user.user_metadata?.['role'] as UserRole) || "worker",
+          avatar: "US",
+          kycStatus: "unverified",
+          walletBalance: 2500,
+          transactions: []
+        });
+      }
+      setIsInitialized(true);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        setIsAuthenticated(true);
+        setUser({
+          name: session.user.user_metadata?.['display_name'] || session.user.email?.split("@")[0] || "User",
+          email: session.user.email || "",
+          role: (session.user.user_metadata?.['role'] as UserRole) || "worker",
+          avatar: "US",
+          kycStatus: "unverified",
+          walletBalance: 2500,
+          transactions: []
+        });
+      } else if (event === "SIGNED_OUT") {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = async (email: string, role: UserRole, displayName?: string): Promise<boolean> => {
-    const name = displayName || email.split("@")[0] || "User";
-    const avatar = name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
-    
-    const newUser: UserProfile = {
-      name,
-      email,
-      role,
-      avatar,
-      kycStatus: "unverified",
-      walletBalance: 2500,
-      transactions: [
-        { id: "tx-1", type: "deposit", amount: 1500, desc: "Completed Agricultural Work", date: "July 15, 2026" },
-        { id: "tx-2", type: "withdrawal", amount: 500, desc: "Transferred to Bank Account", date: "July 12, 2026" },
-        { id: "tx-3", type: "escrow_locked", amount: 1000, desc: "Escrow Deposit - Plumbing", date: "July 10, 2026" }
-      ]
-    };
+  const login = async (_email: string, _role: UserRole, _displayName?: string): Promise<boolean> => {
+    return true; // Actual login happens via server actions, this is just for legacy compatibility if called directly
+  };
 
-    setIsAuthenticated(true);
-    setUser(newUser);
-    localStorage.setItem("jobnest_auth", "true");
-    localStorage.setItem("jobnest_user", JSON.stringify(newUser));
+  const signup = async (_email: string, _role: UserRole, _displayName: string): Promise<boolean> => {
     return true;
   };
 
-  const signup = async (email: string, role: UserRole, displayName: string): Promise<boolean> => {
-    return login(email, role, displayName);
-  };
-
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    localStorage.removeItem("jobnest_auth");
-    localStorage.removeItem("jobnest_user");
+  const logout = async () => {
+    const supabase = createBrowserClient();
+    await supabase.auth.signOut();
   };
 
   const updateKycStatus = (status: "unverified" | "pending" | "verified") => {
     if (!user) return;
-    const updated = { ...user, kycStatus: status };
-    setUser(updated);
-    localStorage.setItem("jobnest_user", JSON.stringify(updated));
+    setUser({ ...user, kycStatus: status });
   };
 
   const updateWalletBalance = (amount: number) => {
     if (!user) return;
-    const updated = { ...user, walletBalance: user.walletBalance + amount };
-    setUser(updated);
-    localStorage.setItem("jobnest_user", JSON.stringify(updated));
+    setUser({ ...user, walletBalance: user.walletBalance + amount });
   };
 
   const addTransaction = (tx: Transaction) => {
     if (!user) return;
-    const updated = { ...user, transactions: [tx, ...user.transactions] };
-    setUser(updated);
-    localStorage.setItem("jobnest_user", JSON.stringify(updated));
+    setUser({ ...user, transactions: [tx, ...user.transactions] });
   };
 
   const updateProfile = (profile: Partial<UserProfile>) => {
     if (!user) return;
-    const updated = { ...user, ...profile };
-    setUser(updated);
-    localStorage.setItem("jobnest_user", JSON.stringify(updated));
+    setUser({ ...user, ...profile });
   };
 
   if (!isInitialized) {
-    return null; // Prevent hydration mismatch / flash
+    return null;
   }
 
   return (

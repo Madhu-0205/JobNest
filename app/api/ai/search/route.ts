@@ -2,23 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/services/logger";
 import { RecommendationEngine } from "@/services/recommendation-engine";
 import { AIProviderService } from "@/services/ai-provider-service";
+import { aiSearchSchema } from "@/lib/validation/api-schemas";
+import { AbuseProtection } from "@/lib/security/abuse-protection";
 
 /**
  * POST /api/ai/search — Semantic search for opportunities.
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as {
-      query?: string;
-      latitude?: number;
-      longitude?: number;
-      maxDistanceMeters?: number;
-    };
-
-    const query = body.query;
-    if (!query || typeof query !== "string" || query.trim().length === 0) {
-      return NextResponse.json({ success: false, error: "Query is required." }, { status: 400 });
+    const rawBody = await req.json();
+    const parseResult = aiSearchSchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Validation failed", details: parseResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+    const body = parseResult.data;
+    const query = body.query;
+
+    AbuseProtection.validateAIPrompt(query);
 
     const results = await RecommendationEngine.semanticMatch(
       query,

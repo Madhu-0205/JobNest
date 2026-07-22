@@ -8,7 +8,7 @@ import { rateLimiter } from "@/lib/security/rate-limiter";
 export function verifySignUpValidation(): boolean {
   const validPayload = {
     email: "candidate@jobnest.io",
-    password: "SecurePass123!",
+    password: process.env["TEST_PASSWORD"] || "TestUserPass123!",
     displayName: "Alex Mercer",
     username: "alex_mercer",
     role: "worker" as const,
@@ -42,7 +42,7 @@ export function verifySignUpValidation(): boolean {
 export function verifyLoginValidation(): boolean {
   const invalidEmailPayload = {
     email: "not-an-email",
-    password: "SomePassword!",
+    password: process.env["TEST_PASSWORD"] || "SomePassword!",
   };
 
   const checkInvalidEmail = loginSchema.safeParse(invalidEmailPayload);
@@ -79,19 +79,23 @@ export function verifyUserAgentParsing(): boolean {
  */
 export async function verifyRateLimiting(): Promise<boolean> {
   const testKey = "brute-force-test-key";
-  const limitCount = 2;
-  const resetWindow = 2000; // 2s
 
-  const call1 = await rateLimiter.isRateLimited(testKey, limitCount, resetWindow);
-  const call2 = await rateLimiter.isRateLimited(testKey, limitCount, resetWindow);
-  
-  if (call1 || call2) {
-    throw new Error("Rate limiter triggered prematurely before boundary count.");
+  // Login limit is 5 requests per window in fallback
+  for (let i = 0; i < 5; i++) {
+    const res = await rateLimiter.check("login", `${testKey}-${i}`);
+    if (!res.success) {
+      throw new Error(`Rate limiter triggered prematurely at request ${i + 1}`);
+    }
   }
 
-  const call3 = await rateLimiter.isRateLimited(testKey, limitCount, resetWindow);
-  if (!call3) {
-    throw new Error("Rate limiter failed to block requests exceeding configured count.");
+  // Key with 6 requests should fail on 6th request
+  const uniqueKey = `limit-test-${Date.now()}`;
+  for (let i = 0; i < 5; i++) {
+    await rateLimiter.check("login", uniqueKey);
+  }
+  const overflowRes = await rateLimiter.check("login", uniqueKey);
+  if (overflowRes.success) {
+    throw new Error("Rate limiter failed to block request exceeding limit");
   }
 
   return true;

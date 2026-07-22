@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";import { useI18n } from "@/lib/i18n/context";
 import { ProductShell } from "@/components/ProductShell";
 import { useVerification } from "@/hooks/useVerification";
 import { useSafetySOS } from "@/hooks/useSafetySOS";
@@ -64,7 +64,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "Incident Log Timeline",
     disputeChat: "Mediator Timeline Chat",
     postMessage: "Submit Comment",
-    scoreExplain: "Recalculated Score",
+    scoreExplain: "Recalculated Score"
   },
   hi: {
     title: "विश्वास और सुरक्षा संचालन कॉकपिट",
@@ -90,7 +90,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "घटना इतिहास समयरेखा",
     disputeChat: "मध्यस्थ बातचीत समयरेखा",
     postMessage: "टिप्पणी भेजें",
-    scoreExplain: "पुनर्गणना स्कोर",
+    scoreExplain: "पुनर्गणना स्कोर"
   },
   te: {
     title: "ట్రస్ట్ & సేఫ్టీ ఆపరేషన్స్ కాక్‌పిట్",
@@ -116,7 +116,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "ప్రమాద కాలక్రమం లాగ్",
     disputeChat: "మధ్యవర్తి సంభాషణ కాలక్రమం",
     postMessage: "వ్యాఖ్యను సమర్పించు",
-    scoreExplain: "తిరిగి లెక్కించిన స్కోరు",
+    scoreExplain: "తిరిగి లెక్కించిన స్కోరు"
   },
   ta: {
     title: "நம்பிக்கை & பாதுகாப்பு செயல்பாட்டுக் கூடம்",
@@ -142,7 +142,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "சம்பவ காலவரிசை பதிவு",
     disputeChat: "மத்தியஸ்த காலவரிசை அரட்டை",
     postMessage: "கருத்தைச் சமர்ப்பி",
-    scoreExplain: "மீண்டும் கணக்கிடப்பட்ட மதிப்பெண்",
+    scoreExplain: "மீண்டும் கணக்கிடப்பட்ட மதிப்பெண்"
   },
   kn: {
     title: "ವಿಶ್ವಾಸಾರ್ಹತೆ ಮತ್ತು ಸುರಕ್ಷತಾ ಕಾರ್ಯಾಚರಣೆಗಳ ಕಾಕ್‌ಪಿಟ್",
@@ -168,7 +168,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "ಘಟನೆಗಳ ಕಾಲಾನುಕ್ರಮ ಡೈರಿ",
     disputeChat: "ಸಂಧಾನ ಮಾತುಕತೆ ಕಾಲಕ್ರಮ",
     postMessage: "ಕಾಮೆಂಟ್ ಸಲ್ಲಿಸಿ",
-    scoreExplain: "ಮರು ಲೆಕ್ಕಾಚಾರ ಸ್ಕೋರ್",
+    scoreExplain: "ಮರು ಲೆಕ್ಕಾಚಾರ ಸ್ಕೋರ್"
   },
   ml: {
     title: "ട്രസ്റ്റ് & സേഫ്റ്റി ഓപ്പറേഷൻസ് കോക്ക്പിറ്റ്",
@@ -194,7 +194,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "അപകട സംഭവങ്ങളുടെ വിവരണം",
     disputeChat: "മധ്യസ്ഥ ചർച്ചാ ടൈംലൈൻ",
     postMessage: "അഭിപ്രായം രേഖപ്പെടുത്തുക",
-    scoreExplain: "വീണ്ടും കണക്കാക്കിയ സ്കോർ",
+    scoreExplain: "വീണ്ടും കണക്കാക്കിയ സ്കോർ"
   },
   mr: {
     title: "विश्वास आणि सुरक्षा ऑपरेशन कॉकपिट",
@@ -220,7 +220,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "घटना इतिहास टाइमलाइन",
     disputeChat: "मध्यस्थ संवाद टाइमलाइन",
     postMessage: "टिप्पणी पाठवा",
-    scoreExplain: "पुन्हा मोजलेले गुण",
+    scoreExplain: "पुन्हा मोजलेले गुण"
   },
   gu: {
     title: "ટ્રસ્ટ અને સેફ્ટી ઓપરેશન્સ કોકપિટ",
@@ -246,7 +246,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "ઘટના ઇતિહાસ સમયરેખા",
     disputeChat: "મધ્યસ્થી ચેટ સમયરેખા",
     postMessage: "ટિપ્પણી સબમિટ કરો",
-    scoreExplain: "પુનઃ ગણતરી કરેલ સ્કોર",
+    scoreExplain: "પુનઃ ગણતરી કરેલ સ્કોર"
   },
   pa: {
     title: "ਭਰੋਸਾ ਅਤੇ ਸੁਰੱਖਿਆ ਸੰਚਾਲਨ ਕਾਕਪਿਟ",
@@ -272,7 +272,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "ਘਟਨਾ ਕ੍ਰਮ ਦੀ ਡਾਇਰੀ",
     disputeChat: "ਵਿਚੋਲਗੀ ਗੱਲਬਾਤ ਟਾਈਮਲਾਈਨ",
     postMessage: "ਟਿੱਪਣੀ ਭੇਜੋ",
-    scoreExplain: "ਦੁਬਾਰਾ ਗਿਣਿਆ ਸਕੋਰ",
+    scoreExplain: "ਦੁਬਾਰਾ ਗਿਣਿਆ ਸਕੋਰ"
   },
   bn: {
     title: "বিশ্বাস ও নিরাপত্তা অপারেশন ককপিট",
@@ -298,7 +298,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "দুর্ঘটনা বিবরণ ডায়েরি",
     disputeChat: "মধ্যস্থতাকারী চ্যাট টাইমলাইন",
     postMessage: "মন্তব্য জমা দিন",
-    scoreExplain: "পুনর্গণনা স্কোর",
+    scoreExplain: "পুনর্গণনা স্কোর"
   },
   or: {
     title: "ବିଶ୍ୱାସ ଏବଂ ସୁରକ୍ଷା କାର୍ଯ୍ୟକ୍ଷେତ୍ର",
@@ -324,11 +324,11 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     timeline: "ଘଟଣା ରେକର୍ଡ ସମୟ ସୀମା",
     disputeChat: "ମଧ୍ୟସ୍ଥି ଆଲୋଚନା ସମୟରେଖା",
     postMessage: "ମନ୍ତବ୍ୟ ଦିଅନ୍ତು",
-    scoreExplain: "ପୁନଃଗଣନା ସ୍କୋର",
+    scoreExplain: "ପୁନଃଗଣନା ସ୍କୋର"
   }
 };
 
-export default function TrustDashboard() {
+export default function TrustDashboard() {const { t: i18nT } = useI18n();
   const [lang, setLang] = useState("en");
   const t = TRANSLATIONS[lang] || TRANSLATIONS["en"];
 
@@ -364,7 +364,7 @@ export default function TrustDashboard() {
     score += scoreProfileComplete ? 15 : 0;
     score += scoreRatingAvg * 4; // 5 * 4 = 20 max
     score -= scoreDisputesCount * 15;
-    
+
     // Member age bonus simulation
     score += 15; // default 10 months
 
@@ -389,21 +389,21 @@ export default function TrustDashboard() {
 
   // Fraud Signal mock logs
   const [fraudSignals] = useState([
-    {
-      id: "f1",
-      type: "suspicious_login",
-      score: 0.72,
-      time: "10 mins ago",
-      details: "Expected Bangalore IP (ISP: Airtel), but log query flagged Chennai proxy block."
-    },
-    {
-      id: "f2",
-      type: "location_mismatch",
-      score: 0.94,
-      time: "1 hour ago",
-      details: "Coordinates jumped 320km in 45 seconds. Anomaly triggers velocity limit alerts."
-    }
-  ]);
+  {
+    id: "f1",
+    type: "suspicious_login",
+    score: 0.72,
+    time: "10 mins ago",
+    details: "Expected Bangalore IP (ISP: Airtel), but log query flagged Chennai proxy block."
+  },
+  {
+    id: "f2",
+    type: "location_mismatch",
+    score: 0.94,
+    time: "1 hour ago",
+    details: "Coordinates jumped 320km in 45 seconds. Anomaly triggers velocity limit alerts."
+  }]
+  );
 
   const handleGstLookup = async () => {
     if (!gstNumInput.trim()) return;
@@ -442,7 +442,7 @@ export default function TrustDashboard() {
       businessName: gstCompanyName,
       businessAddress: gstAddress,
       authorizedContact: "Arun Gowda",
-      businessCategory: gstCategory,
+      businessCategory: gstCategory
     });
     if (res.success) {
       setScoreBusinessVerified(true);
@@ -482,9 +482,9 @@ export default function TrustDashboard() {
       <header className="sticky top-0 z-40 w-full glass-panel border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-linear-to-r from-amber-500 to-amber-600 flex items-center justify-center text-background font-extrabold text-lg">
-              T
-            </span>
+            <span className="w-8 h-8 rounded-full bg-linear-to-r from-amber-500 to-amber-600 flex items-center justify-center text-background font-extrabold text-lg">{i18nT("T")}
+
+              </span>
             <Typography variant="h3" as="span" className="font-bold tracking-tight text-xl">
               {t.title}
             </Typography>
@@ -495,22 +495,22 @@ export default function TrustDashboard() {
               {t.selectLanguage}:
             </label>
             <select
-              id="lang-select"
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              className="bg-muted text-foreground text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border outline-none cursor-pointer"
-            >
-              <option value="en">English (English)</option>
-              <option value="hi">हिंदी (Hindi)</option>
-              <option value="te">తెలుగు (Telugu)</option>
-              <option value="ta">தமிழ் (Tamil)</option>
-              <option value="kn">ಕನ್ನಡ (Kannada)</option>
-              <option value="ml">മലയാളം (Malayalam)</option>
-              <option value="mr">मराठी (Marathi)</option>
-              <option value="gu">ગુજરાતી (Gujarati)</option>
-              <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
-              <option value="bn">বাংলা (Bengali)</option>
-              <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                id="lang-select"
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+                className="bg-muted text-foreground text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border outline-none cursor-pointer">
+                
+              <option value="en">{i18nT("English (English)")}</option>
+              <option value="hi">{i18nT("हिंदी (Hindi)")}</option>
+              <option value="te">{i18nT("తెలుగు (Telugu)")}</option>
+              <option value="ta">{i18nT("தமிழ் (Tamil)")}</option>
+              <option value="kn">{i18nT("ಕನ್ನಡ (Kannada)")}</option>
+              <option value="ml">{i18nT("മലയാളം (Malayalam)")}</option>
+              <option value="mr">{i18nT("मराठी (Marathi)")}</option>
+              <option value="gu">{i18nT("ગુજરાતી (Gujarati)")}</option>
+              <option value="pa">{i18nT("ਪੰਜਾਬੀ (Punjabi)")}</option>
+              <option value="bn">{i18nT("বাংলা (Bengali)")}</option>
+              <option value="or">{i18nT("ଓଡ଼ିଆ (Odia)")}</option>
             </select>
           </div>
         </div>
@@ -522,8 +522,8 @@ export default function TrustDashboard() {
           <Typography variant="h2" className="font-bold gold-gradient-text">{t.title}</Typography>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="primary" className="text-xs">
-            Phase 5 Audit Active
+          <Badge variant="primary" className="text-xs">{i18nT("Phase 5 Audit Active")}
+
           </Badge>
         </div>
       </div>
@@ -537,8 +537,8 @@ export default function TrustDashboard() {
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-base gold-gradient-text">{t.trustScore}</CardTitle>
-              <CardDescription className="text-xs">
-                Real-time weighted score calculation according to trust vectors.
+              <CardDescription className="text-xs">{i18nT("Real-time weighted score calculation according to trust vectors.")}
+
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
@@ -554,8 +554,8 @@ export default function TrustDashboard() {
                 <div className="w-full bg-muted h-2 rounded-full overflow-hidden mt-3 max-w-[200px]">
                   <div
                     className="bg-linear-to-r from-amber-500 to-amber-600 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${computedScore}%` }}
-                  />
+                    style={{ width: `${computedScore}%` }} />
+                  
                 </div>
               </div>
 
@@ -566,41 +566,41 @@ export default function TrustDashboard() {
                 </Typography>
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
-                  <span className="text-muted-foreground">Identity Verified (+30)</span>
+                  <span className="text-muted-foreground">{i18nT("Identity Verified (+30)")}</span>
                   <input
                     type="checkbox"
                     checked={scoreIdentityVerified}
                     onChange={(e) => setScoreIdentityVerified(e.target.checked)}
                     className="cursor-pointer accent-amber-500"
-                    aria-label="Toggle Identity Verification status for score simulation"
-                  />
+                    aria-label={i18nT("Toggle Identity Verification status for score simulation")} />
+                  
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
-                  <span className="text-muted-foreground">Business GST Verified (+20)</span>
+                  <span className="text-muted-foreground">{i18nT("Business GST Verified (+20)")}</span>
                   <input
                     type="checkbox"
                     checked={scoreBusinessVerified}
                     onChange={(e) => setScoreBusinessVerified(e.target.checked)}
                     className="cursor-pointer accent-amber-500"
-                    aria-label="Toggle Business GST Verification status for score simulation"
-                  />
+                    aria-label={i18nT("Toggle Business GST Verification status for score simulation")} />
+                  
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
-                  <span className="text-muted-foreground">Profile Complete (+15)</span>
+                  <span className="text-muted-foreground">{i18nT("Profile Complete (+15)")}</span>
                   <input
                     type="checkbox"
                     checked={scoreProfileComplete}
                     onChange={(e) => setScoreProfileComplete(e.target.checked)}
                     className="cursor-pointer accent-amber-500"
-                    aria-label="Toggle Profile Completeness status for score simulation"
-                  />
+                    aria-label={i18nT("Toggle Profile Completeness status for score simulation")} />
+                  
                 </div>
 
                 <div className="flex flex-col gap-1 text-xs py-1 border-b border-border/10">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Average Rating: {scoreRatingAvg.toFixed(1)} stars</span>
+                    <span className="text-muted-foreground">{i18nT("Average Rating:")}{scoreRatingAvg.toFixed(1)}{i18nT("stars")}</span>
                   </div>
                   <input
                     type="range"
@@ -610,12 +610,12 @@ export default function TrustDashboard() {
                     value={scoreRatingAvg}
                     onChange={(e) => setScoreRatingAvg(parseFloat(e.target.value))}
                     className="w-full accent-amber-500 cursor-pointer"
-                    aria-label="Adjust Average Rating for score simulation"
-                  />
+                    aria-label={i18nT("Adjust Average Rating for score simulation")} />
+                  
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1">
-                  <span className="text-muted-foreground">Active Disputes (-15 pts each)</span>
+                  <span className="text-muted-foreground">{i18nT("Active Disputes (-15 pts each)")}</span>
                   <input
                     type="number"
                     min="0"
@@ -623,8 +623,8 @@ export default function TrustDashboard() {
                     value={scoreDisputesCount}
                     onChange={(e) => setScoreDisputesCount(parseInt(e.target.value) || 0)}
                     className="w-12 bg-muted text-foreground text-center border border-border rounded py-0.5 text-xs font-bold outline-none"
-                    aria-label="Set Active Disputes count for score simulation"
-                  />
+                    aria-label={i18nT("Set Active Disputes count for score simulation")} />
+                  
                 </div>
               </div>
             </CardContent>
@@ -636,26 +636,26 @@ export default function TrustDashboard() {
               <CardTitle className="text-base gold-gradient-text">{t.activeBadges}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-              {scoreIdentityVerified && (
-                <Badge variant="success" className="text-[10px] uppercase font-bold py-1 px-2.5">
-                  🛡️ Verified Identity
-                </Badge>
-              )}
-              {scoreBusinessVerified && (
-                <Badge variant="primary" className="text-[10px] uppercase font-bold py-1 px-2.5">
-                  🚜 Verified Business
-                </Badge>
-              )}
-              {scoreRatingAvg >= 4.5 && (
-                <Badge variant="warning" className="text-[10px] uppercase font-bold py-1 px-2.5">
-                  🏆 Top Rated Worker
-                </Badge>
-              )}
-              <Badge variant="secondary" className="text-[10px] uppercase font-bold py-1 px-2.5">
-                ⚡ Fast Responder
+              {scoreIdentityVerified &&
+              <Badge variant="success" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("🛡️ Verified Identity")}
+
               </Badge>
-              <Badge variant="secondary" className="text-[10px] uppercase font-bold py-1 px-2.5">
-                🤝 Trusted Partner
+              }
+              {scoreBusinessVerified &&
+              <Badge variant="primary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("🚜 Verified Business")}
+
+              </Badge>
+              }
+              {scoreRatingAvg >= 4.5 &&
+              <Badge variant="warning" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("🏆 Top Rated Worker")}
+
+              </Badge>
+              }
+              <Badge variant="secondary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("⚡ Fast Responder")}
+
+              </Badge>
+              <Badge variant="secondary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("🤝 Trusted Partner")}
+
               </Badge>
             </CardContent>
           </Card>
@@ -669,8 +669,8 @@ export default function TrustDashboard() {
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-base gold-gradient-text">{t.identityKyc}</CardTitle>
-              <CardDescription className="text-xs">
-                Upload official identification documents for moderator review.
+              <CardDescription className="text-xs">{i18nT("Upload official identification documents for moderator review.")}
+
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
@@ -682,13 +682,13 @@ export default function TrustDashboard() {
                   id="kyc-doc-type"
                   value={kycDocType}
                   onChange={(e) => setKycDocType(e.target.value)}
-                  className="bg-muted text-foreground text-xs px-2 py-1.5 rounded border border-border outline-none cursor-pointer"
-                >
-                  <option value="aadhaar">Aadhaar (Indian ID)</option>
-                  <option value="pan">PAN Card (Tax Registration)</option>
-                  <option value="passport">Passport International</option>
-                  <option value="driving_licence">Driving License</option>
-                  <option value="voter_id">Voter Identification</option>
+                  className="bg-muted text-foreground text-xs px-2 py-1.5 rounded border border-border outline-none cursor-pointer">
+                  
+                  <option value="aadhaar">{i18nT("Aadhaar (Indian ID)")}</option>
+                  <option value="pan">{i18nT("PAN Card (Tax Registration)")}</option>
+                  <option value="passport">{i18nT("Passport International")}</option>
+                  <option value="driving_licence">{i18nT("Driving License")}</option>
+                  <option value="voter_id">{i18nT("Voter Identification")}</option>
                 </select>
               </div>
 
@@ -698,16 +698,16 @@ export default function TrustDashboard() {
                 </label>
                 <Input
                   id="kyc-doc-num"
-                  placeholder="Enter document reference ID number..."
+                  placeholder={i18nT("Enter document reference ID number...")}
                   value={kycDocNum}
                   onChange={(e) => setKycDocNum(e.target.value)}
-                  className="h-8.5 text-xs"
-                />
+                  className="h-8.5 text-xs" />
+                
               </div>
 
               <div className="border border-dashed border-border/60 p-3 rounded-lg text-center bg-black/10 flex flex-col items-center justify-center">
                 <span className="text-lg">📁</span>
-                <span className="text-[10px] text-muted-foreground mt-1">Select scanned document file scans</span>
+                <span className="text-[10px] text-muted-foreground mt-1">{i18nT("Select scanned document file scans")}</span>
               </div>
 
               <Button size="sm" onClick={handleKycSubmit} className="bg-amber-600 hover:bg-amber-700 w-full text-xs">
@@ -720,8 +720,8 @@ export default function TrustDashboard() {
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-base gold-gradient-text">{t.businessGst}</CardTitle>
-              <CardDescription className="text-xs">
-                Validate organization tax registrations.
+              <CardDescription className="text-xs">{i18nT("Validate organization tax registrations.")}
+
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
@@ -732,48 +732,48 @@ export default function TrustDashboard() {
                   </label>
                   <Input
                     id="gst-num"
-                    placeholder="e.g. 29AAAAA0000A1Z1"
+                    placeholder={i18nT("e.g. 29AAAAA0000A1Z1")}
                     value={gstNumInput}
                     onChange={(e) => setGstNumInput(e.target.value)}
-                    className="h-8.5 text-xs"
-                  />
+                    className="h-8.5 text-xs" />
+                  
                 </div>
                 <Button
                   size="sm"
                   onClick={handleGstLookup}
-                  className="bg-muted hover:bg-muted/80 text-foreground text-xs self-end h-8.5 border border-border"
-                >
+                  className="bg-muted hover:bg-muted/80 text-foreground text-xs self-end h-8.5 border border-border">
+                  
                   {gstLoading ? "..." : t.gstCheck}
                 </Button>
               </div>
 
-              {gstCompanyName && (
-                <div className="text-xs bg-muted/40 p-2.5 rounded border border-border/30 flex flex-col gap-1">
+              {gstCompanyName &&
+              <div className="text-xs bg-muted/40 p-2.5 rounded border border-border/30 flex flex-col gap-1">
                   <div>
-                    <span className="text-[9px] text-muted-foreground block">Business Legal Name</span>
+                    <span className="text-[9px] text-muted-foreground block">{i18nT("Business Legal Name")}</span>
                     <span className="font-semibold">{gstCompanyName}</span>
                   </div>
-                  {gstAddress && (
-                    <div>
-                      <span className="text-[9px] text-muted-foreground block">Registered Address</span>
+                  {gstAddress &&
+                <div>
+                      <span className="text-[9px] text-muted-foreground block">{i18nT("Registered Address")}</span>
                       <span>{gstAddress}</span>
                     </div>
-                  )}
-                  {gstCategory && (
-                    <div>
-                      <span className="text-[9px] text-muted-foreground block">Sector Classification</span>
+                }
+                  {gstCategory &&
+                <div>
+                      <span className="text-[9px] text-muted-foreground block">{i18nT("Sector Classification")}</span>
                       <span className="italic text-amber-500">{gstCategory}</span>
                     </div>
-                  )}
+                }
                 </div>
-              )}
+              }
 
               <Button
                 size="sm"
                 onClick={handleGstSubmit}
                 disabled={!gstCompanyName || gstCompanyName.startsWith("Not")}
-                className="bg-amber-600 hover:bg-amber-700 w-full text-xs disabled:opacity-40"
-              >
+                className="bg-amber-600 hover:bg-amber-700 w-full text-xs disabled:opacity-40">
+                
                 {t.submitDoc}
               </Button>
             </CardContent>
@@ -789,81 +789,81 @@ export default function TrustDashboard() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base text-rose-500 font-bold flex items-center justify-between">
                 <span>{t.safetySOS}</span>
-                {safety.sosActive && (
-                  <span className="w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping" />
-                )}
+                {safety.sosActive &&
+                <span className="w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping" />
+                }
               </CardTitle>
-              <CardDescription className="text-xs">
-                Activate warning alerts and log tracking status telemetry immediately.
+              <CardDescription className="text-xs">{i18nT("Activate warning alerts and log tracking status telemetry immediately.")}
+
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               
               <div className="flex gap-2">
-                {safety.sosActive ? (
-                  <Button
-                    size="lg"
-                    onClick={handleResolveSos}
-                    className="bg-linear-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold w-full text-sm h-12 shadow-lg"
-                  >
+                {safety.sosActive ?
+                <Button
+                  size="lg"
+                  onClick={handleResolveSos}
+                  className="bg-linear-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold w-full text-sm h-12 shadow-lg">
+                  
                     🟢 {t.sosResolve}
-                  </Button>
-                ) : (
-                  <Button
-                    size="lg"
-                    onClick={handleTriggerSos}
-                    className="bg-linear-to-r from-rose-600 to-red-700 hover:from-rose-700 hover:to-red-800 text-white font-bold w-full text-sm h-12 shadow-lg animate-pulse"
-                  >
+                  </Button> :
+
+                <Button
+                  size="lg"
+                  onClick={handleTriggerSos}
+                  className="bg-linear-to-r from-rose-600 to-red-700 hover:from-rose-700 hover:to-red-800 text-white font-bold w-full text-sm h-12 shadow-lg animate-pulse">
+                  
                     🚨 {t.sosTrigger}
                   </Button>
-                )}
+                }
               </div>
 
               {/* Incident timeline audit log */}
-              {safety.sosActive && safety.incidentTimeline.length > 0 && (
-                <div className="flex flex-col gap-2">
+              {safety.sosActive && safety.incidentTimeline.length > 0 &&
+              <div className="flex flex-col gap-2">
                   <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider text-rose-400">
                     {t.timeline}
                   </Typography>
                   <div className="bg-black/35 rounded-xl border border-rose-500/30 p-2.5 font-mono text-[9px] h-[100px] overflow-y-auto flex flex-col gap-1.5 text-rose-300">
-                    {safety.incidentTimeline.map((log, idx) => (
-                      <div key={idx} className="border-b border-rose-500/10 pb-1">
+                    {safety.incidentTimeline.map((log, idx) =>
+                  <div key={idx} className="border-b border-rose-500/10 pb-1">
                         <span className="font-semibold text-rose-400">
                           {new Date(log.timestamp).toLocaleTimeString()}
                         </span>{" "}
                         - <span className="font-bold">[{log.event}]</span> {log.details}
                       </div>
-                    ))}
+                  )}
                   </div>
                 </div>
-              )}
+              }
 
               {/* Trusted Contacts Grid */}
               <div className="flex flex-col gap-2.5">
-                <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
-                  Trusted Emergency Contacts
+                <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">{i18nT("Trusted Emergency Contacts")}
+
                 </Typography>
 
                 <div className="flex flex-col gap-1.5">
-                  {safety.contacts.map((contact) => (
-                    <div
-                      key={contact.id}
-                      className="flex justify-between items-center bg-muted/40 px-2.5 py-1.5 rounded border border-border/30 text-xs"
-                    >
+                  {safety.contacts.map((contact) =>
+                  <div
+                    key={contact.id}
+                    className="flex justify-between items-center bg-muted/40 px-2.5 py-1.5 rounded border border-border/30 text-xs">
+                    
                       <div className="flex flex-col">
                         <span className="font-semibold">{contact.contact_name}</span>
                         <span className="text-[10px] font-mono text-muted-foreground">{contact.contact_phone}</span>
                       </div>
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => safety.removeContact(contact.id)}
-                        className="text-[9px] text-rose-500 border-rose-500/30 hover:bg-rose-500/10 h-6 px-1.5"
-                      >
-                        Remove
-                      </Button>
+                      size="sm"
+                      variant="outline"
+                      onClick={() => safety.removeContact(contact.id)}
+                      className="text-[9px] text-rose-500 border-rose-500/30 hover:bg-rose-500/10 h-6 px-1.5">{i18nT("Remove")}
+
+
+                    </Button>
                     </div>
-                  ))}
+                  )}
                 </div>
 
                 {/* Add emergency contacts inputs */}
@@ -873,14 +873,14 @@ export default function TrustDashboard() {
                       placeholder={t.contactName}
                       value={contactNameInput}
                       onChange={(e) => setContactNameInput(e.target.value)}
-                      className="h-8 text-xs"
-                    />
+                      className="h-8 text-xs" />
+                    
                     <Input
                       placeholder={t.contactPhone}
                       value={contactPhoneInput}
                       onChange={(e) => setContactPhoneInput(e.target.value)}
-                      className="h-8 text-xs"
-                    />
+                      className="h-8 text-xs" />
+                    
                   </div>
                   <Button size="sm" onClick={handleAddContact} className="w-full text-xs h-8">
                     {t.addContact}
@@ -894,78 +894,78 @@ export default function TrustDashboard() {
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-base gold-gradient-text">{t.disputesMediation}</CardTitle>
-              <CardDescription className="text-xs">
-                Active opportunity dispute mediation timeline logs.
+              <CardDescription className="text-xs">{i18nT("Active opportunity dispute mediation timeline logs.")}
+
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               
               {/* Timeline scroller */}
               <div className="bg-black/20 border border-border/40 rounded-xl p-2.5 flex flex-col gap-2.5 h-[150px] overflow-y-auto">
-                {dispute.disputes.length > 0 && (
-                  <div className="flex flex-col gap-1.5 mb-2 border-b border-border/25 pb-2">
-                    <span className="text-[10px] uppercase font-bold text-amber-500">
-                      Dispute Case: {dispute.disputes[0].reason}
+                {dispute.disputes.length > 0 &&
+                <div className="flex flex-col gap-1.5 mb-2 border-b border-border/25 pb-2">
+                    <span className="text-[10px] uppercase font-bold text-amber-500">{i18nT("Dispute Case:")}
+                    {dispute.disputes[0].reason}
                     </span>
                     <p className="text-[10px] text-muted-foreground italic">
                       {dispute.disputes[0].description}
                     </p>
                   </div>
-                )}
+                }
 
-                {dispute.activeTimeline.length === 0 ? (
-                  <Button
-                    size="sm"
-                    onClick={() => dispute.loadTimeline("d1")}
-                    className="m-auto text-[10px] bg-muted text-foreground border border-border"
-                  >
-                    Load Mediation Conversation Timeline Logs
-                  </Button>
-                ) : (
-                  dispute.activeTimeline.map((msg) => {
-                    const isMod = msg.sender_id === "moderator-profile-id";
-                    const isOwn = msg.sender_id === "worker-profile-id";
-                    return (
-                      <div
-                        key={msg.id}
-                        className={`flex flex-col max-w-[85%] ${
-                          isMod ? "self-center items-center" : isOwn ? "self-end items-end" : "self-start items-start"
-                        }`}
-                      >
+                {dispute.activeTimeline.length === 0 ?
+                <Button
+                  size="sm"
+                  onClick={() => dispute.loadTimeline("d1")}
+                  className="m-auto text-[10px] bg-muted text-foreground border border-border">{i18nT("Load Mediation Conversation Timeline Logs")}
+
+
+                </Button> :
+
+                dispute.activeTimeline.map((msg) => {
+                  const isMod = msg.sender_id === "moderator-profile-id";
+                  const isOwn = msg.sender_id === "worker-profile-id";
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col max-w-[85%] ${
+                      isMod ? "self-center items-center" : isOwn ? "self-end items-end" : "self-start items-start"}`
+                      }>
+                      
                         <div
-                          className={`p-2 rounded-xl text-[10px] ${
-                            isMod
-                              ? "bg-amber-600/20 text-amber-300 border border-amber-500/20"
-                              : isOwn
-                              ? "bg-amber-600 text-white"
-                              : "bg-muted text-foreground border border-border"
-                          }`}
-                        >
+                        className={`p-2 rounded-xl text-[10px] ${
+                        isMod ?
+                        "bg-amber-600/20 text-amber-300 border border-amber-500/20" :
+                        isOwn ?
+                        "bg-amber-600 text-white" :
+                        "bg-muted text-foreground border border-border"}`
+                        }>
+                        
                           <span className="font-bold block text-[8px] opacity-75 mb-0.5">
                             {isMod ? "Mediator" : isOwn ? "You (Arun)" : "Employer (Nisha)"}
                           </span>
                           {msg.message_text}
                         </div>
-                      </div>
-                    );
-                  })
-                )}
+                      </div>);
+
+                })
+                }
               </div>
 
               {/* Chat Send */}
-              {dispute.activeTimeline.length > 0 && (
-                <div className="flex gap-1.5">
+              {dispute.activeTimeline.length > 0 &&
+              <div className="flex gap-1.5">
                   <Input
-                    placeholder="Enter mediation notes..."
-                    value={disputeMsgInput}
-                    onChange={(e) => setDisputeMsgInput(e.target.value)}
-                    className="h-8.5 text-xs"
-                  />
+                  placeholder={i18nT("Enter mediation notes...")}
+                  value={disputeMsgInput}
+                  onChange={(e) => setDisputeMsgInput(e.target.value)}
+                  className="h-8.5 text-xs" />
+                
                   <Button size="sm" onClick={handleSendDisputeMessage} className="bg-amber-600 hover:bg-amber-700 text-xs px-2.5 h-8.5">
                     {t.postMessage}
                   </Button>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
 
@@ -976,26 +976,26 @@ export default function TrustDashboard() {
             </CardHeader>
             <CardContent>
               <div className="bg-black/35 border border-border/40 p-2.5 rounded-xl font-mono text-[9px] flex flex-col gap-2 text-muted-foreground">
-                {fraudSignals.map((sig) => (
-                  <div key={sig.id} className="border-b border-border/10 pb-1.5 last:border-0 last:pb-0">
+                {fraudSignals.map((sig) =>
+                <div key={sig.id} className="border-b border-border/10 pb-1.5 last:border-0 last:pb-0">
                     <div className="flex justify-between items-center mb-0.5">
                       <span className="font-bold text-rose-400 uppercase tracking-wide">
                         ⚠️ {sig.type}
                       </span>
                       <Badge variant="danger" className="text-[8px] px-1 py-0 font-bold">
-                        {(sig.score * 100).toFixed(0)}% Alert
-                      </Badge>
+                        {(sig.score * 100).toFixed(0)}{i18nT("% Alert")}
+                    </Badge>
                     </div>
                     <p className="text-[9px] text-muted-foreground">{sig.details}</p>
                     <span className="text-[8px] text-muted-foreground/50 block mt-0.5">{sig.time}</span>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
 
         </div>
       </div>
-    </ProductShell>
-  );
+    </ProductShell>);
+
 }

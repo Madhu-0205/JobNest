@@ -1,4 +1,4 @@
-import React from "react";
+import { useI18n } from "@/lib/i18n/context";import React from "react";
 import { cn } from "@/utils/cn";
 import { Typography } from "./Typography";
 import { Button } from "./Button";
@@ -21,7 +21,7 @@ export function ErrorState({
   onRetry,
   className,
   ...props
-}: ErrorStateProps) {
+}: ErrorStateProps) {const { t: i18nT } = useI18n();
   const errorMessage = typeof error === "string" ? error : error?.message;
 
   return (
@@ -31,8 +31,8 @@ export function ErrorState({
         className
       )}
       {...props}
-      role="alert"
-    >
+      role="alert">
+      
       <div className="mb-4 text-rose-400 w-12 h-12 flex items-center justify-center bg-rose-500/10 rounded-full border border-rose-500/25">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -41,13 +41,13 @@ export function ErrorState({
           strokeWidth="1.5"
           stroke="currentColor"
           className="w-6 h-6"
-          aria-hidden="true"
-        >
+          aria-hidden="true">
+          
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-          />
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          
         </svg>
       </div>
       <Typography variant="h3" className="text-lg font-semibold mb-2">
@@ -57,21 +57,21 @@ export function ErrorState({
         {description}
       </Typography>
       
-      {errorMessage && (
-        <pre className="mb-6 p-3 bg-red-950/20 border border-red-500/15 rounded text-xs text-rose-300 max-w-sm overflow-x-auto w-full text-left font-mono">
+      {errorMessage &&
+      <pre className="mb-6 p-3 bg-red-950/20 border border-red-500/15 rounded text-xs text-rose-300 max-w-sm overflow-x-auto w-full text-left font-mono">
           <code>{errorMessage}</code>
         </pre>
-      )}
+      }
       
-      {onRetry && (
-        <Button
-          variant="outline"
-          onClick={onRetry}
-          className="hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20"
-        >
-          Try Again
-        </Button>
-      )}
-    </div>
-  );
+      {onRetry &&
+      <Button
+        variant="outline"
+        onClick={onRetry}
+        className="hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20">{i18nT("Try Again")}
+
+
+      </Button>
+      }
+    </div>);
+
 }

@@ -3,6 +3,7 @@ import { logger } from "@/services/logger";
 import { SupportService } from "@/services/support-service";
 import { AuthorizationGuard } from "@/lib/authorization/guard";
 import { PERMISSIONS } from "@/lib/authorization/permissions";
+import { adminSupportSchema } from "@/lib/validation/api-schemas";
 
 /**
  * GET /api/admin/support — Secure Active tickets + stats.
@@ -39,10 +40,15 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
     }
 
-    const body = await req.json() as { ticketId?: string; status?: string };
-    if (!body.ticketId || !body.status) {
-      return NextResponse.json({ success: false, error: "ticketId and status are required." }, { status: 400 });
+    const rawBody = await req.json();
+    const parseResult = adminSupportSchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Validation failed", details: parseResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+    const body = parseResult.data;
 
     const result = await SupportService.updateTicketStatus(body.ticketId, body.status);
     logger.info(`[API:Admin:Support] Ticket ${body.ticketId} updated to status: ${body.status}`);

@@ -1,5 +1,3 @@
-
-
 import { createServerClient } from "@/lib/supabase/server";
 import { AIProviderService } from "@/services/ai-provider-service";
 import { logger } from "@/services/logger";
@@ -53,91 +51,181 @@ const DEFAULT_WEIGHTS: RankingWeights = {
   salary: 0.07,
 };
 
-// ─────────────────────────────────────────────────────────────────
-// Simulated Worker Pool (sandbox data)
-// ─────────────────────────────────────────────────────────────────
-
-const SIMULATED_WORKERS: RecommendationCandidate[] = [
-  { id: "w1", name: "Rajesh Kumar", title: "Plumber & Electrician", compositeScore: 0, skillScore: 0.92, trustScore: 0.88, distanceScore: 0.95, ratingScore: 0.90, availabilityScore: 0.85, responseTimeScore: 0.78, salaryScore: 0.82 },
-  { id: "w2", name: "Priya Sharma", title: "House Cleaner", compositeScore: 0, skillScore: 0.85, trustScore: 0.95, distanceScore: 0.70, ratingScore: 0.92, availabilityScore: 0.90, responseTimeScore: 0.88, salaryScore: 0.75 },
-  { id: "w3", name: "Suresh Babu", title: "Carpenter & Painter", compositeScore: 0, skillScore: 0.88, trustScore: 0.82, distanceScore: 0.60, ratingScore: 0.85, availabilityScore: 0.95, responseTimeScore: 0.92, salaryScore: 0.90 },
-  { id: "w4", name: "Lakshmi Devi", title: "Cook & Caterer", compositeScore: 0, skillScore: 0.78, trustScore: 0.90, distanceScore: 0.88, ratingScore: 0.88, availabilityScore: 0.72, responseTimeScore: 0.80, salaryScore: 0.85 },
-  { id: "w5", name: "Arjun Reddy", title: "Delivery Driver", compositeScore: 0, skillScore: 0.70, trustScore: 0.85, distanceScore: 0.92, ratingScore: 0.80, availabilityScore: 0.88, responseTimeScore: 0.95, salaryScore: 0.78 },
-  { id: "w6", name: "Meena Kumari", title: "Tailor & Seamstress", compositeScore: 0, skillScore: 0.95, trustScore: 0.78, distanceScore: 0.75, ratingScore: 0.82, availabilityScore: 0.80, responseTimeScore: 0.70, salaryScore: 0.92 },
-  { id: "w7", name: "Ganesh Pillai", title: "Security Guard", compositeScore: 0, skillScore: 0.72, trustScore: 0.92, distanceScore: 0.85, ratingScore: 0.78, availabilityScore: 0.92, responseTimeScore: 0.85, salaryScore: 0.80 },
-  { id: "w8", name: "Deepa Nair", title: "Tutor & Teacher", compositeScore: 0, skillScore: 0.90, trustScore: 0.88, distanceScore: 0.78, ratingScore: 0.95, availabilityScore: 0.75, responseTimeScore: 0.82, salaryScore: 0.70 },
-];
-
-// ─────────────────────────────────────────────────────────────────
-// Recommendation Engine
-// ─────────────────────────────────────────────────────────────────
-
 export class RecommendationEngine {
   /**
    * Generates ranked worker recommendations for a given user/opportunity.
-   * Uses composite weighted scoring across all dimensions.
+   * Uses composite weighted scoring across all dimensions, tightly integrated with live GPS PostGIS.
    */
   static async recommend(
     userId: string,
     type: "worker" | "employer" | "opportunity",
+    lat: number,
+    lng: number,
+    maxDistanceMeters: number = 50000,
     weights: RankingWeights = DEFAULT_WEIGHTS
   ): Promise<RankedRecommendation> {
     try {
       const supabase = await createServerClient();
 
-      // In production, query profiles with embeddings similarity
-      // For now, use simulated pool and compute composite scores
-      const candidates = SIMULATED_WORKERS.map((c) => ({
-        ...c,
-        compositeScore: parseFloat((
-          c.skillScore * weights.skills +
-          c.trustScore * weights.trust +
-          c.distanceScore * weights.distance +
-          c.ratingScore * weights.rating +
-          c.availabilityScore * weights.availability +
-          c.responseTimeScore * weights.responseTime +
-          c.salaryScore * weights.salary
-        ).toFixed(4)),
-      }));
-
-      // Sort by composite score descending
-      candidates.sort((a, b) => b.compositeScore - a.compositeScore);
-
-      const result: RankedRecommendation = {
-        userId,
-        type,
-        candidates,
-        generatedAt: new Date().toISOString(),
-      };
-
-      // Persist to database
-      try {
-        await supabase.from("recommendations").insert({
-          user_id: userId,
-          type,
-          results: candidates as unknown as Record<string, unknown>[],
+      if (type === "worker") {
+        // Query real workers from PostGIS RPC `find_nearby_workers`
+        const { data: nearbyWorkers, error: workersErr } = await supabase.rpc("find_nearby_workers", {
+          center_lat: lat,
+          center_lon: lng,
+          max_distance_meters: maxDistanceMeters,
+          limit_count: 50
         });
-      } catch {
-        logger.warn("[RecommendationEngine] Failed to persist to DB. Continuing with in-memory results.");
+
+        if (workersErr) throw workersErr;
+
+        const candidateList = nearbyWorkers || [];
+        if (candidateList.length === 0) {
+          return { userId, type, candidates: [], generatedAt: new Date().toISOString() };
+        }
+
+        const userIds = candidateList.map((w: { user_id: string }) => w.user_id);
+
+        // Fetch remaining profile details (ratings, trust_score, availability)
+        const [ratingsRes, profilesRes, trustRes] = await Promise.all([
+          supabase.from("ratings").select("reviewee_id, score").in("reviewee_id", userIds),
+          supabase.from("profiles").select("id, full_name, avatar_url").in("id", userIds),
+          supabase.from("trust_scores").select("user_id, score").in("user_id", userIds)
+        ]);
+
+        const ratingsMap: Record<string, number[]> = {};
+        (ratingsRes.data || []).forEach((r) => {
+          if (!ratingsMap[r.reviewee_id]) ratingsMap[r.reviewee_id] = [];
+          ratingsMap[r.reviewee_id].push(Number(r.score));
+        });
+
+        const profilesMap = Object.fromEntries((profilesRes.data || []).map((p) => [p.id, p]));
+        const trustMap = Object.fromEntries((trustRes.data || []).map((t) => [t.user_id, t]));
+
+        const candidates = candidateList.map((w: { user_id: string; experience_years: number; distance_meters: number; job_title: string }) => {
+          const userRatings = ratingsMap[w.user_id] || [];
+          const ratingAvg = userRatings.length > 0 
+            ? userRatings.reduce((sum, s) => sum + s, 0) / userRatings.length 
+            : 5.0;
+
+          const profile = profilesMap[w.user_id];
+          const trust = trustMap[w.user_id];
+          
+          const trustVal = (trust?.score ?? 80) / 100;
+          const ratingVal = ratingAvg / 5.0;
+          const availabilityVal = 0.9; // We don't have availability directly in `worker_profiles` RPC response, default to 0.9
+          const experienceVal = Math.min(1.0, (w.experience_years || 1) / 10);
+          
+          // distance score: closer is better
+          const maxDist = Math.max(1, maxDistanceMeters);
+          const distanceScore = Math.max(0, 1.0 - (w.distance_meters / maxDist));
+          
+          // Compute score components
+          const skillScore = experienceVal;
+          const trustScore = trustVal;
+          const ratingScore = ratingVal;
+          const availabilityScore = availabilityVal;
+          const responseTimeScore = 0.9;
+          const salaryScore = 0.8;
+
+          const compositeScore = parseFloat((
+            skillScore * weights.skills +
+            trustScore * weights.trust +
+            distanceScore * weights.distance +
+            ratingScore * weights.rating +
+            availabilityScore * weights.availability +
+            responseTimeScore * weights.responseTime +
+            salaryScore * weights.salary
+          ).toFixed(4));
+
+          return {
+            id: w.user_id,
+            name: profile?.full_name || "Worker Candidate",
+            title: w.job_title || "General Helper",
+            compositeScore,
+            skillScore,
+            trustScore,
+            distanceScore,
+            ratingScore,
+            availabilityScore,
+            responseTimeScore,
+            salaryScore
+          };
+        });
+
+        // Sort by composite score descending
+        candidates.sort((a: RecommendationCandidate, b: RecommendationCandidate) => b.compositeScore - a.compositeScore);
+
+        const result: RankedRecommendation = {
+          userId,
+          type,
+          candidates,
+          generatedAt: new Date().toISOString(),
+        };
+
+        // Persist to database
+        try {
+          await supabase.from("recommendations").insert({
+            user_id: userId,
+            type,
+            results: candidates as unknown as Record<string, unknown>[],
+          });
+        } catch {
+          logger.warn("[RecommendationEngine] Failed to persist to DB. Continuing with in-memory results.");
+        }
+
+        return result;
       }
 
-      logger.info(`[RecommendationEngine] Generated ${candidates.length} ranked ${type} candidates for user ${userId}`);
-      return result;
-    } catch {
-      logger.warn("[RecommendationEngine] Bypassed database. Returning simulated ranked results.");
-      const candidates = SIMULATED_WORKERS.map((c) => ({
-        ...c,
-        compositeScore: parseFloat((
-          c.skillScore * weights.skills +
-          c.trustScore * weights.trust +
-          c.distanceScore * weights.distance +
-          c.ratingScore * weights.rating +
-          c.availabilityScore * weights.availability +
-          c.responseTimeScore * weights.responseTime +
-          c.salaryScore * weights.salary
-        ).toFixed(4)),
-      }));
-      candidates.sort((a, b) => b.compositeScore - a.compositeScore);
+      // If not worker (e.g. employer / opportunity), use `find_nearby_opportunities` RPC
+      const { data: nearbyOpportunities, error: oppsErr } = await supabase.rpc("find_nearby_opportunities", {
+        user_lat: lat,
+        user_lon: lng,
+        max_distance_meters: maxDistanceMeters,
+        limit_count: 50
+      });
+
+      if (oppsErr) throw oppsErr;
+
+      const candidates = (nearbyOpportunities || []).map((o: { verification_status: string; distance_meters: number; id: string; employer_name: string; title: string }) => {
+        const isVerified = o.verification_status === "verified";
+        
+        const maxDist = Math.max(1, maxDistanceMeters);
+        const distanceScore = Math.max(0, 1.0 - (o.distance_meters / maxDist));
+        
+        const skillScore = 0.8;
+        const trustScore = isVerified ? 0.98 : 0.85;
+        const ratingScore = 0.8;
+        const availabilityScore = 0.9;
+        const responseTimeScore = 0.85;
+        const salaryScore = 0.8;
+
+        const compositeScore = parseFloat((
+          skillScore * weights.skills +
+          trustScore * weights.trust +
+          distanceScore * weights.distance +
+          ratingScore * weights.rating +
+          availabilityScore * weights.availability +
+          responseTimeScore * weights.responseTime +
+          salaryScore * weights.salary
+        ).toFixed(4));
+
+        return {
+          id: o.id,
+          name: o.employer_name || "Local Employer",
+          title: o.title || "Gig Work Opportunity",
+          compositeScore,
+          skillScore,
+          trustScore,
+          distanceScore,
+          ratingScore,
+          availabilityScore,
+          responseTimeScore,
+          salaryScore
+        };
+      });
+
+      // Sort by composite score descending
+      candidates.sort((a: RecommendationCandidate, b: RecommendationCandidate) => b.compositeScore - a.compositeScore);
 
       return {
         userId,
@@ -145,6 +233,9 @@ export class RecommendationEngine {
         candidates,
         generatedAt: new Date().toISOString(),
       };
+    } catch (err) {
+      logger.error("[RecommendationEngine] Recommendation failed:", err as Record<string, unknown>);
+      throw err;
     }
   }
 
@@ -185,14 +276,8 @@ export class RecommendationEngine {
       });
       return (data || []) as { id: string; title: string; description: string; similarity: number }[];
     } catch {
-      logger.warn("[RecommendationEngine] Semantic search bypassed. Returning simulated results.");
-      return [
-        { id: "opp-sim-1", title: "House Cleaning - 2BHK Apartment", description: "Deep cleaning needed for a 2-bedroom apartment in Koramangala.", similarity: 0.89, distance: 1200 },
-        { id: "opp-sim-2", title: "Plumbing Repair - Kitchen Sink", description: "Fix leaking kitchen sink pipe and replace washer.", similarity: 0.82, distance: 2400 },
-        { id: "opp-sim-3", title: "Electrical Wiring - New Office", description: "Complete electrical setup for a new office space in Indiranagar.", similarity: 0.76, distance: 3800 },
-        { id: "opp-sim-4", title: "Farm Labor - Paddy Harvest", description: "Seasonal workers needed for paddy harvesting in Mandya district.", similarity: 0.71, distance: 45000 },
-        { id: "opp-sim-5", title: "Tutoring - Class 10 Mathematics", description: "Home tutoring for 10th standard student preparing for board exams.", similarity: 0.65, distance: 1800 },
-      ];
+      logger.warn("[RecommendationEngine] Semantic search bypassed. Returning empty results.");
+      return [];
     }
   }
 }

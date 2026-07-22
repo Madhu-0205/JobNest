@@ -3,6 +3,7 @@ import { logger } from "@/services/logger";
 import { ModerationService } from "@/services/moderation-service";
 import { AuthorizationGuard } from "@/lib/authorization/guard";
 import { PERMISSIONS } from "@/lib/authorization/permissions";
+import { adminModerationSchema } from "@/lib/validation/api-schemas";
 
 /**
  * GET /api/admin/moderation — Secure Queue + stats.
@@ -40,10 +41,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
     }
 
-    const body = await req.json() as { itemId?: string; action?: "approved" | "rejected" | "escalated"; note?: string };
-    if (!body.itemId || !body.action) {
-      return NextResponse.json({ success: false, error: "itemId and action are required." }, { status: 400 });
+    const rawBody = await req.json();
+    const parseResult = adminModerationSchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Validation failed", details: parseResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+    const body = parseResult.data;
 
     const result = await ModerationService.takeAction(
       body.itemId,

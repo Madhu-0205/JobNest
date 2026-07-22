@@ -2,13 +2,27 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { logger } from "@/services/logger";
+import { calculateDistance } from "@/utils/geospatial";
 
 export type LocationPermissionStatus = "prompt" | "granted" | "denied" | "loading";
-export type LocationSource = "gps" | "ip" | "manual" | "preset";
+export type LocationSource = "gps" | "manual" | "cached";
 
 export interface LatLng {
   lat: number;
   lng: number;
+}
+
+export interface AddressDetails {
+  country: string;
+  state: string;
+  district: string;
+  city: string;
+  municipality: string;
+  village: string;
+  postalCode: string;
+  street: string;
+  neighbourhood: string;
+  landmark: string;
 }
 
 export interface LocationContextType {
@@ -18,18 +32,17 @@ export interface LocationContextType {
   permissionStatus: LocationPermissionStatus;
   isSpoofed: boolean;
   isOffline: boolean;
-  batteryOptimized: boolean;
+  isApproximate: boolean;
   errorMessage: string | null;
   locationSource: LocationSource;
+  address: AddressDetails | null;
+  reverseGeocodingStatus: "idle" | "loading" | "success" | "error";
   requestPermission: () => Promise<boolean>;
   updateLocation: (lat: number, lng: number, source: LocationSource) => void;
   refreshLocation: () => Promise<void>;
-  toggleBatteryOptimization: () => void;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
-
-export const DEFAULT_COORDS: LatLng = { lat: 12.9716, lng: 77.5946 }; // Bangalore Center
 
 export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [latitude, setLatitude] = useState<number | null>(null);
@@ -38,13 +51,19 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [permissionStatus, setPermissionStatus] = useState<LocationPermissionStatus>("loading");
   const [isSpoofed, setIsSpoofed] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
-  const [batteryOptimized, setBatteryOptimized] = useState(false);
+  const [isApproximate, setIsApproximate] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [locationSource, setLocationSource] = useState<LocationSource>("preset");
+  const [locationSource, setLocationSource] = useState<LocationSource>("cached");
+  
+  const [address, setAddress] = useState<AddressDetails | null>(null);
+  const [reverseGeocodingStatus, setReverseGeocodingStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const watchIdRef = useRef<number | null>(null);
   const lastLocationRef = useRef<{ lat: number; lng: number; timestamp: number } | null>(null);
+  const lastSyncRef = useRef<{ lat: number; lng: number; timestamp: number } | null>(null);
+  const lastGeocodeRef = useRef<{ lat: number; lng: number } | null>(null);
   const latitudeRef = useRef<number | null>(null);
+  const geocodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sync offline status
   useEffect(() => {
@@ -62,12 +81,17 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       const cached = localStorage.getItem("jobnest_cached_location");
       if (cached) {
         const parsed = JSON.parse(cached);
-        setLatitude(parsed.lat);
-        latitudeRef.current = parsed.lat;
-        setLongitude(parsed.lng);
-        setAccuracy(parsed.accuracy);
-        setLocationSource(parsed.source || "preset");
-        logger.info(`[LocationProvider] Loaded cached offline location: ${parsed.lat}, ${parsed.lng}`);
+        // Only load cached if GPS is not yet acquired or denied
+        if (latitudeRef.current === null) {
+          setLatitude(parsed.lat);
+          latitudeRef.current = parsed.lat;
+          setLongitude(parsed.lng);
+          setAccuracy(parsed.accuracy);
+          setLocationSource(parsed.source || "cached");
+          setIsApproximate(true); // Cached is always approximate
+          if (parsed.address) setAddress(parsed.address);
+          logger.info(`[LocationProvider] Loaded cached offline location: ${parsed.lat}, ${parsed.lng}`);
+        }
       }
     } catch (err) {
       logger.warn("[LocationProvider] Failed to load cached offline location", err as Record<string, unknown>);
@@ -79,6 +103,75 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const triggerReverseGeocode = useCallback(async (lat: number, lng: number) => {
+    if (geocodeTimeoutRef.current) clearTimeout(geocodeTimeoutRef.current);
+    
+    // Throttle geocoding to not hit API too often. Wait for 2s of stationary time.
+    geocodeTimeoutRef.current = setTimeout(async () => {
+      if (lastGeocodeRef.current) {
+        const dist = calculateDistance(
+          { latitude: lat, longitude: lng },
+          { latitude: lastGeocodeRef.current.lat, longitude: lastGeocodeRef.current.lng }
+        );
+        // If moved less than 100m, don't re-geocode
+        if (dist < 100) return;
+      }
+
+      try {
+        setReverseGeocodingStatus("loading");
+        const res = await fetch(`/api/geospatial/reverse?lat=${lat}&lng=${lng}`);
+        const data = await res.json();
+        
+        if (data.success && data.data) {
+          setAddress(data.data);
+          setReverseGeocodingStatus("success");
+          lastGeocodeRef.current = { lat, lng };
+          
+          // Update local storage with address
+          const cached = localStorage.getItem("jobnest_cached_location");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.address = data.data;
+            localStorage.setItem("jobnest_cached_location", JSON.stringify(parsed));
+          }
+        } else {
+          setReverseGeocodingStatus("error");
+        }
+      } catch (err) {
+        logger.error("[LocationProvider] Reverse Geocoding fetch failed", err as Record<string, unknown>);
+        setReverseGeocodingStatus("error");
+      }
+    }, 2000);
+  }, []);
+
+  const syncToDatabase = useCallback(async (lat: number, lng: number, acc: number) => {
+    const now = Date.now();
+    if (lastSyncRef.current) {
+      const dist = calculateDistance(
+        { latitude: lat, longitude: lng },
+        { latitude: lastSyncRef.current.lat, longitude: lastSyncRef.current.lng }
+      );
+      const timeElapsed = now - lastSyncRef.current.timestamp;
+      
+      // Throttle DB sync: >50m movement OR >60s elapsed
+      if (dist < 50 && timeElapsed < 60000) {
+        return;
+      }
+    }
+
+    lastSyncRef.current = { lat, lng, timestamp: now };
+    
+    try {
+      fetch("/api/geospatial/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ latitude: lat, longitude: lng, accuracy: acc })
+      }).catch(() => {});
+    } catch {
+      // Ignore background sync errors
+    }
+  }, []);
+
   const updateLocationState = useCallback((lat: number, lng: number, acc: number | null, src: LocationSource) => {
     setLatitude(lat);
     latitudeRef.current = lat;
@@ -86,23 +179,28 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     setAccuracy(acc);
     setLocationSource(src);
     setErrorMessage(null);
+    setIsApproximate(src !== "gps");
 
     // Cache to localStorage for offline preservation
     try {
+      const currentCache = localStorage.getItem("jobnest_cached_location");
+      const existingAddress = currentCache ? JSON.parse(currentCache).address : null;
       localStorage.setItem(
         "jobnest_cached_location",
-        JSON.stringify({ lat, lng, accuracy: acc, source: src, timestamp: Date.now() })
+        JSON.stringify({ lat, lng, accuracy: acc, source: src, timestamp: Date.now(), address: existingAddress })
       );
     } catch (err) {
       logger.warn("[LocationProvider] Cache write error", err as Record<string, unknown>);
     }
-  }, []);
+
+    triggerReverseGeocode(lat, lng);
+    syncToDatabase(lat, lng, acc || 0);
+  }, [triggerReverseGeocode, syncToDatabase]);
 
   // Spoofing detection client-side: simple speed check between updates
   const detectSpoofing = useCallback((lat: number, lng: number, acc: number, timestamp: number): boolean => {
     if (acc > 150) {
-      logger.warn(`[LocationProvider] High GPS inaccuracy: ${acc}m. Potentially poor signal.`);
-      return false;
+      return false; // Just bad signal
     }
 
     const prev = lastLocationRef.current;
@@ -111,24 +209,11 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
-    // Distance calculation
-    const R = 6371e3; // Earth radius in meters
-    const phi1 = (prev.lat * Math.PI) / 180;
-    const phi2 = (lat * Math.PI) / 180;
-    const deltaPhi = ((lat - prev.lat) * Math.PI) / 180;
-    const deltaLambda = ((lng - prev.lng) * Math.PI) / 180;
-
-    const a =
-      Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-      Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distanceMeters = R * c;
-
+    const distanceMeters = calculateDistance({ latitude: lat, longitude: lng }, { latitude: prev.lat, longitude: prev.lng });
     const timeSeconds = (timestamp - prev.timestamp) / 1000;
 
     if (timeSeconds > 0.5) {
       const speedMps = distanceMeters / timeSeconds;
-      // If speed exceeds 150 m/s (~540 km/h) on a local marketplace context, flag as spoofed jump
       if (speedMps > 150) {
         logger.error(`[LocationProvider] Speed anomaly detected: ${speedMps.toFixed(2)} m/s. Location update flagged.`);
         return true;
@@ -150,10 +235,11 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       navigator.geolocation.clearWatch(watchIdRef.current);
     }
 
+    // STRICT LIVE GPS ENFORCEMENT
     const options: PositionOptions = {
-      enableHighAccuracy: !batteryOptimized,
+      enableHighAccuracy: true, // MUST be true per requirements
       timeout: 10000,
-      maximumAge: batteryOptimized ? 30000 : 5000,
+      maximumAge: 0, // MUST be 0 per requirements
     };
 
     watchIdRef.current = window.navigator.geolocation.watchPosition(
@@ -179,17 +265,14 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         if (error.code === error.PERMISSION_DENIED) {
           setPermissionStatus("denied");
           setErrorMessage("Location permission was denied.");
-          // Fall back to Bangalore default if no cached location is present
-          if (latitudeRef.current === null) {
-            updateLocationState(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng, null, "preset");
-          }
+          setIsApproximate(true); // Remains approximate if using cached
         } else {
           setErrorMessage(`GPS connection failure: ${error.message}`);
         }
       },
       options
     );
-  }, [batteryOptimized, detectSpoofing, updateLocationState]);
+  }, [detectSpoofing, updateLocationState]);
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     setPermissionStatus("loading");
@@ -213,12 +296,10 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         (error) => {
           logger.warn(`[LocationProvider] Geolocation request denied or failed: ${error.message}`);
           setPermissionStatus("denied");
-          if (latitudeRef.current === null) {
-            updateLocationState(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng, null, "preset");
-          }
+          setIsApproximate(true); // Fallback to cached leaves isApproximate true
           resolve(false);
         },
-        { enableHighAccuracy: true, timeout: 5000 }
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
     });
   }, [startTracking, updateLocationState]);
@@ -231,14 +312,9 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     await requestPermission();
   }, [requestPermission]);
 
-  const toggleBatteryOptimization = useCallback(() => {
-    setBatteryOptimized((prev) => !prev);
-  }, []);
-
   // Track on mount if permission status was previously granted
   useEffect(() => {
     if (typeof window === "undefined" || !navigator.permissions) {
-      // Fallback request
       setPermissionStatus("prompt");
       return;
     }
@@ -249,9 +325,6 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         setPermissionStatus(result.state as LocationPermissionStatus);
         if (result.state === "granted") {
           startTracking();
-        } else if (result.state === "prompt" && latitudeRef.current === null) {
-          // Default center preset initially
-          updateLocationState(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng, null, "preset");
         }
 
         result.onchange = () => {
@@ -263,6 +336,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
               navigator.geolocation.clearWatch(watchIdRef.current);
               watchIdRef.current = null;
             }
+            setIsApproximate(true); // Marked approximate on revoke
           }
         };
       })
@@ -275,7 +349,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         navigator.geolocation.clearWatch(watchIdRef.current);
       }
     };
-  }, [startTracking, updateLocationState]);
+  }, [startTracking]);
 
   return (
     <LocationContext.Provider
@@ -286,13 +360,14 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         permissionStatus,
         isSpoofed,
         isOffline,
-        batteryOptimized,
+        isApproximate,
         errorMessage,
         locationSource,
+        address,
+        reverseGeocodingStatus,
         requestPermission,
         updateLocation,
         refreshLocation,
-        toggleBatteryOptimization,
       }}
     >
       {children}

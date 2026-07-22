@@ -1,6 +1,6 @@
 "use client";
 
-import { Navigation, Clock, Milestone } from "lucide-react";
+import { Navigation, Clock, Milestone } from "lucide-react";import { useI18n } from "@/lib/i18n/context";
 import { Card } from "@/components/ui/Card";
 import { Typography } from "@/components/ui/Typography";
 
@@ -15,8 +15,8 @@ export function ETAWidget({
   etaMinutes,
   distanceRemainingMeters,
   speechInstruction,
-  travelMode = "driving-car",
-}: ETAWidgetProps) {
+  travelMode = "driving-car"
+}: ETAWidgetProps) {const { t: i18nT } = useI18n();
   const distanceKm = (distanceRemainingMeters / 1000).toFixed(1);
   const formattedMode = travelMode === "driving-car" ? "Driving" : travelMode === "cycling-regular" ? "Cycling" : "Walking";
 
@@ -27,9 +27,9 @@ export function ETAWidget({
           <Clock className="w-4 h-4 text-primary animate-pulse" />
           <div>
             <Typography variant="h4" className="text-sm font-bold m-0 leading-none">
-              {etaMinutes} mins
+              {etaMinutes}{i18nT("mins")}
             </Typography>
-            <span className="text-[10px] text-muted">Arrival Estimate</span>
+            <span className="text-[10px] text-muted">{i18nT("Arrival Estimate")}</span>
           </div>
         </div>
         <div className="h-6 w-px bg-border/40" />
@@ -37,22 +37,22 @@ export function ETAWidget({
           <Navigation className="w-4 h-4 text-primary" />
           <div>
             <Typography variant="h4" className="text-sm font-bold m-0 leading-none">
-              {distanceKm} km
+              {distanceKm}{i18nT("km")}
             </Typography>
-            <span className="text-[10px] text-muted">Distance ({formattedMode})</span>
+            <span className="text-[10px] text-muted">{i18nT("Distance (")}{formattedMode})</span>
           </div>
         </div>
       </div>
 
-      {speechInstruction && (
-        <div className="flex items-start gap-2 bg-primary/5 border border-primary/10 rounded-lg p-2.5">
+      {speechInstruction &&
+      <div className="flex items-start gap-2 bg-primary/5 border border-primary/10 rounded-lg p-2.5">
           <Milestone className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
           <Typography variant="p" className="text-[11px] text-foreground m-0 font-medium">
             {speechInstruction}
           </Typography>
         </div>
-      )}
-    </Card>
-  );
+      }
+    </Card>);
+
 }
 export default ETAWidget;

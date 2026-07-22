@@ -1,20 +1,24 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { LocaleCode, TRANSLATIONS } from "./translations";
 
 interface I18nContextType {
   locale: LocaleCode;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
   setLocale: (locale: LocaleCode) => void;
+  formatCurrency: (amount: number) => string;
+  formatNumber: (num: number) => string;
+  formatDate: (date: Date | string) => string;
   dir: "ltr" | "rtl";
 }
 
 const I18nContext = createContext<I18nContextType | null>(null);
 
 /**
- * i18n Internationalization Provider.
- * Manages locale selection, RTL alignment, and dictionary resolution.
+ * Enterprise Internationalization Provider.
+ * Provides high-performance component translation, currency/date/number formatting,
+ * and seamless server/client locale persistence via cookies and localStorage.
  */
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<LocaleCode>("en");
@@ -27,145 +31,89 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setLocale = (newLocale: LocaleCode) => {
+  const setLocale = useCallback((newLocale: LocaleCode) => {
     setLocaleState(newLocale);
     localStorage.setItem("preferred_locale", newLocale);
+    document.cookie = `jobnest_lang=${newLocale}; path=/; SameSite=Lax`;
     
-    // Set document lang attribute for screen readers and search crawlers
     document.documentElement.lang = newLocale;
-    
-    // Configure text layout direction (RTL readiness support)
-    const isRtl = (newLocale as string) === "ar" || (newLocale as string) === "he" || (newLocale as string) === "fa";
+    const isRtl = newLocale === ("ar" as string) || newLocale === ("he" as string) || newLocale === ("fa" as string);
     document.documentElement.dir = isRtl ? "rtl" : "ltr";
-  };
+  }, []);
 
-  const t = (key: string): string => {
+  const t = useCallback((key: string, params?: Record<string, string | number>): string => {
     const dict = TRANSLATIONS[locale];
-    if (!dict) return key;
+    let template = dict?.[key];
 
-    // Direct lookup first
-    if (dict[key]) {
-      return dict[key];
-    }
-
-    // Dot path lookup fallback
-    const parts = key.split(".");
-    let current: Record<string, unknown> | string | undefined = dict as unknown as Record<string, unknown>;
-    for (const part of parts) {
-      if (current && typeof current === "object" && (current as Record<string, unknown>)[part] !== undefined) {
-        current = (current as Record<string, unknown>)[part] as Record<string, unknown> | string;
-      } else {
-        return key;
-      }
-    }
-
-    return typeof current === "string" ? current : key;
-  };
-
-  const dir = (locale as string) === "ar" || (locale as string) === "he" || (locale as string) === "fa" ? "rtl" : "ltr";
-
-  // Reactive DOM-Translation Engine
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const dict = TRANSLATIONS[locale];
-    if (!dict) return;
-
-    const translateNode = (node: Text) => {
-      const text = node.textContent?.trim();
-      if (!text || text.length < 2) return;
-
-      const parent = node.parentElement;
-      if (!parent) return;
-
-      // Skip elements that should not be localized
-      if (
-        parent.tagName === "SCRIPT" ||
-        parent.tagName === "STYLE" ||
-        parent.tagName === "CODE" ||
-        parent.tagName === "TEXTAREA" ||
-        parent.closest(".mapboxgl-map") ||
-        parent.closest(".leaflet-container")
-      ) {
-        return;
-      }
-
-      let orig = parent.getAttribute("data-i18n-orig");
-      if (!orig) {
-        orig = text;
-        parent.setAttribute("data-i18n-orig", orig);
-      }
-
-      if (locale === "en") {
-        if (node.textContent !== orig) {
-          node.textContent = orig;
-        }
-      } else {
-        const translation = dict[orig];
-        if (translation && node.textContent !== translation) {
-          node.textContent = translation;
-        }
-      }
-    };
-
-    const translateInputPlaceholders = (root: ParentNode) => {
-      const inputs = root.querySelectorAll("input, textarea");
-      inputs.forEach((inputEl) => {
-        const input = inputEl as HTMLInputElement | HTMLTextAreaElement;
-        const placeholder = input.placeholder;
-        if (!placeholder) return;
-
-        let orig = input.getAttribute("data-i18n-orig-placeholder");
-        if (!orig) {
-          orig = placeholder;
-          input.setAttribute("data-i18n-orig-placeholder", orig);
-        }
-
-        if (locale === "en") {
-          input.placeholder = orig;
+    if (!template) {
+      // Dot path lookup fallback for namespaced keys
+      const parts = key.split(".");
+      let current: Record<string, unknown> | string | undefined = (dict || {}) as unknown as Record<string, unknown>;
+      for (const part of parts) {
+        if (current && typeof current === "object" && (current as Record<string, unknown>)[part] !== undefined) {
+          current = (current as Record<string, unknown>)[part] as Record<string, unknown> | string;
         } else {
-          const translation = dict[orig];
-          if (translation) {
-            input.placeholder = translation;
-          }
+          break;
         }
-      });
-    };
-
-    const translateTree = (root: Node) => {
-      if (root.nodeType === Node.TEXT_NODE) {
-        translateNode(root as Text);
-      } else if (root.nodeType === Node.ELEMENT_NODE) {
-        const el = root as HTMLElement;
-        if (el.tagName === "SCRIPT" || el.tagName === "STYLE") return;
-        el.childNodes.forEach(translateTree);
       }
-    };
+      if (typeof current === "string") {
+        template = current;
+      }
+    }
 
-    translateTree(document.body);
-    translateInputPlaceholders(document);
+    if (!template) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn(`[i18n] Missing translation key: "${key}" for locale: "${locale}"`);
+        template = TRANSLATIONS["en"][key] || key; // English fallback in dev
+      } else {
+        template = key; // Raw key in production
+      }
+    }
 
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          translateTree(node);
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            translateInputPlaceholders(node as HTMLElement);
-          }
-        });
+    if (params) {
+      Object.entries(params).forEach(([pKey, pVal]) => {
+        template = template.replace(new RegExp(`{\\s*${pKey}\\s*}`, "g"), String(pVal));
       });
-    });
+    }
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => observer.disconnect();
+    return template;
   }, [locale]);
 
+  const formatCurrency = useCallback((amount: number): string => {
+    try {
+      return new Intl.NumberFormat(locale === "hi" ? "hi-IN" : "en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }).format(amount);
+    } catch {
+      return `₹${amount.toLocaleString()}`;
+    }
+  }, [locale]);
+
+  const formatNumber = useCallback((num: number): string => {
+    try {
+      return new Intl.NumberFormat(locale === "hi" ? "hi-IN" : "en-IN").format(num);
+    } catch {
+      return num.toLocaleString();
+    }
+  }, [locale]);
+
+  const formatDate = useCallback((date: Date | string): string => {
+    try {
+      const d = typeof date === "string" ? new Date(date) : date;
+      return new Intl.DateTimeFormat(locale === "hi" ? "hi-IN" : "en-IN", {
+        dateStyle: "medium",
+      }).format(d);
+    } catch {
+      return String(date);
+    }
+  }, [locale]);
+
+  const dir = locale === ("ar" as string) || locale === ("he" as string) || locale === ("fa" as string) ? "rtl" : "ltr";
+
   return (
-    <I18nContext.Provider value={{ locale, t, setLocale, dir }}>
+    <I18nContext.Provider value={{ locale, t, setLocale, formatCurrency, formatNumber, formatDate, dir }}>
       {children}
     </I18nContext.Provider>
   );

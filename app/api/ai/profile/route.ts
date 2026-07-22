@@ -1,21 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/services/logger";
 import { AIProviderService } from "@/services/ai-provider-service";
+import { aiProfileSchema } from "@/lib/validation/api-schemas";
+import { AbuseProtection } from "@/lib/security/abuse-protection";
 
 /**
  * POST /api/ai/profile — Enhance a worker's profile description using AI.
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as {
-      fullName?: string;
-      currentDescription?: string;
-      skills?: string[];
-    };
-
-    if (!body.fullName) {
-      return NextResponse.json({ success: false, error: "fullName is required." }, { status: 400 });
+    const rawBody = await req.json();
+    const parseResult = aiProfileSchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Validation failed", details: parseResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+    const body = parseResult.data;
+
+    // Abuse protection: validate input sizes before sending to AI
+    AbuseProtection.validateAIPrompt(body.currentDescription || "");
+    AbuseProtection.validateAIPrompt(body.skills ? body.skills.join(" ") : "");
 
     const prompt = `Enhance this worker profile description for a hyperlocal job platform in India.
 Name: ${body.fullName}

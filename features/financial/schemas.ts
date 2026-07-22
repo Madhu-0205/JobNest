@@ -8,6 +8,10 @@ export const paymentIntentSchema = z.object({
   currency: z.string().min(3).max(10).default("INR"),
   gateway: z.enum(["razorpay", "stripe"]).default("razorpay"),
   idempotencyKey: z.string().min(10, "Secure idempotency key is required."),
+  /** Optional: when set, the webhook auto-funds this escrow after payment capture. */
+  escrowId: z.string().uuid().optional(),
+  /** Optional: thread through for ledger notes. */
+  opportunityId: z.string().uuid().optional(),
 });
 
 /**

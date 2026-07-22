@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";import { useI18n } from "@/lib/i18n/context";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { createPortal } from "react-dom";
@@ -63,7 +63,7 @@ interface MapViewProps {
   workers?: MapWorker[];
 }
 
-export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWorkers }: MapViewProps) {
+export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWorkers }: MapViewProps) {const { t: i18nT } = useI18n();
   const mapContainer = useRef<HTMLDivElement>(null);
   const {
     latitude,
@@ -73,9 +73,9 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
     isOffline,
     errorMessage,
     updateLocation,
-    refreshLocation,
+    refreshLocation
   } = useCurrentLocation();
-  
+
   const { map, setMap } = useMapInstance();
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [selectedRadius, setSelectedRadius] = useState(5000); // 5km
@@ -93,11 +93,11 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
   // Fetching spatial datasets (bypass if props provided)
   const fetchJobsRadius = propJobs ? 0 : selectedRadius;
   const fetchWorkersRadius = propWorkers ? 0 : selectedRadius;
-  
+
   const { jobs: fetchedJobs } = useNearbyJobs(activeLat, activeLng, fetchJobsRadius);
   const { workers: fetchedWorkers } = useNearbyWorkers(activeLat, activeLng, fetchWorkersRadius);
   useNearbyResidents(activeLat, activeLng, selectedRadius);
-  
+
   const jobs = propJobs || fetchedJobs;
   const workers = propWorkers || fetchedWorkers;
 
@@ -127,39 +127,39 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
           "osm-tiles": {
             type: "raster",
             tiles: [
-              "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            ],
+            "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+
             tileSize: 256,
-            attribution: "© OpenStreetMap contributors",
-          },
+            attribution: "© OpenStreetMap contributors"
+          }
         },
         layers: [
-          {
-            id: "osm-raster-layer",
-            type: "raster",
-            source: "osm-tiles",
-            minzoom: 0,
-            maxzoom: 19,
-          },
-        ],
+        {
+          id: "osm-raster-layer",
+          type: "raster",
+          source: "osm-tiles",
+          minzoom: 0,
+          maxzoom: 19
+        }]
+
       },
       center: [activeLng, activeLat],
-      zoom: mode === "tracking" ? 14 : 13,
+      zoom: mode === "tracking" ? 14 : 13
     });
 
     // Add Compass Control (Built-in NavigationControl showing only compass)
     const compassControl = new maplibregl.NavigationControl({
       showCompass: true,
-      showZoom: false,
+      showZoom: false
     });
     mapInstance.addControl(compassControl, "top-right");
 
     // Add Scale Control
     const scaleControl = new maplibregl.ScaleControl({
       maxWidth: 80,
-      unit: "metric",
+      unit: "metric"
     });
     mapInstance.addControl(scaleControl, "bottom-left");
 
@@ -184,7 +184,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
         center: [activeLng, activeLat],
         zoom: map.getZoom(),
         duration: 1200,
-        essential: true,
+        essential: true
       });
     }
   }, [map, styleLoaded, activeLat, activeLng]);
@@ -228,17 +228,17 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       map.getContainer().appendChild(elCurrent);
       markerContainersRef.current.push(elCurrent);
 
-      new maplibregl.Marker({ element: elCurrent })
-        .setLngLat([activeLng, activeLat])
-        .addTo(map);
+      new maplibregl.Marker({ element: elCurrent }).
+      setLngLat([activeLng, activeLat]).
+      addTo(map);
 
       if (mode === "tracking") {
         newPortals.push(
           createPortal(
             <div className="relative flex items-center justify-center w-8 h-8 group pointer-events-none">
               <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping opacity-75 w-8 h-8" />
-              <div className="relative w-8 h-8 rounded-full border-2 border-white bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-md">
-                ME
+              <div className="relative w-8 h-8 rounded-full border-2 border-white bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-md">{i18nT("ME")}
+
               </div>
             </div>,
             elCurrent
@@ -266,9 +266,9 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
         map.getContainer().appendChild(el);
         markerContainersRef.current.push(el);
 
-        new maplibregl.Marker({ element: el })
-          .setLngLat([job.longitude, job.latitude])
-          .addTo(map);
+        new maplibregl.Marker({ element: el }).
+        setLngLat([job.longitude, job.latitude]).
+        addTo(map);
 
         newPortals.push(
           createPortal(
@@ -279,8 +279,8 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
               onClick={() => {
                 setSelectedItemId(job.id);
                 if (onSelectEntity) onSelectEntity(job.id);
-              }}
-            />,
+              }} />,
+
             el
           )
         );
@@ -294,9 +294,9 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
         map.getContainer().appendChild(el);
         markerContainersRef.current.push(el);
 
-        new maplibregl.Marker({ element: el })
-          .setLngLat([worker.longitude, worker.latitude])
-          .addTo(map);
+        new maplibregl.Marker({ element: el }).
+        setLngLat([worker.longitude, worker.latitude]).
+        addTo(map);
 
         newPortals.push(
           createPortal(
@@ -307,8 +307,8 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
               onClick={() => {
                 setSelectedItemId(worker.userId);
                 if (onSelectEntity) onSelectEntity(worker.userId);
-              }}
-            />,
+              }} />,
+
             el
           )
         );
@@ -321,17 +321,17 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       map.getContainer().appendChild(el);
       markerContainersRef.current.push(el);
 
-      new maplibregl.Marker({ element: el })
-        .setLngLat([trackingTarget.longitude, trackingTarget.latitude])
-        .addTo(map);
+      new maplibregl.Marker({ element: el }).
+      setLngLat([trackingTarget.longitude, trackingTarget.latitude]).
+      addTo(map);
 
       newPortals.push(
         createPortal(
           <WorkerMarker
             jobTitle={trackingTarget.jobTitle}
             experienceYears={trackingTarget.experienceYears}
-            isSelected={true}
-          />,
+            isSelected={true} />,
+
           el
         )
       );
@@ -356,11 +356,11 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
     // Build circle polygon
     const points = 64;
     const coords: [number, number][] = [];
-    const distanceX = selectedRadius / (111320 * Math.cos((activeLat * Math.PI) / 180));
+    const distanceX = selectedRadius / (111320 * Math.cos(activeLat * Math.PI / 180));
     const distanceY = selectedRadius / 110540;
 
     for (let i = 0; i < points; i++) {
-      const theta = (i / points) * (2 * Math.PI);
+      const theta = i / points * (2 * Math.PI);
       const x = activeLng + distanceX * Math.cos(theta);
       const y = activeLat + distanceY * Math.sin(theta);
       coords.push([x, y]);
@@ -374,9 +374,9 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
         properties: {},
         geometry: {
           type: "Polygon",
-          coordinates: [coords],
-        },
-      },
+          coordinates: [coords]
+        }
+      }
     });
 
     map.addLayer({
@@ -385,8 +385,8 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       source: sourceId,
       paint: {
         "fill-color": "#c5a880",
-        "fill-opacity": 0.08,
-      },
+        "fill-opacity": 0.08
+      }
     });
 
     map.addLayer({
@@ -396,8 +396,8 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       paint: {
         "line-color": "#c5a880",
         "line-width": 1.5,
-        "line-dasharray": [3, 3],
-      },
+        "line-dasharray": [3, 3]
+      }
     });
 
     return () => {
@@ -438,8 +438,8 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-muted-foreground uppercase block font-mono">Distance</span>
-                <span className="text-xs font-bold font-mono text-primary">{(job.distanceMeters / 1000).toFixed(1)} km</span>
+                <span className="text-[10px] text-muted-foreground uppercase block font-mono">{i18nT("Distance")}</span>
+                <span className="text-xs font-bold font-mono text-primary">{(job.distanceMeters / 1000).toFixed(1)}{i18nT("km")}</span>
               </div>
             </div>
 
@@ -451,21 +451,21 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
             {/* Stats row: Trust Score & Price */}
             <div className="grid grid-cols-2 gap-3 bg-muted/30 p-3 rounded-xl border border-border/40 text-xs">
               <div>
-                <span className="text-[10px] text-muted-foreground uppercase block">Security Rating</span>
-                <span className="font-bold text-foreground">96% Trust Score</span>
+                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("Security Rating")}</span>
+                <span className="font-bold text-foreground">{i18nT("96% Trust Score")}</span>
               </div>
               <div>
-                <span className="text-[10px] text-muted-foreground uppercase block">Expected Pay</span>
-                <span className="font-bold text-emerald-400">₹{job.salaryMin} - ₹{job.salaryMax} / day</span>
+                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("Expected Pay")}</span>
+                <span className="font-bold text-emerald-400">₹{job.salaryMin} - ₹{job.salaryMax}{i18nT("/ day")}</span>
               </div>
             </div>
 
             {/* CTA Action */}
-            <Button size="sm" className="w-full rounded-xl font-bold text-xs py-2.5 bg-primary text-primary-foreground hover:bg-primary/95 shadow-md">
-              Apply for Gig Opportunity
+            <Button size="sm" className="w-full rounded-xl font-bold text-xs py-2.5 bg-primary text-primary-foreground hover:bg-primary/95 shadow-md">{i18nT("Apply for Gig Opportunity")}
+
             </Button>
-          </div>
-        );
+          </div>);
+
       }
     }
 
@@ -476,7 +476,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
         const nameMap: Record<string, string> = {
           "worker-1": "Arun Kumar",
           "worker-2": "Suresh Prasad",
-          "worker-3": "Kiran Rao",
+          "worker-3": "Kiran Rao"
         };
         const displayName = nameMap[worker.userId] || "Local Professional";
 
@@ -485,7 +485,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
             {/* Header info with Photo, Name, Rating */}
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-linear-to-tr from-primary/30 to-amber-600/30 flex items-center justify-center text-primary font-bold text-base border border-primary/20 shadow-sm">
-                {displayName.split(" ").map(n => n[0]).join("")}
+                {displayName.split(" ").map((n) => n[0]).join("")}
               </div>
               <div className="flex-1">
                 <Typography variant="h3" className="text-base font-bold text-foreground leading-tight">
@@ -494,12 +494,12 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
                 <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                   <span className="font-semibold text-amber-500">4.9 ★</span>
                   <span>•</span>
-                  <span>{worker.jobTitle} ({worker.experienceYears} Yrs Exp)</span>
+                  <span>{worker.jobTitle} ({worker.experienceYears}{i18nT("Yrs Exp)")}</span>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-muted-foreground uppercase block font-mono">Distance</span>
-                <span className="text-xs font-bold font-mono text-primary">{(worker.distanceMeters / 1000).toFixed(1)} km</span>
+                <span className="text-[10px] text-muted-foreground uppercase block font-mono">{i18nT("Distance")}</span>
+                <span className="text-xs font-bold font-mono text-primary">{(worker.distanceMeters / 1000).toFixed(1)}{i18nT("km")}</span>
               </div>
             </div>
 
@@ -511,26 +511,26 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
             {/* Stats row: Trust Score & Price */}
             <div className="grid grid-cols-2 gap-3 bg-muted/30 p-3 rounded-xl border border-border/40 text-xs">
               <div>
-                <span className="text-[10px] text-muted-foreground uppercase block">Trust Score</span>
-                <span className="font-bold text-foreground">{worker.trustScore || 95}% Verifiable</span>
+                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("Trust Score")}</span>
+                <span className="font-bold text-foreground">{worker.trustScore || 95}{i18nT("% Verifiable")}</span>
               </div>
               <div>
-                <span className="text-[10px] text-muted-foreground uppercase block">Expected Pay</span>
-                <span className="font-bold text-emerald-400">₹400 - ₹800 / day</span>
+                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("Expected Pay")}</span>
+                <span className="font-bold text-emerald-400">{i18nT("₹400 - ₹800 / day")}</span>
               </div>
             </div>
 
             {/* CTA Action */}
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="w-full text-xs rounded-xl py-2.5">
-                View Profile
+              <Button variant="outline" size="sm" className="w-full text-xs rounded-xl py-2.5">{i18nT("View Profile")}
+
               </Button>
-              <Button size="sm" className="w-full text-xs rounded-xl py-2.5 font-bold bg-primary text-primary-foreground hover:bg-primary/95 shadow-md">
-                Book Professional
+              <Button size="sm" className="w-full text-xs rounded-xl py-2.5 font-bold bg-primary text-primary-foreground hover:bg-primary/95 shadow-md">{i18nT("Book Professional")}
+
               </Button>
             </div>
-          </div>
-        );
+          </div>);
+
       }
     }
 
@@ -543,109 +543,109 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       <div ref={mapContainer} className="w-full h-full" />
 
       {/* 1. Loading State Overlay */}
-      {permissionStatus === "loading" && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm gap-3">
+      {permissionStatus === "loading" &&
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <Typography variant="muted" className="text-xs font-semibold">
-            Acquiring secure GPS satellite lock...
-          </Typography>
+          <Typography variant="muted" className="text-xs font-semibold">{i18nT("Acquiring secure GPS satellite lock...")}
+
+        </Typography>
         </div>
-      )}
+      }
 
       {/* 2. Security Spoof Violation State Overlay */}
-      {isSpoofed && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/90 backdrop-blur-md p-6">
+      {isSpoofed &&
+      <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/90 backdrop-blur-md p-6">
           <div className="max-w-md w-full p-6 rounded-2xl border border-destructive/20 bg-card shadow-2xl text-center flex flex-col items-center gap-4">
             <div className="w-12 h-12 flex items-center justify-center rounded-full bg-destructive/10 text-destructive animate-pulse">
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
-              <Typography variant="h3" className="text-lg font-bold text-destructive">
-                Security Policy Violation
-              </Typography>
-              <Typography variant="p" className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Impossible location jump or telemetry spoofing detected. Secure GPS verification failed. Access restricted.
-              </Typography>
+              <Typography variant="h3" className="text-lg font-bold text-destructive">{i18nT("Security Policy Violation")}
+
+            </Typography>
+              <Typography variant="p" className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{i18nT("Impossible location jump or telemetry spoofing detected. Secure GPS verification failed. Access restricted.")}
+
+            </Typography>
             </div>
           </div>
         </div>
-      )}
+      }
 
       {/* 3. General Error State Overlay */}
-      {errorMessage && permissionStatus !== "denied" && !isSpoofed && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4">
+      {errorMessage && permissionStatus !== "denied" && !isSpoofed &&
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4">
           <div className="flex items-center gap-3 p-3 rounded-xl border border-destructive/20 bg-card/95 backdrop-blur-md text-destructive shadow-lg">
             <ShieldAlert className="w-5 h-5 shrink-0" />
             <div className="flex-1 text-[11px] font-semibold leading-tight">
               {errorMessage}
             </div>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={refreshLocation}
-              className="h-7 px-2 text-[10px] rounded-lg border-destructive/20 text-destructive hover:bg-destructive/5"
-            >
-              Retry
-            </Button>
+            variant="outline"
+            size="sm"
+            onClick={refreshLocation}
+            className="h-7 px-2 text-[10px] rounded-lg border-destructive/20 text-destructive hover:bg-destructive/5">{i18nT("Retry")}
+
+
+          </Button>
           </div>
         </div>
-      )}
+      }
 
       {/* 4. Offline State Indicator */}
-      {isOffline && (
-        <div className="absolute top-4 left-4 z-20 bg-amber-500/90 text-black font-bold text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
+      {isOffline &&
+      <div className="absolute top-4 left-4 z-20 bg-amber-500/90 text-black font-bold text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
           <CloudOff className="w-3.5 h-3.5" />
-          <span>Offline Mode — Cached Map & Opportunities</span>
+          <span>{i18nT("Offline Mode — Cached Map & Opportunities")}</span>
         </div>
-      )}
+      }
 
       {/* 5. Permission Denied Friendly Card Overlay */}
-      {permissionStatus === "denied" && !isSpoofed && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-xs p-6">
+      {permissionStatus === "denied" && !isSpoofed &&
+      <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-xs p-6">
           <div className="max-w-md w-full p-6 rounded-2xl border border-primary/20 bg-card shadow-2xl text-center flex flex-col items-center gap-4">
             <div className="w-12 h-12 flex items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
               <ShieldAlert className="w-6 h-6 animate-bounce" />
             </div>
             <div>
-              <Typography variant="h3" className="text-lg font-bold text-foreground">
-                Location Permission Required
-              </Typography>
-              <Typography variant="p" className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Browser location access is currently disabled. We&apos;ve set your default location to Bengaluru.
-                To find jobs near you, search for your city or click retry.
-              </Typography>
+              <Typography variant="h3" className="text-lg font-bold text-foreground">{i18nT("Location Permission Required")}
+
+            </Typography>
+              <Typography variant="p" className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{i18nT("Browser location access is currently disabled. We've set your default location to Bengaluru.\n                To find jobs near you, search for your city or click retry.")}
+
+
+            </Typography>
             </div>
 
             {/* City search input inside the denied card */}
             <form onSubmit={handleDeniedSearch} className="w-full flex gap-2">
               <input
-                type="text"
-                value={deniedSearchQuery}
-                onChange={(e) => setDeniedSearchQuery(e.target.value)}
-                placeholder="Enter city (e.g. 'Mumbai', 'Chennai')..."
-                className="flex-1 bg-muted border border-border text-foreground text-xs px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary"
-              />
+              type="text"
+              value={deniedSearchQuery}
+              onChange={(e) => setDeniedSearchQuery(e.target.value)}
+              placeholder={i18nT("Enter city (e.g. 'Mumbai', 'Chennai')...")}
+              className="flex-1 bg-muted border border-border text-foreground text-xs px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary" />
+            
               <Button
-                type="submit"
-                size="sm"
-                className="font-bold text-xs py-2 px-4 rounded-xl"
-                isLoading={deniedSearchLoading}
-              >
-                Search
-              </Button>
+              type="submit"
+              size="sm"
+              className="font-bold text-xs py-2 px-4 rounded-xl"
+              isLoading={deniedSearchLoading}>{i18nT("Search")}
+
+
+            </Button>
             </form>
 
             <Button
-              variant="outline"
-              size="sm"
-              onClick={refreshLocation}
-              className="w-full text-xs py-2 rounded-xl mt-1"
-            >
-              Retry GPS Connection
-            </Button>
+            variant="outline"
+            size="sm"
+            onClick={refreshLocation}
+            className="w-full text-xs py-2 rounded-xl mt-1">{i18nT("Retry GPS Connection")}
+
+
+          </Button>
           </div>
         </div>
-      )}
+      }
 
       {/* Floating Status / Security Indicators */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 pointer-events-auto">
@@ -653,14 +653,14 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       </div>
 
       {/* Floating Search Bar */}
-      {(mode === "landing" || mode === "search") && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-sm px-4 pointer-events-auto">
+      {(mode === "landing" || mode === "search") &&
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-sm px-4 pointer-events-auto">
           <MapSearch
-            onSearch={handleSearch}
-            onSelectCoordinates={(lat, lng) => updateLocation(lat, lng, "manual")}
-          />
+          onSearch={handleSearch}
+          onSelectCoordinates={(lat, lng) => updateLocation(lat, lng, "manual")} />
+        
         </div>
-      )}
+      }
 
       {/* Floating Current Location Trigger */}
       <div className="absolute bottom-6 right-4 z-10 flex flex-col gap-2 pointer-events-auto">
@@ -669,58 +669,58 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       </div>
 
       {/* Bottom overlay overlays: Radius Selector */}
-      {mode !== "tracking" && (
-        <div className="absolute bottom-6 left-4 z-10 max-w-[calc(100%-80px)] pointer-events-auto">
+      {mode !== "tracking" &&
+      <div className="absolute bottom-6 left-4 z-10 max-w-[calc(100%-80px)] pointer-events-auto">
           <RadiusSelector currentRadius={selectedRadius} onChange={setSelectedRadius} />
         </div>
-      )}
+      }
 
       {/* Tracking widgets */}
-      {mode === "tracking" && route && (
-        <div className="absolute top-4 right-4 z-10 pointer-events-auto flex flex-col gap-2 items-end">
+      {mode === "tracking" && route &&
+      <div className="absolute top-4 right-4 z-10 pointer-events-auto flex flex-col gap-2 items-end">
           <ETAWidget
-            etaMinutes={etaMinutes}
-            distanceRemainingMeters={distanceRemainingMeters}
-            speechInstruction={speechInstruction}
-          />
+          etaMinutes={etaMinutes}
+          distanceRemainingMeters={distanceRemainingMeters}
+          speechInstruction={speechInstruction} />
+        
           <div className="flex gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              className="h-8 rounded-lg bg-red-950/80 text-red-300 border-red-800 flex items-center gap-1"
-            >
+            variant="outline"
+            size="sm"
+            className="h-8 rounded-lg bg-red-950/80 text-red-300 border-red-800 flex items-center gap-1">
+            
               <ShieldAlert className="w-3.5 h-3.5" />
-              <span>SOS</span>
+              <span>{i18nT("SOS")}</span>
             </Button>
             <Button
-              variant="outline"
-              size="sm"
-              className="h-8 rounded-lg bg-background/90 text-primary border-primary/20 flex items-center gap-1"
-            >
+            variant="outline"
+            size="sm"
+            className="h-8 rounded-lg bg-background/90 text-primary border-primary/20 flex items-center gap-1">
+            
               <Share2 className="w-3.5 h-3.5" />
-              <span>Share Location</span>
+              <span>{i18nT("Share Location")}</span>
             </Button>
           </div>
         </div>
-      )}
+      }
 
       {/* Bottom Sheet Details */}
       <MapBottomSheet
         isOpen={selectedItemId !== null}
         onClose={() => setSelectedItemId(null)}
-        title={mode === "worker" ? "Gig Details" : "Worker Profile"}
-      >
+        title={mode === "worker" ? "Gig Details" : "Worker Profile"}>
+        
         {getSelectedDetails()}
       </MapBottomSheet>
 
       {/* Route Render Line */}
-      {mode === "tracking" && route && (
-        <RoutePolyline coordinates={route.coordinates} color="#e0a96d" />
-      )}
+      {mode === "tracking" && route &&
+      <RoutePolyline coordinates={route.coordinates} color="#e0a96d" />
+      }
 
       {/* React Portals for Maplibre GL Marker Elements */}
       {portals}
-    </div>
-  );
+    </div>);
+
 }
 export default MapView;

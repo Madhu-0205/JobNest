@@ -14,6 +14,9 @@ export interface NearbyJob {
   latitude: number;
   longitude: number;
   description?: string;
+  employerName?: string;
+  verificationStatus?: string;
+  [key: string]: unknown;
 }
 
 interface GeospatialResponse {
@@ -73,7 +76,7 @@ export function useNearbyJobs(latitude: number | null, longitude: number | null,
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchJobs = useCallback(async (options?: { bypassThrottle?: boolean }) => {
-    if (latitude === null || longitude === null) return;
+    if (latitude === null || longitude === null || radiusMeters <= 0) return;
 
     const now = Date.now();
     const currentRadius = radiusMeters;
@@ -87,9 +90,8 @@ export function useNearbyJobs(latitude: number | null, longitude: number | null,
       const timeElapsed = now - lastSearchTime.current;
       const radiusChanged = currentRadius !== lastSearchRadius.current;
 
-      // Rule: Execute backend calls only if moved > 100m OR > 30s elapsed OR radius changed
-      if (distanceMoved <= 100 && timeElapsed < 30000 && !radiusChanged) {
-        logger.info(`[useNearbyJobs] Throttled fetch. Distance moved: ${distanceMoved.toFixed(1)}m, Time elapsed: ${Math.round(timeElapsed / 1000)}s`);
+      // Rule: Execute backend calls only if moved > 50m OR > 60s elapsed OR radius changed
+      if (distanceMoved <= 50 && timeElapsed < 60000 && !radiusChanged) {
         return;
       }
     }
@@ -128,6 +130,8 @@ export function useNearbyJobs(latitude: number | null, longitude: number | null,
           latitude: number | string;
           longitude: number | string;
           description?: string;
+          employer_name?: string;
+          verification_status?: string;
         }
 
         const mappedJobs = (result.data as unknown as RawSpatialItem[]).map((row) => ({
@@ -140,7 +144,11 @@ export function useNearbyJobs(latitude: number | null, longitude: number | null,
           latitude: Number(row.latitude),
           longitude: Number(row.longitude),
           description: row.description || "Hyperlocal opportunity open for immediate application.",
+          employerName: row.employer_name || "Local Employer",
+          verificationStatus: row.verification_status || "unverified",
         }));
+        
+        // Ensure distance comes directly from backend API
         setJobs(mappedJobs);
 
         // Update refs on successful fetch
@@ -155,16 +163,9 @@ export function useNearbyJobs(latitude: number | null, longitude: number | null,
         logger.info("[useNearbyJobs] Request aborted.");
         return;
       }
-      logger.warn("[useNearbyJobs] Query failed, falling back to mock opportunities.");
-      setError("Network or connection failure. Using offline coordinates registry.");
-
-      // Offline handling: Fallback mock opportunities
-      const mockJobs = [
-        { id: "opp-1", title: "Agricultural Harvesting Hand", district: "Bangalore Urban", salaryMin: 500, salaryMax: 700, distanceMeters: 1200, latitude: latitude + 0.005, longitude: longitude + 0.005, description: "Hyperlocal opportunity open for immediate application." },
-        { id: "opp-2", title: "Brick Mason Chore", district: "Bangalore Rural", salaryMin: 600, salaryMax: 900, distanceMeters: 2800, latitude: latitude - 0.008, longitude: longitude + 0.004, description: "Hyperlocal opportunity open for immediate application." },
-        { id: "opp-3", title: "Mandal Seed Sowing Assistant", district: "Ramnagar", salaryMin: 400, salaryMax: 550, distanceMeters: 4200, latitude: latitude + 0.012, longitude: longitude - 0.009, description: "Hyperlocal opportunity open for immediate application." },
-      ].filter((job) => job.distanceMeters <= currentRadius);
-      setJobs(mockJobs);
+      logger.error("[useNearbyJobs] Query failed", err as Record<string, unknown>);
+      setError("Network or connection failure while loading nearby jobs.");
+      setJobs([]); // Explicitly empty instead of using mocks
     } finally {
       if (abortControllerRef.current === controller) {
         setLoading(false);

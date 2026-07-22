@@ -60,13 +60,40 @@ function collectPlatformMetrics(): string {
   const lines: string[] = [];
   const env = process.env.NODE_ENV ?? "unknown";
   const version = process.env["npm_package_version"] ?? "0.0.0";
+  const commitSha = process.env["COMMIT_SHA"] ?? "unknown";
+  const aiProvider = process.env["AI_PROVIDER"] ?? "ollama";
 
   lines.push(
     gauge(
       "jobnest_build_info",
       "JobNest build metadata",
       1,
-      { version, environment: env, service: "jobnest-api" }
+      { version, environment: env, service: "jobnest-api", commit_sha: commitSha }
+    )
+  );
+
+  lines.push(
+    gauge(
+      "jobnest_ai_provider_info",
+      "Active AI provider",
+      1,
+      { provider: aiProvider }
+    )
+  );
+
+  lines.push(
+    gauge(
+      "jobnest_sentry_enabled",
+      "Whether Sentry error tracking is configured",
+      process.env["SENTRY_DSN"] ? 1 : 0
+    )
+  );
+
+  lines.push(
+    gauge(
+      "jobnest_posthog_enabled",
+      "Whether PostHog analytics are configured",
+      process.env["NEXT_PUBLIC_POSTHOG_KEY"] ? 1 : 0
     )
   );
 

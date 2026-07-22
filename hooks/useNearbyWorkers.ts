@@ -73,7 +73,7 @@ export function useNearbyWorkers(latitude: number | null, longitude: number | nu
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchWorkers = useCallback(async (options?: { bypassThrottle?: boolean }) => {
-    if (latitude === null || longitude === null) return;
+    if (latitude === null || longitude === null || radiusMeters <= 0) return;
 
     const now = Date.now();
     const currentRadius = radiusMeters;
@@ -87,9 +87,8 @@ export function useNearbyWorkers(latitude: number | null, longitude: number | nu
       const timeElapsed = now - lastSearchTime.current;
       const radiusChanged = currentRadius !== lastSearchRadius.current;
 
-      // Rule: Execute backend calls only if moved > 100m OR > 30s elapsed OR radius changed
-      if (distanceMoved <= 100 && timeElapsed < 30000 && !radiusChanged) {
-        logger.info(`[useNearbyWorkers] Throttled fetch. Distance moved: ${distanceMoved.toFixed(1)}m, Time elapsed: ${Math.round(timeElapsed / 1000)}s`);
+      // Rule: Execute backend calls only if moved > 50m OR > 60s elapsed OR radius changed
+      if (distanceMoved <= 50 && timeElapsed < 60000 && !radiusChanged) {
         return;
       }
     }
@@ -156,16 +155,9 @@ export function useNearbyWorkers(latitude: number | null, longitude: number | nu
         logger.info("[useNearbyWorkers] Request aborted.");
         return;
       }
-      logger.warn("[useNearbyWorkers] Query failed, using mock workers registry.");
-      setError("Network connection failure. Using offline coordinates registry.");
-
-      // Offline handling: Fallback mock workers
-      const mockWorkers = [
-        { userId: "worker-1", jobTitle: "Domestic Electrician", experienceYears: 4, bio: "Expert household repairs and connections.", distanceMeters: 950, latitude: latitude - 0.003, longitude: longitude - 0.004, trustScore: 95, responseTimeMinutes: 15 },
-        { userId: "worker-2", jobTitle: "Crop Harvester Coordinator", experienceYears: 7, bio: "Experienced farm worker with tools.", distanceMeters: 2300, latitude: latitude + 0.007, longitude: longitude - 0.006, trustScore: 95, responseTimeMinutes: 15 },
-        { userId: "worker-3", jobTitle: "General Handyman", experienceYears: 2, bio: "Help with home moving and manual loading chores.", distanceMeters: 3900, latitude: latitude - 0.010, longitude: longitude + 0.011, trustScore: 95, responseTimeMinutes: 15 },
-      ].filter((worker) => worker.distanceMeters <= currentRadius);
-      setWorkers(mockWorkers);
+      logger.error("[useNearbyWorkers] Query failed", err as Record<string, unknown>);
+      setError("Network connection failure while loading nearby workers.");
+      setWorkers([]); // Explicitly empty instead of using mocks
     } finally {
       if (abortControllerRef.current === controller) {
         setLoading(false);

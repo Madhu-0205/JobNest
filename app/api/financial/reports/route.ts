@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
+import { AuthorizationGuard } from "@/lib/authorization/guard";
 
 export async function GET() {
   try {
@@ -20,12 +21,17 @@ export async function GET() {
 
     const totalSpend = (payData || []).reduce((sum, p) => sum + Number(p.amount), 0);
 
-    // 2. Sum up commission records
-    const { data: commData } = await supabase
-      .from("commissions")
-      .select("amount");
-
-    const totalPlatformRevenue = (commData || []).reduce((sum, c) => sum + Number(c.amount), 0);
+    // 2. Sum up commission records (Admin Only)
+    let totalPlatformRevenue = 0;
+    try {
+      await AuthorizationGuard.assertRole("admin");
+      const { data: commData } = await supabase
+        .from("commissions")
+        .select("amount");
+      totalPlatformRevenue = (commData || []).reduce((sum, c) => sum + Number(c.amount), 0);
+    } catch {
+      // Not an admin, totalPlatformRevenue remains 0
+    }
 
     // 3. Sum up completed payouts
     const { data: payoData } = await supabase
