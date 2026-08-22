@@ -35,11 +35,14 @@ const MapView = dynamic(
   () => import("@/components/maps/MapView").then((mod) => mod.MapView),
   {
     ssr: false,
-    loading: () =>
-    <div className="w-full h-full rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3 min-h-[300px]">
+    loading: function LoadingFallback() {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { t: i18nT } = require("@/lib/i18n/context").useI18n();
+      return (<div className="w-full h-full rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3 min-h-75">
         <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-        <span className="text-xs text-muted-foreground">Loading active neighborhood map...</span>
-      </div>
+        <span className="text-xs text-muted-foreground">{i18nT("worker.loadingActiveNeighborhoodMap")}</span>
+      </div>);
+    }
 
   }
 );
@@ -233,8 +236,8 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
         {/* ── HEADER ────────────────────────────────────────────────── */}
         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
           <div>
-            <Typography variant="h2" className="font-extrabold gold-gradient-text">{i18nT("Hyperlocal Neighborhood Gigs")}</Typography>
-            <Typography variant="muted" className="text-xs">{i18nT("Discover verified customer gigs and immediate hourly jobs in your current geofence radius.")}
+            <Typography variant="h2" className="font-extrabold gold-gradient-text">{i18nT("worker.hyperlocalNeighborhoodGigs")}</Typography>
+            <Typography variant="muted" className="text-xs">{i18nT("worker.discoverVerifiedCustomerGigsAndImmediateHourlyJobs")}
 
             </Typography>
           </div>
@@ -248,7 +251,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
               }>
               
               <Scale className="w-3.5 h-3.5" />
-              <span>{i18nT("Split Screen")}</span>
+              <span>{i18nT("worker.splitScreen")}</span>
             </button>
             <button
               onClick={() => setViewMode("list")}
@@ -257,7 +260,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
               }>
               
               <List className="w-3.5 h-3.5" />
-              <span>{i18nT("List Mode")}</span>
+              <span>{i18nT("worker.listMode")}</span>
             </button>
             <button
               onClick={() => setViewMode("map")}
@@ -266,7 +269,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
               }>
               
               <Map className="w-3.5 h-3.5" />
-              <span>{i18nT("Map Mode")}</span>
+              <span>{i18nT("worker.mapMode")}</span>
             </button>
           </div>
         </div>
@@ -279,7 +282,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder={i18nT("Search gigs (e.g. 'Electrician near me', 'Carpentry')...")}
+                placeholder={i18nT("worker.searchGigsEgElectrician")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-black/25 border border-border/40 rounded-xl pl-10 pr-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-amber-500/50" />
@@ -312,10 +315,10 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 onChange={(e) => setSortBy(e.target.value as "distance" | "salary" | "rating" | "trust")}
                 className="bg-black/25 border border-border/40 text-xs rounded-xl px-3 py-2.5 text-foreground cursor-pointer focus:outline-hidden">
                 
-                <option value="distance">{i18nT("Sort by Distance")}</option>
-                <option value="salary">{i18nT("Sort by Salary")}</option>
-                <option value="rating">{i18nT("Sort by Payer Rating")}</option>
-                <option value="trust">{i18nT("Sort by Trust Score")}</option>
+                <option value="distance">{i18nT("worker.sortByDistance")}</option>
+                <option value="salary">{i18nT("worker.sortBySalary")}</option>
+                <option value="rating">{i18nT("worker.sortByPayerRating")}</option>
+                <option value="trust">{i18nT("worker.sortByTrustScore")}</option>
               </select>
             </div>
           </div>
@@ -328,7 +331,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
               selectedCategory === "all" ?
               "bg-amber-600/20 text-amber-300 border border-amber-500/30" :
               "bg-black/20 text-muted-foreground border border-border/20 hover:text-foreground"}`
-              }>{i18nT("All Categories")}
+              }>{i18nT("worker.allCategories")}
 
 
             </button>
@@ -354,7 +357,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
               {/* Radius slider */}
               <div className="flex flex-col gap-2">
                 <span className="font-semibold text-muted-foreground flex justify-between">
-                  <span>{i18nT("Work Radius Limit:")}</span>
+                  <span>{i18nT("worker.workRadiusLimit")}</span>
                   <span className="text-amber-500 font-mono font-bold">{radiusKm}{i18nT("Km")}</span>
                 </span>
                 <input
@@ -369,31 +372,31 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
 
               {/* Job Type select */}
               <div className="flex flex-col gap-2">
-                <span className="font-semibold text-muted-foreground">{i18nT("Gig Arrangement:")}</span>
+                <span className="font-semibold text-muted-foreground">{i18nT("worker.gigArrangement")}</span>
                 <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
                 className="bg-black/25 border border-border/40 rounded-lg p-2 text-foreground focus:outline-hidden">
                 
-                  <option value="all">{i18nT("Any arrangement type")}</option>
-                  <option value="Gig">{i18nT("One-day Gigs")}</option>
-                  <option value="Part Time">{i18nT("Part Time contracts")}</option>
-                  <option value="Full Time">{i18nT("Full Time employment")}</option>
+                  <option value="all">{i18nT("worker.anyArrangementType")}</option>
+                  <option value="Gig">{i18nT("worker.onedayGigs")}</option>
+                  <option value="Part Time">{i18nT("worker.partTimeContracts")}</option>
+                  <option value="Full Time">{i18nT("worker.fullTimeEmployment")}</option>
                 </select>
               </div>
 
               {/* Timing select */}
               <div className="flex flex-col gap-2">
-                <span className="font-semibold text-muted-foreground">{i18nT("Job SLA Timeline:")}</span>
+                <span className="font-semibold text-muted-foreground">{i18nT("worker.jobSlaTimeline")}</span>
                 <select
                 value={filterTiming}
                 onChange={(e) => setFilterTiming(e.target.value)}
                 className="bg-black/25 border border-border/40 rounded-lg p-2 text-foreground focus:outline-hidden">
                 
-                  <option value="all">{i18nT("Any start time")}</option>
-                  <option value="Today">{i18nT("Immediate (Today)")}</option>
-                  <option value="Tomorrow">{i18nT("Next Day (Tomorrow)")}</option>
-                  <option value="Flexible">{i18nT("Flexible schedule")}</option>
+                  <option value="all">{i18nT("worker.anyStartTime")}</option>
+                  <option value="Today">{i18nT("worker.immediateToday")}</option>
+                  <option value="Tomorrow">{i18nT("worker.nextDayTomorrow")}</option>
+                  <option value="Flexible">{i18nT("worker.flexibleSchedule")}</option>
                 </select>
               </div>
 
@@ -406,7 +409,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                   onChange={(e) => setOnlyVerified(e.target.checked)}
                   className="rounded accent-amber-500" />
                 
-                  <span>{i18nT("Verified Employers Only")}</span>
+                  <span>{i18nT("worker.verifiedEmployersOnly")}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground select-none">
                   <input
@@ -415,7 +418,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                   onChange={(e) => setOnlyHighTrust(e.target.checked)}
                   className="rounded accent-amber-500" />
                 
-                  <span>{i18nT("High Trust Gigs Only")}</span>
+                  <span>{i18nT("worker.highTrustGigsOnly")}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground select-none">
                   <input
@@ -425,7 +428,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                   className="rounded accent-amber-500" />
                 
                   <span className="flex items-center gap-1 text-amber-400">
-                    <Sparkles className="w-3.5 h-3.5 fill-amber-500/20" />{i18nT("AI Recommended (Skills Match)")}
+                    <Sparkles className="w-3.5 h-3.5 fill-amber-500/20" />{i18nT("worker.aiRecommendedSkillsMatch")}
 
                 </span>
                 </label>
@@ -436,7 +439,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
         </Card>
 
         {/* ── DUAL CONTENT VIEWPORT ───────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch min-h-[500px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch min-h-125">
           
           {/* MAP DISPLAY */}
           <div
@@ -444,13 +447,13 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
             viewMode === "split" ? "lg:col-span-1 border-r border-border/10 pr-2" : viewMode === "map" ? "lg:col-span-3" : "hidden"}`
             }>
             
-            <Card className="glass-panel border-border shadow-luxury overflow-hidden h-full flex flex-col min-h-[350px]">
+            <Card className="glass-panel border-border shadow-luxury overflow-hidden h-full flex flex-col min-h-87.5">
               <CardHeader className="pb-3 shrink-0">
                 <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-amber-500" />{i18nT("Live Geofenced Gigs Radar")}
+                  <Briefcase className="w-4 h-4 text-amber-500" />{i18nT("worker.liveGeofencedGigsRadar")}
 
                 </CardTitle>
-                <CardDescription className="text-xs">{i18nT("Coordinates overlay map displaying customer sites.")}
+                <CardDescription className="text-xs">{i18nT("worker.coordinatesOverlayMapDisplayingCustomerSites")}
 
                 </CardDescription>
               </CardHeader>
@@ -470,9 +473,9 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
             }>
             
             {rawLoading ?
-            <div className="flex-1 flex flex-col items-center justify-center py-20 gap-3">
+            <div className="min-h-125 flex flex-col items-center justify-center text-center p-8 bg-zinc-950 border border-zinc-800/50 rounded-2xl">
                 <Loader2 className="w-10 h-10 animate-spin text-amber-500" />
-                <span className="text-sm text-muted-foreground">{i18nT("Probing regional database for active jobs...")}</span>
+                <span className="text-sm text-muted-foreground">{i18nT("worker.probingRegionalDatabaseForActiveJobs")}</span>
               </div> :
             filteredJobs.length === 0 ? (
             /* ── EMPTY STATE ── */
@@ -481,8 +484,8 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                   <AlertCircle className="w-7 h-7" />
                 </div>
                 <div>
-                  <Typography variant="h3" className="font-bold text-base">{i18nT("No Opportunities Found Nearby")}</Typography>
-                  <Typography variant="muted" className="text-xs max-w-sm mx-auto mt-1.5 leading-normal">{i18nT("No active postings match your search filters in Guntur central. Expand your work radius in filters, clear your query, or register additional skills.")}
+                  <Typography variant="h3" className="font-bold text-base">{i18nT("worker.noOpportunitiesFoundNearby")}</Typography>
+                  <Typography variant="muted" className="text-xs max-w-sm mx-auto mt-1.5 leading-normal">{i18nT("worker.noActivePostingsMatchYourSearchFiltersIn")}
 
                 </Typography>
                 </div>
@@ -496,7 +499,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                     setFilterType("all");
                     setFilterTiming("all");
                   }}
-                  className="border border-border/40 text-xs cursor-pointer">{i18nT("Clear Filter Rules")}
+                  className="border border-border/40 text-xs cursor-pointer">{i18nT("worker.clearFilterRules")}
 
 
                 </Button>
@@ -536,11 +539,11 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                               <span className="font-semibold text-foreground">{job.rating}</span>
                             </span>
                             <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                            <span>{Math.round(job.distanceMeters / 100) / 10}{i18nT("Km away")}</span>
+                            <span>{Math.round(job.distanceMeters / 100) / 10}{i18nT("worker.kmAway")}</span>
                             <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                             <span className="flex items-center gap-1">
                               <Shield className="w-3.5 h-3.5 text-amber-500" />
-                              <span className="font-bold text-amber-400 font-mono text-[10px]">{job.trustScore}{i18nT("% Trust")}</span>
+                              <span className="font-bold text-amber-400 font-mono text-[10px]">{job.trustScore}{i18nT("worker.trust")}</span>
                             </span>
                           </div>
                         </div>
@@ -548,15 +551,15 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                         {/* Salary and duration block */}
                         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1 shrink-0">
                           <span className="text-lg font-black text-amber-500 font-mono">₹{job.salaryMin} - ₹{job.salaryMax}</span>
-                          <span className="text-[10px] text-muted-foreground block">{i18nT("Fixed Rate •")}{job.duration}</span>
+                          <span className="text-[10px] text-muted-foreground block">{i18nT("worker.fixedRate")}{job.duration}</span>
                         </div>
                       </div>
 
                       {/* AI Explain tag */}
                       <p className="bg-amber-950/15 border border-amber-500/10 rounded-xl p-2.5 text-[11px] text-amber-400 leading-normal flex items-start gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                        <span>{i18nT("Recommended: Matches your")}
-                        {job.category}{i18nT("background. Close distance (")}{Math.round(job.distanceMeters / 100) / 10}{i18nT("Km) enables rapid arrival.")}
+                        <span>{i18nT("worker.recommendedMatchesYour")}
+                        {job.category}{i18nT("worker.backgroundCloseDistance")}{Math.round(job.distanceMeters / 100) / 10}{i18nT("worker.kmEnablesRapidArrival")}
                       </span>
                       </p>
 
@@ -584,7 +587,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                           <button
                           onClick={() => handleToggleBookmark(job.id)}
                           className="p-1.5 rounded-lg border border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-                          aria-label={i18nT("Bookmark opportunity details")}>
+                          aria-label={i18nT("worker.bookmarkOpportunityDetails")}>
                           
                             <Bookmark className={`w-3.5 h-3.5 ${isSaved ? "fill-amber-500 text-amber-500" : ""}`} />
                           </button>
@@ -621,7 +624,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
             <div className="flex justify-between items-center border-b border-border/20 pb-2">
               <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
                 <Scale className="w-4 h-4 text-amber-500 animate-bounce" />
-                <span>{i18nT("Job Comparison Deck (")}{compareIds.length}{i18nT("of 3)")}</span>
+                <span>{i18nT("worker.jobComparisonDeck")}{compareIds.length}{i18nT("worker.of3")}</span>
               </span>
               <button
               onClick={() => setCompareIds([])}
@@ -641,8 +644,8 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                   
                   <div className="flex flex-col gap-1 bg-black/20 p-2 rounded-lg border border-border/20 font-semibold text-muted-foreground font-mono">
                     <span className="text-amber-500 font-bold">₹{cj.salaryMin} - ₹{cj.salaryMax}</span>
-                    <span>{Math.round(cj.distanceMeters / 100) / 10}{i18nT("Km away")}</span>
-                    <span>{cj.rating} ★ ({cj.trustScore}{i18nT("% Trust)")}</span>
+                    <span>{Math.round(cj.distanceMeters / 100) / 10}{i18nT("worker.kmAway")}</span>
+                    <span>{cj.rating} ★ ({cj.trustScore}{i18nT("worker.trust")}</span>
                   </div>
 
                   <Button
@@ -657,7 +660,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 </div>
             )}
               {Array.from({ length: 3 - comparedJobs.length }).map((_, idx) =>
-            <div key={idx} className="border border-dashed border-border/20 rounded-xl flex items-center justify-center p-4 text-[10px] text-muted-foreground text-center">{i18nT("Select another gig to compare")}
+            <div key={idx} className="border border-dashed border-border/20 rounded-xl flex items-center justify-center p-4 text-[10px] text-muted-foreground text-center">{i18nT("worker.selectAnotherGigToCompare")}
 
             </div>
             )}
@@ -679,7 +682,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 <button
                 onClick={() => setSelectedJob(null)}
                 className="absolute top-4 right-4 text-muted-foreground hover:text-foreground hover:bg-muted p-1.5 rounded-lg cursor-pointer"
-                aria-label={i18nT("Close detail panel")}>
+                aria-label={i18nT("worker.closeDetailPanel")}>
                 
                   <X className="w-5 h-5" />
                 </button>
@@ -704,11 +707,11 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 {/* Quick Info Grid */}
                 <div className="grid grid-cols-2 gap-3 bg-black/35 rounded-2xl border border-border/40 p-4 text-xs">
                   <div className="flex flex-col gap-1 pr-2 border-r border-border/20">
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider block">{i18nT("Estimated Payout")}</span>
+                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider block">{i18nT("worker.estimatedPayout")}</span>
                     <span className="text-base font-black text-amber-500 font-mono">₹{selectedJob.salaryMin} - ₹{selectedJob.salaryMax}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider block">{i18nT("Work Radius")}</span>
+                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider block">{i18nT("worker.workRadius")}</span>
                     <span className="text-base font-bold text-foreground font-mono">{Math.round(selectedJob.distanceMeters / 100) / 10}{i18nT("Km")}</span>
                   </div>
                 </div>
@@ -716,7 +719,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 {/* Job Description details */}
                 <div className="flex flex-col gap-2 border-b border-border/10 pb-4">
                   <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider flex items-center gap-1">
-                    <Briefcase className="w-3.5 h-3.5 text-amber-500" />{i18nT("About This Gig Arrangement")}
+                    <Briefcase className="w-3.5 h-3.5 text-amber-500" />{i18nT("worker.aboutThisGigArrangement")}
 
                 </span>
                   <p className="text-xs text-muted-foreground leading-relaxed">
@@ -727,12 +730,12 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 {/* Requirement list */}
                 <div className="flex flex-col gap-2">
                   <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-amber-500" />{i18nT("Timeline & Arrangement Parameters")}
+                    <Calendar className="w-3.5 h-3.5 text-amber-500" />{i18nT("worker.timelineArrangementParameters")}
 
                 </span>
                   <div className="flex flex-wrap gap-2 text-xs">
                     <Badge variant="secondary" className="px-2.5 py-1">{i18nT("Timeline:")}{selectedJob.timing}</Badge>
-                    <Badge variant="secondary" className="px-2.5 py-1">{i18nT("Expected Duration:")}{selectedJob.duration}</Badge>
+                    <Badge variant="secondary" className="px-2.5 py-1">{i18nT("worker.expectedDuration")}{selectedJob.duration}</Badge>
                     <Badge variant="secondary" className="px-2.5 py-1">{i18nT("Arrangement:")}{selectedJob.type}</Badge>
                   </div>
                 </div>
@@ -741,22 +744,22 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 <Card className="bg-amber-950/10 border-amber-500/20 shadow-luxury">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />{i18nT("AI Matching Credentials Breakdown")}
+                      <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />{i18nT("worker.aiMatchingCredentialsBreakdown")}
 
                   </CardTitle>
                   </CardHeader>
                   <CardContent className="text-[11px] text-muted-foreground flex flex-col gap-2 leading-relaxed">
                     <div className="flex items-start gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
-                      <span><strong>{i18nT("Skills Matrix match:")}</strong>{i18nT("Category")}{selectedJob.category}{i18nT("matches your worker profile selection.")}</span>
+                      <span><strong>{i18nT("worker.skillsMatrixMatch")}</strong>{i18nT("Category")}{selectedJob.category}{i18nT("worker.matchesYourWorkerProfileSelection")}</span>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
-                      <span><strong>{i18nT("Payer Credential:")}</strong>{i18nT("Employer has a verified Aadhaar status and")}{selectedJob.trustScore}{i18nT("% trust rating.")}</span>
+                      <span><strong>{i18nT("worker.payerCredential")}</strong>{i18nT("worker.employerHasAVerifiedAadhaarStatusAnd")}{selectedJob.trustScore}{i18nT("worker.trustRating")}</span>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
-                      <span><strong>{i18nT("Proximity factor:")}</strong>{i18nT("Job site is within your work radius preferences.")}</span>
+                      <span><strong>{i18nT("worker.proximityFactor")}</strong>{i18nT("worker.jobSiteIsWithinYourWorkRadiusPreferences")}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -767,7 +770,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 <button
                 onClick={() => handleToggleBookmark(selectedJob.id)}
                 className="flex items-center justify-center border border-border/40 hover:bg-muted p-3.5 rounded-xl text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-                aria-label={i18nT("Bookmark opportunity details")}>
+                aria-label={i18nT("worker.bookmarkOpportunityDetails")}>
                 
                   <Bookmark className={`w-4 h-4 ${bookmarkedIds.includes(selectedJob.id) ? "fill-amber-500 text-amber-500" : ""}`} />
                 </button>
@@ -784,7 +787,7 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
                 
                   {appliedIds.includes(selectedJob.id) ?
                 <span className="flex items-center justify-center gap-1.5">
-                      <Check className="w-4 h-4" />{i18nT("Application Submitted")}
+                      <Check className="w-4 h-4" />{i18nT("worker.applicationSubmitted")}
 
                 </span> :
 

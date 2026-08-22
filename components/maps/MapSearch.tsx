@@ -14,7 +14,7 @@ interface MapSearchProps {
   placeholder?: string;
 }
 
-export function MapSearch({ onSearch, onSelectCoordinates, placeholder = "Search gigs (e.g. 'electrician within 5 km')..." }: MapSearchProps) {const { t: i18nT } = useI18n();
+export function MapSearch({ onSearch, onSelectCoordinates, placeholder = "search.gigsPlaceholder" }: MapSearchProps) {const { t: i18nT } = useI18n();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const { flyTo } = useMapInstance();
@@ -81,7 +81,7 @@ export function MapSearch({ onSearch, onSelectCoordinates, placeholder = "Search
         className="h-8 px-4 rounded-xl flex items-center gap-1 font-bold text-xs shadow-sm bg-primary text-primary-foreground hover:bg-primary/95">
         
         <Sparkles className="w-3.5 h-3.5" />
-        <span>{i18nT("Ask AI")}</span>
+        <span>{i18nT("common.askAi")}</span>
       </Button>
     </form>);
 

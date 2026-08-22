@@ -37,8 +37,8 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
     <ProductShell>
       <div className="flex flex-col gap-6 max-w-4xl mx-auto">
         <div>
-          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("My Profile Registry")}</Typography>
-          <Typography variant="muted" className="text-xs">{i18nT("Manage your hyperlocal credentials, Aadhaar KYC verification, and trust score ledgers.")}
+          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.myProfileRegistry")}</Typography>
+          <Typography variant="muted" className="text-xs">{i18nT("app.manageYourHyperlocalCredentialsAadhaarKycVerificationAnd")}
 
           </Typography>
         </div>
@@ -75,11 +75,11 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
               </div>
               <div className="flex justify-between">
                 <span>{i18nT("Rating:")}</span>
-                <span className="text-amber-500 font-bold">{i18nT("4.9 ★ (12 jobs)")}</span>
+                <span className="text-amber-500 font-bold">{i18nT("app.4912Jobs")}</span>
               </div>
               <div className="flex justify-between">
                 <span>{i18nT("Location:")}</span>
-                <span className="text-foreground">{i18nT("Guntur, Andhra Pradesh")}</span>
+                <span className="text-foreground">{i18nT("app.gunturAndhraPradesh")}</span>
               </div>
             </div>
           </Card>
@@ -90,13 +90,13 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
             {/* Identity validation status */}
             <Card className="glass-card p-6 flex flex-col gap-4">
               <Typography variant="h3" className="font-bold flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />{i18nT("Cryptographic Identity Validation")}
+                <Shield className="w-5 h-5 text-primary" />{i18nT("app.cryptographicIdentityValidation")}
 
               </Typography>
               
               <div className="p-4 bg-muted/30 border border-border rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                  <span className="text-xs font-semibold block">{i18nT("Aadhaar Validation Registry")}</span>
+                  <span className="text-xs font-semibold block">{i18nT("app.aadhaarValidationRegistry")}</span>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {user.kycStatus === "verified" ?
                     "Aadhaar verified successfully. Your trust badge is published on-chain." :
@@ -113,7 +113,7 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
 
               {user.kycStatus === "unverified" &&
               <div className="flex flex-col gap-2 mt-2">
-                  <label className="text-xs font-semibold text-muted-foreground">{i18nT("Select Identity PDF / Scan Image")}</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{i18nT("app.selectIdentityPdfScanImage")}</label>
                   <div className="border border-dashed border-border rounded-xl p-6 text-center cursor-pointer transition-all hover:border-primary/40 flex flex-col items-center justify-center gap-2">
                     {kycLoading ?
                   <Loader2 className="w-6 h-6 animate-spin text-primary" /> :
@@ -124,7 +124,7 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
                       {kycLoading ? "Uploading and verifying..." : "Click to upload Aadhaar or national ID file"}
                     </span>
                     <input type="file" id="onboard-kyc-upload-profile" accept="image/*,application/pdf" className="hidden" onChange={handleKycUpload} disabled={kycLoading} />
-                    <label htmlFor="onboard-kyc-upload-profile" className="text-[10px] bg-secondary border border-border px-2.5 py-1.5 rounded-lg text-foreground font-semibold cursor-pointer mt-1">{i18nT("Select File")}</label>
+                    <label htmlFor="onboard-kyc-upload-profile" className="text-[10px] bg-secondary border border-border px-2.5 py-1.5 rounded-lg text-foreground font-semibold cursor-pointer mt-1">{i18nT("app.selectFile")}</label>
                   </div>
                 </div>
               }
@@ -133,21 +133,21 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
             {/* Trust ledger parameters */}
             <Card className="glass-card p-6 flex flex-col gap-4">
               <Typography variant="h3" className="font-bold flex items-center gap-2">
-                <Award className="w-5 h-5 text-primary" />{i18nT("Trust & Safety Score Ledger")}
+                <Award className="w-5 h-5 text-primary" />{i18nT("app.trustSafetyScoreLedger")}
 
               </Typography>
-              <p className="text-xs text-muted-foreground">{i18nT("Your trust score is calculated based on completed work SLAs, response times, escrow releases, and peer ratings on the JobNest decentralised ledger.")}
+              <p className="text-xs text-muted-foreground">{i18nT("app.yourTrustScoreIsCalculatedBasedOnCompleted")}
 
               </p>
 
               <div className="grid grid-cols-3 gap-4 border border-border rounded-xl p-4 text-center bg-muted/20">
                 <div>
                   <span className="text-xl font-bold text-primary">96%</span>
-                  <span className="block text-[10px] text-muted-foreground uppercase mt-1">{i18nT("SLA Accuracy")}</span>
+                  <span className="block text-[10px] text-muted-foreground uppercase mt-1">{i18nT("app.slaAccuracy")}</span>
                 </div>
                 <div>
                   <span className="text-xl font-bold text-emerald-400">100%</span>
-                  <span className="block text-[10px] text-muted-foreground uppercase mt-1">{i18nT("Response Rate")}</span>
+                  <span className="block text-[10px] text-muted-foreground uppercase mt-1">{i18nT("app.responseRate")}</span>
                 </div>
                 <div>
                   <span className="text-xl font-bold text-foreground">0</span>

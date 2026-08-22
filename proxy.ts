@@ -97,7 +97,13 @@ export async function proxy(request: NextRequest) {
   if (matchingGuard) {
     const url = env.NEXT_PUBLIC_SUPABASE_URL;
     const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (url && anonKey && url !== "https://mock.supabase.co" && anonKey !== "mock-anon-key") {
+    const isMock = !url || !anonKey || url === "https://mock.supabase.co" || anonKey === "mock-anon-key";
+
+    if (isMock && process.env.NODE_ENV === "production") {
+      return createRscSafeRedirect("/");
+    }
+
+    if (!isMock) {
       const supabase = createServerClient(url, anonKey, {
         cookies: {
           getAll() {

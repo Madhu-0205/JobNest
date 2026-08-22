@@ -33,11 +33,14 @@ const MapView = dynamic(
   () => import("@/components/maps/MapView").then((mod) => mod.MapView),
   {
     ssr: false,
-    loading: () =>
-    <div className="w-full h-[550px] rounded-3xl overflow-hidden border border-primary/10 shadow-xl bg-card flex flex-col items-center justify-center gap-3">
+    loading: function LoadingFallback() {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { t: i18nT } = require("@/lib/i18n/context").useI18n();
+      return (<div className="w-full h-[550px] rounded-3xl overflow-hidden border border-primary/10 shadow-xl bg-card flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="text-xs text-muted-foreground">Loading interactive neighborhood map...</span>
-      </div>
+        <span className="text-xs text-muted-foreground">{i18nT("app.loadingInteractiveNeighborhoodMap")}</span>
+      </div>);
+    }
 
   }
 );
@@ -118,50 +121,50 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
               <span className="w-12 h-12 rounded-full bg-linear-to-r from-amber-500 to-amber-600 flex items-center justify-center text-background font-extrabold text-lg mx-auto shadow-md mb-3">{i18nT("JN")}
 
               </span>
-              <Typography variant="h3" className="font-bold gold-gradient-text">{i18nT("Resident Onboarding")}</Typography>
-              <Typography variant="muted" className="text-xs mt-1">{i18nT("Complete your details to start booking nearby services.")}
+              <Typography variant="h3" className="font-bold gold-gradient-text">{i18nT("app.residentOnboarding")}</Typography>
+              <Typography variant="muted" className="text-xs mt-1">{i18nT("app.completeYourDetailsToStartBookingNearbyServices")}
 
               </Typography>
             </div>
 
             <form onSubmit={handleOnboardingSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground/80">{i18nT("Saved Home Address")}</label>
+                <label className="text-xs font-semibold text-foreground/80">{i18nT("app.savedHomeAddress")}</label>
                 <textarea
                   required
                   value={savedAddress}
                   onChange={(e) => setSavedAddress(e.target.value)}
-                  placeholder={i18nT("Enter your complete home address (district, city, pincode)")}
+                  placeholder={i18nT("app.enterYourCompleteHomeAddressDistrictCityPincode")}
                   className="p-3 bg-secondary/30 border border-border rounded-xl text-xs text-foreground focus:outline-hidden focus:border-primary/50 min-h-[80px]" />
                 
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground/80">{i18nT("Preferred Communication Language")}</label>
+                <label className="text-xs font-semibold text-foreground/80">{i18nT("app.preferredCommunicationLanguage")}</label>
                 <select
                   value={preferredLanguage}
                   onChange={(e) => setPreferredLanguage(e.target.value)}
                   className="p-3 bg-secondary/30 border border-border rounded-xl text-xs text-foreground focus:outline-hidden focus:border-primary/50">
                   
                   <option value="English">{i18nT("English")}</option>
-                  <option value="Hindi">{i18nT("Hindi / हिंदी")}</option>
-                  <option value="Telugu">{i18nT("Telugu / తెలుగు")}</option>
-                  <option value="Tamil">{i18nT("Tamil / தமிழ்")}</option>
-                  <option value="Kannada">{i18nT("Kannada / కన్నడ")}</option>
+                  <option value="Hindi">{i18nT("app.hindi")}</option>
+                  <option value="Telugu">{i18nT("app.telugu")}</option>
+                  <option value="Tamil">{i18nT("app.tamil")}</option>
+                  <option value="Kannada">{i18nT("app.kannada")}</option>
                 </select>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground/80">{i18nT("Default Payment Method")}</label>
+                <label className="text-xs font-semibold text-foreground/80">{i18nT("app.defaultPaymentMethod")}</label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   className="p-3 bg-secondary/30 border border-border rounded-xl text-xs text-foreground focus:outline-hidden focus:border-primary/50">
                   
-                  <option value="UPI">{i18nT("UPI (Google Pay, PhonePe, Paytm)")}</option>
-                  <option value="Card">{i18nT("Credit or Debit Card")}</option>
-                  <option value="NetBanking">{i18nT("Net Banking")}</option>
-                  <option value="Cash">{i18nT("Cash on Delivery")}</option>
+                  <option value="UPI">{i18nT("app.upiGooglePayPhonepePaytm")}</option>
+                  <option value="Card">{i18nT("app.creditOrDebitCard")}</option>
+                  <option value="NetBanking">{i18nT("app.netBanking")}</option>
+                  <option value="Cash">{i18nT("app.cashOnDelivery")}</option>
                 </select>
               </div>
 
@@ -171,7 +174,7 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
                 </div>
               }
 
-              <Button variant="primary" type="submit" className="w-full mt-2" isLoading={loading}>{i18nT("Complete Resident Onboarding")}
+              <Button variant="primary" type="submit" className="w-full mt-2" isLoading={loading}>{i18nT("app.completeResidentOnboarding")}
 
               </Button>
             </form>
@@ -249,7 +252,7 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
   return (
     <ProductShell>
       <div className="flex flex-col gap-6">
-        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Book Local Services")}</Typography>
+        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.bookLocalServices")}</Typography>
         
         {/* Categories Grid */}
         <div id="book-services" className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-in">
@@ -272,7 +275,7 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
         {/* Resident Home Help Map */}
         <div className="flex flex-col gap-4">
           <Typography variant="h3" className="font-bold flex items-center gap-2">
-            <MapIcon className="w-5 h-5 text-primary" />{i18nT("Home Help & Services Map")}
+            <MapIcon className="w-5 h-5 text-primary" />{i18nT("app.homeHelpServicesMap")}
 
           </Typography>
           <MapView mode="resident" />
@@ -293,7 +296,7 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
         {/* Nearby Service Providers Cards List */}
         <div className="flex flex-col gap-4">
           <Typography variant="h3" className="font-bold flex items-center gap-2">
-            <Award className="w-5 h-5 text-primary" />{i18nT("Nearby Available Handymen & Service Providers")}
+            <Award className="w-5 h-5 text-primary" />{i18nT("app.nearbyAvailableHandymenServiceProviders")}
 
           </Typography>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -306,10 +309,10 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
                     </div>
                     <div>
                       <span className="text-xs font-bold text-foreground block">{w.full_name}</span>
-                      <span className="text-[10px] text-muted-foreground">{w.job_title} • {w.experience_years}{i18nT("y experience")}</span>
+                      <span className="text-[10px] text-muted-foreground">{w.job_title} • {w.experience_years}{i18nT("app.yExperience")}</span>
                     </div>
                   </div>
-                  <Badge variant="primary" className="text-[9px]">{i18nT("95% Trust")}</Badge>
+                  <Badge variant="primary" className="text-[9px]">{i18nT("app.95Trust")}</Badge>
                 </div>
                 <p className="text-[11px] text-muted-foreground">{w.bio}</p>
                 <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
@@ -319,7 +322,7 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
                   size="sm"
                   className="h-7 px-3 text-[10px] rounded-lg"
                   isLoading={loading}
-                  onClick={() => handleBookHandyman(w.user_id, w.job_title, w.expected_salary)}>{i18nT("Book Now")}
+                  onClick={() => handleBookHandyman(w.user_id, w.job_title, w.expected_salary)}>{i18nT("app.bookNow")}
 
 
                 </Button>
@@ -328,7 +331,7 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
             )}
 
             {workers.length === 0 &&
-            <div className="col-span-3 text-center py-6 text-xs text-muted-foreground bg-card/10 border border-dashed border-border rounded-xl">{i18nT("No active registered service providers found in this sector.")}
+            <div className="col-span-3 text-center py-6 text-xs text-muted-foreground bg-card/10 border border-dashed border-border rounded-xl">{i18nT("app.noActiveRegisteredServiceProvidersFoundInThis")}
 
             </div>
             }
@@ -340,10 +343,10 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
           <Card className="glass-card p-5 lg:col-span-2 flex flex-col justify-between">
             <div>
               <Typography variant="h3" className="font-bold flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />{i18nT("Active Escrow Safety Manager")}
+                <Shield className="w-5 h-5 text-primary" />{i18nT("app.activeEscrowSafetyManager")}
 
               </Typography>
-              <Typography variant="muted" className="text-xs mt-1">{i18nT("Protect payments. Funds are locked securely in the escrow ledger and released only after you verify the completed task.")}
+              <Typography variant="muted" className="text-xs mt-1">{i18nT("app.protectPaymentsFundsAreLockedSecurelyInThe")}
 
               </Typography>
             </div>
@@ -357,21 +360,21 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
                     </span>
                     <div>
                       <span className="text-xs font-bold block">{i18nT("Job:")}{b.service_type} ({b.status})</span>
-                      <span className="text-[10px] text-muted">{i18nT("Contractor:")}{wName(wList(b.worker))}{i18nT("• Locked: ₹")}{b.price}</span>
+                      <span className="text-[10px] text-muted">{i18nT("Contractor:")}{wName(wList(b.worker))}{i18nT("app.locked")}{b.price}</span>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleRaiseDispute(b.id)}>{i18nT("Raise Dispute")}</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleRaiseDispute(b.id)}>{i18nT("app.raiseDispute")}</Button>
                     {b.status === "completed" &&
-                  <Button variant="primary" size="sm" onClick={() => handleReleasePayout(b.id)}>{i18nT("Release Payout")}</Button>
+                  <Button variant="primary" size="sm" onClick={() => handleReleasePayout(b.id)}>{i18nT("app.releasePayout")}</Button>
                   }
                   </div>
                 </div>
               )}
 
               {bookings.filter((b) => ["pending", "in_progress", "completed"].includes(b.status)).length === 0 &&
-              <div className="text-center py-6 text-xs text-muted-foreground bg-secondary/10 border border-dashed border-border rounded-xl">{i18nT("No active bookings or funded escrows.")}
+              <div className="text-center py-6 text-xs text-muted-foreground bg-secondary/10 border border-dashed border-border rounded-xl">{i18nT("app.noActiveBookingsOrFundedEscrows")}
 
               </div>
               }
@@ -379,12 +382,12 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
 
             <div className="text-[10px] text-muted flex gap-2">
               <AlertTriangle className="w-3.5 h-3.5 text-primary" />
-              <span>{i18nT("JobNest guarantees 100% resolution checks under SLA protocols.")}</span>
+              <span>{i18nT("app.jobnestGuarantees100ResolutionChecksUnderSlaProtocols")}</span>
             </div>
           </Card>
 
           <Card className="glass-card p-5 flex flex-col justify-between">
-            <Typography variant="h4" className="font-bold">{i18nT("Bookings History")}</Typography>
+            <Typography variant="h4" className="font-bold">{i18nT("app.bookingsHistory")}</Typography>
             <div className="flex flex-col gap-3 my-4">
               {bookings.filter((b) => ["resolved", "disputed"].includes(b.status)).map((b) =>
               <div key={b.id} className="flex justify-between items-center text-xs pb-1 border-b border-border">
@@ -394,12 +397,12 @@ export default function ResidentDashboardPage() {const { t: i18nT } = useI18n();
               )}
 
               {bookings.filter((b) => ["resolved", "disputed"].includes(b.status)).length === 0 &&
-              <div className="text-center py-6 text-xs text-muted-foreground">{i18nT("No past resolved contracts.")}
+              <div className="text-center py-6 text-xs text-muted-foreground">{i18nT("app.noPastResolvedContracts")}
 
               </div>
               }
             </div>
-            <Button variant="outline" size="sm" className="w-full">{i18nT("View Receipts Ledger")}</Button>
+            <Button variant="outline" size="sm" className="w-full">{i18nT("app.viewReceiptsLedger")}</Button>
           </Card>
         </div>
       </div>

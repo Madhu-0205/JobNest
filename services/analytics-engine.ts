@@ -153,6 +153,9 @@ export class AnalyticsEngine {
 
       return this.buildDashboard(kpis);
     } catch {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("Configuration Error: Database unavailable for AnalyticsEngine. Mock simulation is prohibited in production.");
+      }
       logger.warn("[AnalyticsEngine] DB unavailable. Returning simulated analytics dashboard.");
       return this.buildDashboard(SIMULATED_KPIS);
     }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";import { useI18n } from "@/lib/i18n/context";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ProductShell } from "@/components/ProductShell";
 import { useAuth } from "@/providers/AuthProvider";
@@ -31,11 +32,14 @@ const MapView = dynamic(
   () => import("@/components/maps/MapView").then((mod) => mod.MapView),
   {
     ssr: false,
-    loading: () =>
-    <div className="w-full h-[220px] rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
+    loading: function LoadingFallback() {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { t: i18nT } = require("@/lib/i18n/context").useI18n();
+      return (<div className="w-full h-55 rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-        <span className="text-xs text-muted-foreground">Loading geofenced job area...</span>
-      </div>
+        <span className="text-xs text-muted-foreground">{i18nT("employer.loadingGeofencedJobArea")}</span>
+      </div>);
+    }
 
   }
 );
@@ -466,9 +470,9 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
   if (loading) {
     return (
       <ProductShell>
-        <div className="w-full min-h-[400px] flex flex-col items-center justify-center gap-3">
+        <div className="w-full min-h-100 flex flex-col items-center justify-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-          <Typography variant="muted" className="text-xs">{i18nT("Resolving opportunity parameters...")}</Typography>
+          <Typography variant="muted" className="text-xs">{i18nT("employer.resolvingOpportunityParameters")}</Typography>
         </div>
       </ProductShell>);
 
@@ -477,10 +481,10 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
   if (!job) {
     return (
       <ProductShell>
-        <div className="w-full min-h-[400px] flex flex-col items-center justify-center gap-3 text-center">
-          <Typography variant="h3" className="font-bold text-foreground">{i18nT("Opportunity Not Found")}</Typography>
-          <Typography variant="muted" className="text-xs mb-2">{i18nT("The requested broadcast registry ID could not be matched.")}</Typography>
-          <Button variant="primary" onClick={() => router.push("/employer")}>{i18nT("Go to Dashboard")}</Button>
+        <div className="w-full min-h-100 flex flex-col items-center justify-center gap-3 text-center">
+          <Typography variant="h3" className="font-bold text-foreground">{i18nT("employer.opportunityNotFound")}</Typography>
+          <Typography variant="muted" className="text-xs mb-2">{i18nT("employer.theRequestedBroadcastRegistryIdCouldNotBe")}</Typography>
+          <Button variant="primary" onClick={() => router.push("/employer")}>{i18nT("employer.goToDashboard")}</Button>
         </div>
       </ProductShell>);
 
@@ -507,13 +511,13 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer self-start transition-colors">
             
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{i18nT("Back to Dashboard")}</span>
+            <span>{i18nT("employer.backToDashboard")}</span>
           </button>
           
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span>{i18nT("Employer Dashboard")}</span>
+            <span>{i18nT("employer.employerDashboard")}</span>
             <ChevronRight className="w-3 h-3" />
-            <span>{i18nT("Opportunity Details")}</span>
+            <span>{i18nT("employer.opportunityDetails")}</span>
             <ChevronRight className="w-3 h-3" />
             <span className="text-foreground font-bold">{job.id}</span>
           </div>
@@ -536,31 +540,31 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                       {job.category}
                     </Badge>
                   </div>
-                  <span className="text-xs text-muted-foreground">{i18nT("Posted")}{job.postedTime}{i18nT("• Broadcast ID:")}{job.id}</span>
+                  <span className="text-xs text-muted-foreground">{i18nT("Posted")}{job.postedTime}{i18nT("employer.broadcastId")}{job.id}</span>
                 </div>
 
-                <Badge variant="success" className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono py-1 px-2.5 font-bold uppercase">{i18nT("Broadcast Active")}
+                <Badge variant="success" className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono py-1 px-2.5 font-bold uppercase">{i18nT("employer.broadcastActive")}
 
                 </Badge>
               </div>
 
               <div className="grid grid-cols-3 gap-4 border-y border-border/10 py-4 text-xs">
                 <div>
-                  <span className="text-[10px] text-muted-foreground block uppercase font-bold">{i18nT("Payout Range")}</span>
+                  <span className="text-[10px] text-muted-foreground block uppercase font-bold">{i18nT("employer.payoutRange")}</span>
                   <span className="font-bold text-amber-500 font-mono">₹{job.salaryMin} - ₹{job.salaryMax}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-muted-foreground block uppercase font-bold">{i18nT("Timeline Schedule")}</span>
+                  <span className="text-[10px] text-muted-foreground block uppercase font-bold">{i18nT("employer.timelineSchedule")}</span>
                   <span className="font-semibold">{job.schedule}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-muted-foreground block uppercase font-bold">{i18nT("Contract Duration")}</span>
+                  <span className="text-[10px] text-muted-foreground block uppercase font-bold">{i18nT("employer.contractDuration")}</span>
                   <span className="font-semibold">{job.duration}</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-2.5">
-                <span className="text-xs font-bold text-foreground">{i18nT("Specifications Description")}</span>
+                <span className="text-xs font-bold text-foreground">{i18nT("employer.specificationsDescription")}</span>
                 <p className="text-xs text-muted-foreground leading-relaxed bg-black/15 p-4 rounded-xl border border-border/20">
                   {job.description}
                 </p>
@@ -568,7 +572,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
 
               {/* Skills Tag block */}
               <div className="flex flex-col gap-2 pt-2">
-                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">{i18nT("Required Skills")}</span>
+                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">{i18nT("employer.requiredSkills")}</span>
                 <div className="flex flex-wrap gap-1.5">
                   {job.requiredSkills.map((skill) =>
                   <Badge key={skill} variant="secondary" className="text-[9px] font-semibold">
@@ -585,15 +589,15 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
               {/* Realtime Dev Control simulator dials */}
               <Card className="glass-panel border-amber-500/20 bg-amber-500/5 p-4 rounded-xl flex flex-col gap-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-amber-400 block tracking-wider uppercase">{i18nT("⚡ Realtime Simulation Console")}</span>
-                  <Badge variant="primary" className="bg-amber-600/20 text-amber-300 border-amber-500/30 text-[8px] font-bold">{i18nT("DEVELOPER SANDBOX")}</Badge>
+                  <span className="text-xs font-bold text-amber-400 block tracking-wider uppercase">{i18nT("employer.realtimeSimulationConsole")}</span>
+                  <Badge variant="primary" className="bg-amber-600/20 text-amber-300 border-amber-500/30 text-[8px] font-bold">{i18nT("employer.developerSandbox")}</Badge>
                 </div>
-                <p className="text-[10px] text-muted-foreground">{i18nT("Adjust Gopal Raju's profile values to see AI Hiring Scores and pipeline rankings update dynamically in realtime.")}</p>
+                <p className="text-[10px] text-muted-foreground">{i18nT("employer.adjustGopalRajusProfile")}</p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                   <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between text-[10px] font-medium text-foreground">
-                      <span>{i18nT("Gopal Raju - Trust Score:")}</span>
+                      <span>{i18nT("employer.gopalRajuTrustScore")}</span>
                       <span className="font-bold text-amber-500">{devTrustScore}%</span>
                     </div>
                     <input
@@ -607,7 +611,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                   </div>
                   
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-medium text-foreground">{i18nT("Gopal Raju - Availability:")}</span>
+                    <span className="text-[10px] font-medium text-foreground">{i18nT("employer.gopalRajuAvailability")}</span>
                     <select
                       value={devAvailability}
                       onChange={(e) => setDevAvailability(e.target.value)}
@@ -615,7 +619,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                       
                       <option value="Immediate">{i18nT("Immediate")}</option>
                       <option value="Tomorrow">{i18nT("Tomorrow")}</option>
-                      <option value="Next Week">{i18nT("Next Week")}</option>
+                      <option value="Next Week">{i18nT("employer.nextWeek")}</option>
                     </select>
                   </div>
                 </div>
@@ -627,13 +631,13 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                   <div className="flex justify-between items-center border-b border-indigo-500/10 pb-3">
                     <div className="flex items-center gap-1.5">
                       <TrendingUp className="w-4 h-4 text-indigo-400" />
-                      <Typography variant="h3" className="font-extrabold text-sm text-foreground">{i18nT("Side-by-Side Candidate Comparison")}</Typography>
+                      <Typography variant="h3" className="font-extrabold text-sm text-foreground">{i18nT("employer.sidebysideCandidateComparison")}</Typography>
                     </div>
                     <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setCompareList([])}
-                    className="text-[9px] h-6 px-2 border border-border/30 rounded-lg">{i18nT("Clear Comparison")}
+                    className="text-[9px] h-6 px-2 border border-border/30 rounded-lg">{i18nT("employer.clearComparison")}
 
 
                   </Button>
@@ -664,7 +668,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                     return (
                       <div key={c.id} className={`p-4 rounded-xl border flex flex-col gap-3.5 relative ${isBest ? 'border-emerald-500/40 bg-emerald-950/15' : 'border-border/40 bg-black/20'}`}>
                             {isBest &&
-                        <Badge variant="success" className="absolute -top-2.5 right-3 bg-emerald-900 border border-emerald-500/30 text-emerald-300 font-extrabold text-[8px] tracking-wider uppercase">{i18nT("★ Recommended Choice")}
+                        <Badge variant="success" className="absolute -top-2.5 right-3 bg-emerald-900 border border-emerald-500/30 text-emerald-300 font-extrabold text-[8px] tracking-wider uppercase">{i18nT("employer.recommendedChoice")}
 
                         </Badge>
                         }
@@ -675,7 +679,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                             
                             <div className="flex flex-col gap-2 text-[10px]">
                               <div>
-                                <span className="text-muted-foreground block uppercase text-[8px] font-bold">{i18nT("Salary Expectation")}</span>
+                                <span className="text-muted-foreground block uppercase text-[8px] font-bold">{i18nT("employer.salaryExpectation")}</span>
                                 <span className="font-semibold text-foreground font-mono">₹{c.expectedSalary}</span>
                               </div>
                               <div>
@@ -696,7 +700,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                           variant="primary"
                           size="sm"
                           onClick={() => setHiringCandidate(c)}
-                          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] py-1.5 font-bold">{i18nT("Hire Candidate")}
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] py-1.5 font-bold">{i18nT("employer.hireCandidate")}
 
 
                         </Button>
@@ -709,21 +713,21 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
 
               <div className="flex justify-between items-center gap-4 flex-wrap border-b border-border/10 pb-3">
                 <Typography variant="h3" className="font-extrabold text-base text-foreground flex items-center gap-1.5">
-                  <Users className="w-5 h-5 text-amber-500" />{i18nT("AI-Ranked Applicants Pipeline (")}
+                  <Users className="w-5 h-5 text-amber-500" />{i18nT("employer.airankedApplicantsPipeline")}
                   {sortedCandidates.length})
                 </Typography>
                 
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-muted-foreground">{i18nT("Rank by:")}</span>
+                  <span className="text-[11px] text-muted-foreground">{i18nT("employer.rankBy")}</span>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as "match" | "distance" | "trust" | "salary" | "experience" | "rating")}
                     className="bg-black/40 border border-border/40 text-[11px] text-foreground rounded-lg px-2 py-1 focus:outline-none focus:border-amber-500/50">
                     
-                    <option value="match">{i18nT("AI Score")}</option>
+                    <option value="match">{i18nT("employer.aiScore")}</option>
                     <option value="distance">{i18nT("Distance")}</option>
-                    <option value="trust">{i18nT("Trust Score")}</option>
-                    <option value="salary">{i18nT("Salary Expectation")}</option>
+                    <option value="trust">{i18nT("employer.trustScore")}</option>
+                    <option value="salary">{i18nT("employer.salaryExpectation")}</option>
                     <option value="experience">{i18nT("Experience")}</option>
                     <option value="rating">{i18nT("Rating")}</option>
                   </select>
@@ -770,9 +774,9 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                       {/* Top Row: Avatar, Name, Title, Match %, AI score */}
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center font-bold text-amber-500 overflow-hidden shrink-0">
+                          <div className="relative w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center font-bold text-amber-500 overflow-hidden shrink-0">
                             {cand.avatarUrl ?
-                            <img src={cand.avatarUrl} alt={cand.name} className="w-full h-full object-cover" /> :
+                            <Image src={cand.avatarUrl} alt={cand.name} fill sizes="44px" className="object-cover" /> :
 
                             cand.name.substring(0, 2).toUpperCase()
                             }
@@ -824,7 +828,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                           <span className="font-semibold text-foreground">{cand.experience}</span>
                         </div>
                         <div>
-                          <span className="text-muted-foreground block uppercase text-[8px] font-bold">{i18nT("Expected Salary")}</span>
+                          <span className="text-muted-foreground block uppercase text-[8px] font-bold">{i18nT("employer.expectedSalary")}</span>
                           <span className="font-semibold text-foreground font-mono">₹{cand.expectedSalary}</span>
                         </div>
                         <div>
@@ -839,7 +843,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
 
                       {/* Explain AI Decisions (Reasons box) */}
                       <div className="bg-amber-950/5 border border-amber-500/10 p-3 rounded-xl">
-                        <span className="text-[8px] uppercase font-bold text-amber-400 block tracking-wider mb-1.5">{i18nT("Why Recommended")}</span>
+                        <span className="text-[8px] uppercase font-bold text-amber-400 block tracking-wider mb-1.5">{i18nT("employer.whyRecommended")}</span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
                           {reasons.map((reason, idx) =>
                           <span key={idx} className="text-[10px] text-muted-foreground flex items-center gap-1">
@@ -852,7 +856,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                       {/* Bottom Row: Trust Diagnostics, Distance & CTA actions */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border/10 pt-3 text-[10px]">
                         <div className="flex gap-4 text-muted-foreground">
-                          <span>{i18nT("Trust Score:")}<strong className="text-foreground">{cand.trustScore}%</strong></span>
+                          <span>{i18nT("employer.trustScore")}<strong className="text-foreground">{cand.trustScore}%</strong></span>
                           <span>{i18nT("Distance:")}<strong className="text-foreground">{cand.distance}</strong></span>
                           <span>{i18nT("Aadhaar:")}<strong className="text-emerald-400">{i18nT("Verified")}</strong></span>
                         </div>
@@ -936,7 +940,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
 
                           {isAccepted &&
                           <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-bold bg-emerald-950/40 border border-emerald-500/20 rounded-lg px-2.5 py-1">
-                              <CheckCircle className="w-3 h-3" />{i18nT("Accepted & Escrow Locked")}
+                              <CheckCircle className="w-3 h-3" />{i18nT("employer.acceptedEscrowLocked")}
 
                           </span>
                           }
@@ -960,19 +964,19 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
             
             <Card className="glass-panel border-border shadow-luxury overflow-hidden">
               <CardHeader className="pb-3 border-b border-border/10">
-                <CardTitle className="text-sm font-bold text-foreground">{i18nT("Hiring Geofence Boundary")}</CardTitle>
-                <CardDescription className="text-xs">{i18nT("Location broadcast boundary radius.")}</CardDescription>
+                <CardTitle className="text-sm font-bold text-foreground">{i18nT("employer.hiringGeofenceBoundary")}</CardTitle>
+                <CardDescription className="text-xs">{i18nT("employer.locationBroadcastBoundaryRadius")}</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <MapView mode="employer" />
                 
                 <div className="p-4 flex flex-col gap-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">{i18nT("Broadcast Area Center:")}</span>
+                    <span className="text-muted-foreground">{i18nT("employer.broadcastAreaCenter")}</span>
                     <span className="font-semibold text-foreground">{job.location}</span>
                   </div>
                   <div className="flex justify-between border-t border-border/10 pt-2">
-                    <span className="text-muted-foreground">{i18nT("Hiring Geofence Radius:")}</span>
+                    <span className="text-muted-foreground">{i18nT("employer.hiringGeofenceRadius")}</span>
                     <span className="font-bold text-amber-500 font-mono">{job.radiusKm}{i18nT("Km")}</span>
                   </div>
                 </div>
@@ -980,11 +984,11 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
             </Card>
 
             <Card className="bg-amber-950/10 border-amber-500/25 p-5 flex flex-col gap-4">
-              <span className="text-[10px] uppercase font-bold text-amber-400 block tracking-wider flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-amber-500" />{i18nT("AI Broadcast Diagnostics")}
+              <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4 text-amber-500" />{i18nT("employer.aiBroadcastDiagnostics")}
 
               </span>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{i18nT("Broadcast packets have been successfully delivered to 14 registered handymen handsets in Guntur geofence. Expect applicant pipeline to grow within 1 hour.")}
+              <p className="text-[11px] text-muted-foreground leading-relaxed">{i18nT("employer.broadcastPacketsHaveBeenSuccessfullyDeliveredTo14")}
 
               </p>
             </Card>
@@ -996,11 +1000,11 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
         {hiringCandidate &&
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
             <Card className="glass-panel border-amber-500/30 max-w-md w-full p-6 flex flex-col gap-4 shadow-luxury animate-in fade-in zoom-in-95 duration-150">
-              <Typography variant="h3" className="font-black text-lg text-foreground tracking-tight flex items-center gap-1.5">{i18nT("Confirm Hiring Decision")}
+              <Typography variant="h3" className="font-black text-lg text-foreground tracking-tight flex items-center gap-1.5">{i18nT("employer.confirmHiringDecision")}
 
             </Typography>
-              <p className="text-xs text-muted-foreground leading-relaxed">{i18nT("You are about to accept")}
-              <strong>{hiringCandidate.name}</strong>{i18nT("for the position of")}<strong>{job.title}</strong>{i18nT(". Selecting hire will automatically lock contract escrow funds, notify the candidate, and open the messaging channel.")}
+              <p className="text-xs text-muted-foreground leading-relaxed">{i18nT("employer.youAreAboutToAccept")}
+              <strong>{hiringCandidate.name}</strong>{i18nT("employer.forThePositionOf")}<strong>{job.title}</strong>{i18nT("employer.selectingHireWillAutomaticallyLockContractEscrowFunds")}
             </p>
               
               <div className="flex justify-end gap-3 mt-2">
@@ -1014,7 +1018,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                 <Button
                 variant="primary"
                 onClick={() => handleConfirmHire(hiringCandidate.id, hiringCandidate.name)}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">{i18nT("Confirm & Lock Escrow")}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">{i18nT("employer.confirmLockEscrow")}
 
 
               </Button>

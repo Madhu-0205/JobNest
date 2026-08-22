@@ -167,18 +167,18 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
     <ProductShell>
       <div className="flex justify-between items-center gap-4 mb-4">
         <div>
-          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Live Operations Cockpit")}</Typography>
+          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.liveOperationsCockpit")}</Typography>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-muted-foreground">{i18nT("Simulation Profile:")}</label>
+          <label className="text-xs font-semibold text-muted-foreground">{i18nT("app.simulationProfile")}</label>
           <select
             value={activeProfile}
             onChange={(e) => setActiveProfile(e.target.value as "worker" | "employer")}
             className="bg-muted text-foreground text-xs font-semibold px-2 py-1 rounded-lg border border-border outline-none cursor-pointer"
-            aria-label={i18nT("Select active profile simulation context")}>
+            aria-label={i18nT("app.selectActiveProfileSimulationContext")}>
             
-            <option value="worker">{i18nT("Arun (Worker)")}</option>
-            <option value="employer">{i18nT("Nisha (Employer)")}</option>
+            <option value="worker">{i18nT("app.arunWorker")}</option>
+            <option value="employer">{i18nT("app.nishaEmployer")}</option>
           </select>
           <Badge variant={offlineSync.isOffline ? "danger" : "success"} className="text-xs">
             {offlineSync.isOffline ? "⚠️ Offline Mode" : "🟢 Live Sync Active"}
@@ -193,29 +193,29 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
           {/* Presence Controls & Grid */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base gold-gradient-text">{i18nT("Live User Presence Status")}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Track worker availability and status updates in real time.")}
+              <CardTitle className="text-base gold-gradient-text">{i18nT("app.liveUserPresenceStatus")}</CardTitle>
+              <CardDescription className="text-xs">{i18nT("app.trackWorkerAvailabilityAndStatusUpdatesInReal")}
 
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <div className="flex items-center justify-between gap-2">
-                <Typography variant="muted" className="text-xs">{i18nT("Your Status:")}</Typography>
+                <Typography variant="muted" className="text-xs">{i18nT("app.yourStatus")}</Typography>
                 <select
                   value={presence.status}
                   onChange={(e) => presence.updateStatus(e.target.value)}
-                  className="bg-muted text-foreground text-xs px-2.5 py-1.5 rounded-lg border border-border outline-none cursor-pointer w-[140px]"
-                  aria-label={i18nT("Update presence status")}>
+                  className="bg-muted text-foreground text-xs px-2.5 py-1.5 rounded-lg border border-border outline-none cursor-pointer w-35"
+                  aria-label={i18nT("app.updatePresenceStatus")}>
                   
-                  <option value="available">{i18nT("🟢 Available")}</option>
-                  <option value="working">{i18nT("🚜 Working")}</option>
-                  <option value="busy">{i18nT("🔴 Busy")}</option>
-                  <option value="invisible">{i18nT("⚪ Invisible")}</option>
+                  <option value="available">{i18nT("app.available")}</option>
+                  <option value="working">{i18nT("app.working")}</option>
+                  <option value="busy">{i18nT("app.busy")}</option>
+                  <option value="invisible">{i18nT("app.invisible")}</option>
                 </select>
               </div>
 
               <div className="border border-border/40 p-2.5 rounded-lg bg-black/25 flex flex-col gap-1.5">
-                <Typography variant="muted" className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground/80 block mb-1">{i18nT("Active Channel Participants")}
+                <Typography variant="muted" className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground/80 block mb-1">{i18nT("app.activeChannelParticipants")}
 
                 </Typography>
                 {Object.keys(presence.users).map((uid) =>
@@ -244,15 +244,15 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
           </Card>
 
           {/* Realtime Chat Console */}
-          <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md flex-1 flex flex-col h-[400px]">
+          <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md flex-1 flex flex-col h-100">
             <CardHeader className="pb-2">
               <CardTitle className="text-base gold-gradient-text flex items-center justify-between">
-                <span>{i18nT("Direct Operations Chat")}</span>
+                <span>{i18nT("app.directOperationsChat")}</span>
                 {chat.otherUserTyping &&
                 <span className="text-[10px] italic text-amber-500 animate-pulse">{i18nT("Typing...")}</span>
                 }
               </CardTitle>
-              <CardDescription className="text-xs">{i18nT("Direct chat with typing indicators and read receipts.")}
+              <CardDescription className="text-xs">{i18nT("app.directChatWithTypingIndicatorsAndReadReceipts")}
 
               </CardDescription>
             </CardHeader>
@@ -279,14 +279,14 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
                         {msg.message_type === "image" &&
                         <div className="flex flex-col gap-1">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={msg.attachment_url} alt={i18nT("Attachment")} className="rounded-lg max-h-[120px] object-cover" />
-                            <span className="text-[10px] italic opacity-80">{i18nT("Photo Attachment")}</span>
+                            <img src={msg.attachment_url} alt={i18nT("Attachment")} className="rounded-lg max-h-30 object-cover" />
+                            <span className="text-[10px] italic opacity-80">{i18nT("app.photoAttachment")}</span>
                           </div>
                         }
 
                         {msg.message_type === "voice" &&
                         <div className="flex items-center gap-1.5 py-0.5">
-                            <span>{i18nT("🎙️ Voice Memo")}</span>
+                            <span>{i18nT("app.voiceMemo")}</span>
                             <span className="w-16 h-2.5 bg-white/20 rounded-full overflow-hidden relative">
                               <span className="absolute left-0 top-0 bottom-0 bg-white w-1/2 rounded-full" />
                             </span>
@@ -296,7 +296,7 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
 
                         {msg.message_type === "location" &&
                         <div className="flex flex-col gap-1 text-[11px]">
-                            <span className="font-semibold">{i18nT("📍 Coordinates Location:")}</span>
+                            <span className="font-semibold">{i18nT("app.coordinatesLocation")}</span>
                             <span>{msg.location_lat}, {msg.location_lon}</span>
                           </div>
                         }
@@ -322,7 +322,7 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
 
                 })}
                 {chat.otherUserTyping &&
-                <div className="self-start bg-muted p-2 rounded-2xl rounded-tl-none text-xs italic text-muted-foreground border border-border animate-pulse">{i18nT("Typing status active...")}
+                <div className="self-start bg-muted p-2 rounded-2xl rounded-tl-none text-xs italic text-muted-foreground border border-border animate-pulse">{i18nT("app.typingStatusActive")}
 
                 </div>
                 }
@@ -350,15 +350,15 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
                 </div>
 
                 <div className="flex justify-between items-center bg-muted/40 border border-border/30 px-2 py-1 rounded-lg">
-                  <span className="text-[10px] text-muted-foreground">{i18nT("Quick attach:")}</span>
+                  <span className="text-[10px] text-muted-foreground">{i18nT("app.quickAttach")}</span>
                   <div className="flex gap-1">
-                    <Button size="sm" variant="outline" onClick={() => handleSendAttachment("image")} className="text-[9px] h-6 px-1.5 py-0">{i18nT("🖼️ Image")}
+                    <Button size="sm" variant="outline" onClick={() => handleSendAttachment("image")} className="text-[9px] h-6 px-1.5 py-0">{i18nT("app.image")}
 
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleSendAttachment("voice")} className="text-[9px] h-6 px-1.5 py-0">{i18nT("🎙️ Audio")}
+                    <Button size="sm" variant="outline" onClick={() => handleSendAttachment("voice")} className="text-[9px] h-6 px-1.5 py-0">{i18nT("app.audio")}
 
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleSendAttachment("location")} className="text-[9px] h-6 px-1.5 py-0">{i18nT("📍 Coords")}
+                    <Button size="sm" variant="outline" onClick={() => handleSendAttachment("location")} className="text-[9px] h-6 px-1.5 py-0">{i18nT("app.coords")}
 
                     </Button>
                   </div>
@@ -374,14 +374,14 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
           {/* Vector Map Viewport */}
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <Typography variant="h4" className="text-base font-bold">{i18nT("Live Operations Viewport")}
+              <Typography variant="h4" className="text-base font-bold">{i18nT("app.liveOperationsViewport")}
 
               </Typography>
               <div className="flex gap-2">
                 {liveTrack.currentLocation?.speed && liveTrack.currentLocation.speed > 0.5 ?
-                <Badge variant="primary" className="text-xs animate-pulse">{i18nT("🚜 Worker In Transit")}</Badge> :
+                <Badge variant="primary" className="text-xs animate-pulse">{i18nT("app.workerInTransit")}</Badge> :
 
-                <Badge variant="secondary" className="text-xs">{i18nT("🚜 Worker Stationary")}</Badge>
+                <Badge variant="secondary" className="text-xs">{i18nT("app.workerStationary")}</Badge>
                 }
               </div>
             </div>
@@ -402,30 +402,30 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
             {/* Live Transit Stats */}
             <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md col-span-1 md:col-span-2">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-bold text-amber-500">{i18nT("Live Telemetry Details")}</CardTitle>
+                <CardTitle className="text-sm font-bold text-amber-500">{i18nT("app.liveTelemetryDetails")}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
                 <div className="grid grid-cols-2 gap-3 text-xs bg-muted/40 p-2.5 rounded-lg border border-border/40">
                   <div>
-                    <span className="text-muted-foreground block text-[10px]">{i18nT("Speed (mps / kmh)")}</span>
+                    <span className="text-muted-foreground block text-[10px]">{i18nT("app.speedMpsKmh")}</span>
                     <span className="font-mono text-sm font-bold">
                       {liveTrack.currentLocation?.speed ? `${liveTrack.currentLocation.speed.toFixed(1)} m/s (${(liveTrack.currentLocation.speed * 3.6).toFixed(0)} km/h)` : "0.0 m/s"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-[10px]">{i18nT("Heading direction")}</span>
+                    <span className="text-muted-foreground block text-[10px]">{i18nT("app.headingDirection")}</span>
                     <span className="font-mono text-sm font-bold">
                       {liveTrack.currentLocation?.heading ? `${liveTrack.currentLocation.heading}°` : "0° (North)"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-[10px]">{i18nT("Distance Remaining")}</span>
+                    <span className="text-muted-foreground block text-[10px]">{i18nT("app.distanceRemaining")}</span>
                     <span className="font-mono text-sm font-bold text-sky-400">
                       {liveTrack.distanceRemaining ? `${(liveTrack.distanceRemaining / 1000).toFixed(2)} km` : "N/A"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-[10px]">{i18nT("ETA Clock (seconds)")}</span>
+                    <span className="text-muted-foreground block text-[10px]">{i18nT("app.etaClockSeconds")}</span>
                     <span className="font-mono text-sm font-bold text-amber-500">
                       {liveTrack.etaSeconds ? `${liveTrack.etaSeconds} seconds` : "N/A"}
                     </span>
@@ -433,7 +433,7 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
                 </div>
 
                 <div className="flex gap-2">
-                  <Button size="sm" className="bg-amber-600 hover:bg-amber-700 w-full" onClick={handleStartTransit}>{i18nT("🏁 Start Simulated Transit Route")}
+                  <Button size="sm" className="bg-amber-600 hover:bg-amber-700 w-full" onClick={handleStartTransit}>{i18nT("app.startSimulatedTransitRoute")}
 
                   </Button>
                 </div>
@@ -443,7 +443,7 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
             {/* Offline Sandbox and Sync Engine Queue */}
             <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-bold text-rose-500">{i18nT("Offline Queue Sync")}</CardTitle>
+                <CardTitle className="text-sm font-bold text-rose-500">{i18nT("app.offlineQueueSync")}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
                 <Button
@@ -456,13 +456,13 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
                 </Button>
 
                 <div className="flex justify-between items-center text-xs p-1.5 border border-border/20 rounded bg-black/10">
-                  <span className="text-muted-foreground">{i18nT("Queued events:")}</span>
+                  <span className="text-muted-foreground">{i18nT("app.queuedEvents")}</span>
                   <span className="font-mono font-bold text-amber-500">{offlineSync.queue.length}{i18nT("items")}</span>
                 </div>
 
-                <div className="bg-black/35 rounded border border-border/30 h-[50px] overflow-y-auto text-[9px] font-mono p-1 text-muted-foreground/75 flex flex-col gap-0.5">
+                <div className="bg-black/35 rounded border border-border/30 h-12.5 overflow-y-auto text-[9px] font-mono p-1 text-muted-foreground/75 flex flex-col gap-0.5">
                   {offlineSync.syncLogs.length === 0 ?
-                  <span className="italic text-[9px] text-muted-foreground/35">{i18nT("Sync logs ticker active.")}</span> :
+                  <span className="italic text-[9px] text-muted-foreground/35">{i18nT("app.syncLogsTickerActive")}</span> :
 
                   offlineSync.syncLogs.map((log, idx) => <span key={idx}>{log}</span>)
                   }
@@ -474,15 +474,15 @@ export default function RealtimeDashboard() {const { t: i18nT } = useI18n();
           {/* Event Bus Monospace Audit Log Ticker */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-amber-500">{i18nT("Event Bus Live Audit Stream Ticker")}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Real-time log tracing of global decoupled pub/sub Event Bus entries.")}
+              <CardTitle className="text-sm font-bold text-amber-500">{i18nT("app.eventBusLiveAuditStreamTicker")}</CardTitle>
+              <CardDescription className="text-xs">{i18nT("app.realtimeLogTracingOfGlobalDecoupledPubsubEvent")}
 
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-black/40 border border-border/40 p-3 rounded-xl font-mono text-[10px] h-[120px] overflow-y-auto flex flex-col gap-1 text-muted-foreground">
+              <div className="bg-black/40 border border-border/40 p-3 rounded-xl font-mono text-[10px] h-30 overflow-y-auto flex flex-col gap-1 text-muted-foreground">
                 {eventLogs.length === 0 ?
-                <span className="italic text-muted-foreground/40">{i18nT("Event Bus active. Run operations or simulator updates to stream events...")}</span> :
+                <span className="italic text-muted-foreground/40">{i18nT("app.eventBusActiveRunOperationsOrSimulatorUpdates")}</span> :
 
                 eventLogs.map((log, idx) =>
                 <div key={idx} className="border-b border-border/10 pb-0.5 whitespace-nowrap">

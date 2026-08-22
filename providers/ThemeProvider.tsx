@@ -14,22 +14,24 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Luxury theme defaults to dark mode, initialized from localStorage if available
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("jobnest-theme") as Theme | null;
-      return savedTheme || "dark";
-    }
-    return "dark";
-  });
+  const [theme, setThemeState] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("jobnest-theme") as Theme | null;
+      if (savedTheme) {
+        setThemeState(savedTheme);
+      }
+    }
     setMounted(true);
   }, []);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem("jobnest-theme", newTheme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("jobnest-theme", newTheme);
+    }
   };
 
   const toggleTheme = () => {

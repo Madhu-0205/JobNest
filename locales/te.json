@@ -1130,5 +1130,22 @@
   "10 km": "10 కి.మీ",
   "20 km": "20 కి.మీ",
   "Battery Optimizer Active": "బ్యాటరీ ఆప్టిమైజర్ యాక్టివ్",
-  "Optimize Battery": "బ్యాటరీని ఆప్టిమైజ్ చేయండి"
+  "Optimize Battery": "బ్యాటరీని ఆప్టిమైజ్ చేయండి",
+  "Loading geofenced job area...": "జియోఫెన్స్డ్ జాబ్ ఏరియా లోడ్ అవుతోంది...",
+  "Loading geofenced business map...": "జియోఫెన్స్డ్ బిజినెస్ మ్యాప్ లోడ్ అవుతోంది...",
+  "Loading active worker tracking maps...": "యాక్టివ్ వర్కర్ ట్రాకింగ్ మ్యాప్‌లను లోడ్ చేస్తోంది...",
+  "Loading interactive neighborhood map...": "ఇంటరాక్టివ్ పరిసర మ్యాప్ లోడ్ అవుతోంది...",
+  "Loading interactive geofence radar...": "ఇంటరాక్టివ్ జియోఫెన్స్ రాడార్ లోడ్ అవుతోంది...",
+  "Loading active neighborhood map...": "సక్రియ పరిసర మ్యాప్ లోడ్ అవుతోంది...",
+  "Loading Guntur geofence map layers...": "గుంటూరు జియోఫెన్స్ మ్యాప్ లేయర్‌లను లోడ్ చేస్తోంది...",
+  "search.gigsPlaceholder": "గిగ్‌లను శోధించండి (ఉదా. '5 కిమీలోపు ఎలక్ట్రీషియన్')...",
+  "Confirm Password": "పాస్‌వర్డ్‌ను నిర్ధారించండి",
+  "Re-enter password": "పాస్‌వర్డ్‌ను మళ్లీ నమోదు చేయండి",
+  "Minimum 8 characters, 1 uppercase, 1 special": "కనీసం 8 అక్షరాలు, 1 పెద్ద అక్షరం, 1 ప్రత్యేక అక్షరం",
+  "Account created. Please verify your email.": "ఖాతా సృష్టించబడింది. దయచేసి మీ ఇమెయిల్‌ను ధృవీకరించండి.",
+  "Too many signup attempts. Please try again later.": "చాలా సైన్అప్ ప్రయత్నాలు జరిగాయి. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.",
+  "An account with this email already exists.": "ఈ ఇమెయిల్‌తో ఇప్పటికే ఒక ఖాతా ఉంది.",
+  "Unable to connect to the authentication service. Please try again.": "ప్రామాణీకరణ సేవకు కనెక్ట్ చేయడం సాధ్యపడలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
+  "Input validation failed. Please check your details.": "ఇన్‌పుట్ ధృవీకరణ విఫలమైంది. దయచేసి మీ వివరాలను తనిఖీ చేయండి.",
+  "Something went wrong. Please try again.": "ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి."
 }

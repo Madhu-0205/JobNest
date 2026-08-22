@@ -35,19 +35,23 @@ import {
 // Lazy load MapView
 const MapView = dynamic(() => import("@/components/maps/MapView").then((mod) => mod.MapView), {
   ssr: false,
-  loading: () => (
-    <div className="w-full h-55 rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
-      <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-      <span className="text-xs text-muted-foreground">Loading geofenced business map...</span>
-    </div>
-  ),
+  loading: function LoadingFallback() {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { t: i18nT } = require("@/lib/i18n/context").useI18n();
+      return (
+        <div className="w-full h-55 rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
+          <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs text-muted-foreground">{i18nT("employer.loadingGeofencedBusinessMap")}</span>
+        </div>
+      );
+  }
 });
 
 const AVAILABLE_LANGS = [
-  { code: "en", label: "English" },
-  { code: "hi", label: "हिंदी (Hindi)" },
-  { code: "te", label: "తెలుగు (Telugu)" },
-  { code: "ta", label: "தமிழ் (Tamil)" },
+  { code: "en", label: "🇬🇧 English" },
+  { code: "te", label: "🇮🇳 తెలుగు" },
+  { code: "hi", label: "🇮🇳 हिन्दी" },
+  { code: "ta", label: "🇮🇳 தமிழ்" },
 ];
 
 export default function EmployerOnboardingPage() {
@@ -360,7 +364,7 @@ export default function EmployerOnboardingPage() {
           className="font-extrabold tracking-tight flex items-center gap-1.5"
         >
           <Building className="w-5 h-5 text-amber-500" />
-          <span className="gold-gradient-text">{i18nT("JobNest Business")}</span>
+          <span className="gold-gradient-text">{i18nT("employer.jobnestBusiness")}</span>
         </Typography>
 
         <div className="flex items-center gap-4 text-xs">
@@ -383,7 +387,7 @@ export default function EmployerOnboardingPage() {
           <span className="text-muted-foreground font-bold">
             {i18nT("Step")}
             {step}
-            {i18nT("of 6")}
+            {i18nT("employer.of6")}
           </span>
         </div>
       </div>
@@ -417,11 +421,10 @@ export default function EmployerOnboardingPage() {
                     <Sparkles className="w-6 h-6 animate-pulse" />
                   </div>
                   <CardTitle className="text-xl md:text-2xl font-black tracking-tight text-foreground">
-                    {i18nT("Hire trusted local workers in minutes.")}
+                    {i18nT("employer.hireTrustedLocalWorkersInMinutes")}
                   </CardTitle>
                   <CardDescription className="text-xs leading-normal mt-2">
-                    {i18nT(
-                      "Access vetted skilled contractors, SMEs, and daily-wage operators around your geofenced address instantly."
+                    {i18nT("employer.accessVettedSkilledContractorsSmesAndDailywageOperators"
                     )}
                   </CardDescription>
                 </CardHeader>
@@ -430,22 +433,22 @@ export default function EmployerOnboardingPage() {
                   {isAuthenticated ? (
                     <div className="bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 rounded-xl p-4 text-center text-xs">
                       <span className="font-bold block text-sm">
-                        {i18nT("Welcome back,")}
+                        {i18nT("employer.welcomeBack")}
                         {user?.name}!
                       </span>
                       <span className="mt-1 block text-muted-foreground">
-                        {i18nT("You are logged in. Press Continue to configure business data.")}
+                        {i18nT("employer.youAreLoggedInPressContinueToConfigure")}
                       </span>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-3.5">
                       <div className="flex flex-col gap-1.5">
                         <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                          {i18nT("Business Email Address")}
+                          {i18nT("employer.businessEmailAddress")}
                         </span>
                         <input
                           type="email"
-                          placeholder={i18nT("e.g. name@shop.com")}
+                          placeholder={i18nT("employer.egNameshopcom")}
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           className="bg-black/25 border border-border/40 rounded-xl px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-amber-500"
@@ -453,12 +456,12 @@ export default function EmployerOnboardingPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                          {i18nT("Secure Password")}
+                          {i18nT("employer.securePassword")}
                         </span>
                         <div className="relative">
                           <input
                             type={showPassword ? "text" : "password"}
-                            placeholder={i18nT("Min 6 characters")}
+                            placeholder={i18nT("employer.min6Characters")}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full bg-black/25 border border-border/40 rounded-xl pl-4 pr-10 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-amber-500"
@@ -516,10 +519,10 @@ export default function EmployerOnboardingPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl font-bold flex items-center gap-2">
                     <Building className="w-5 h-5 text-amber-500" />
-                    {i18nT("Business Information")}
+                    {i18nT("employer.businessInformation")}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    {i18nT("Please provide your operational registration parameters.")}
+                    {i18nT("employer.pleaseProvideYourOperationalRegistrationParameters")}
                   </CardDescription>
                 </CardHeader>
 
@@ -527,11 +530,11 @@ export default function EmployerOnboardingPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                        {i18nT("Business Name")}
+                        {i18nT("employer.businessName")}
                       </span>
                       <input
                         type="text"
-                        placeholder={i18nT("e.g. Guntur Agro")}
+                        placeholder={i18nT("employer.egGunturAgro")}
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
                         className="bg-black/25 border border-border/40 rounded-xl px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-amber-500"
@@ -539,11 +542,11 @@ export default function EmployerOnboardingPage() {
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                        {i18nT("Owner Name")}
+                        {i18nT("employer.ownerName")}
                       </span>
                       <input
                         type="text"
-                        placeholder={i18nT("Owner / Partner")}
+                        placeholder={i18nT("employer.ownerPartner")}
                         value={ownerName}
                         onChange={(e) => setOwnerName(e.target.value)}
                         className="bg-black/25 border border-border/40 rounded-xl px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-amber-500"
@@ -554,24 +557,24 @@ export default function EmployerOnboardingPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                        {i18nT("Business Type")}
+                        {i18nT("employer.businessType")}
                       </span>
                       <select
                         value={businessType}
                         onChange={(e) => setBusinessType(e.target.value)}
                         className="bg-black/25 border border-border/40 rounded-xl p-2.5 text-xs text-foreground focus:outline-hidden focus:border-amber-500 cursor-pointer"
                       >
-                        <option value="Local Shop">{i18nT("Local Retail Shop")}</option>
-                        <option value="Restaurant">{i18nT("Restaurant / Hotel")}</option>
-                        <option value="Contractor">{i18nT("Skilled Contractor")}</option>
-                        <option value="SME">{i18nT("SME / Startup Office")}</option>
-                        <option value="Homeowner">{i18nT("Residential Owner")}</option>
-                        <option value="Factory">{i18nT("Factory / Workshop")}</option>
+                        <option value="Local Shop">{i18nT("employer.localRetailShop")}</option>
+                        <option value="Restaurant">{i18nT("employer.restaurantHotel")}</option>
+                        <option value="Contractor">{i18nT("employer.skilledContractor")}</option>
+                        <option value="SME">{i18nT("employer.smeStartupOffice")}</option>
+                        <option value="Homeowner">{i18nT("employer.residentialOwner")}</option>
+                        <option value="Factory">{i18nT("employer.factoryWorkshop")}</option>
                       </select>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                        {i18nT("GSTIN (Optional)")}
+                        {i18nT("employer.gstinOptional")}
                       </span>
                       <input
                         type="text"
@@ -585,11 +588,11 @@ export default function EmployerOnboardingPage() {
 
                   <div className="flex flex-col gap-1.5">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                      {i18nT("Contact Phone")}
+                      {i18nT("employer.contactPhone")}
                     </span>
                     <input
                       type="tel"
-                      placeholder={i18nT("10-digit mobile number")}
+                      placeholder={i18nT("employer.10digitMobileNumber")}
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       className="bg-black/25 border border-border/40 rounded-xl px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-amber-500"
@@ -598,10 +601,10 @@ export default function EmployerOnboardingPage() {
 
                   <div className="flex flex-col gap-1.5">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                      {i18nT("Business Address")}
+                      {i18nT("employer.businessAddress")}
                     </span>
                     <textarea
-                      placeholder={i18nT("Complete physical office address")}
+                      placeholder={i18nT("employer.completePhysicalOfficeAddress")}
                       value={businessAddress}
                       onChange={(e) => setBusinessAddress(e.target.value)}
                       rows={2}
@@ -614,7 +617,7 @@ export default function EmployerOnboardingPage() {
                       {i18nT("Description")}
                     </span>
                     <textarea
-                      placeholder={i18nT("Brief details about what your business hires for...")}
+                      placeholder={i18nT("employer.briefDetailsAboutWhatYourBusinessHiresFor")}
                       value={businessDesc}
                       onChange={(e) => setBusinessDesc(e.target.value)}
                       rows={2}
@@ -638,10 +641,10 @@ export default function EmployerOnboardingPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl font-bold flex items-center gap-2">
                     <Shield className="w-5 h-5 text-amber-500" />
-                    {i18nT("Business Verification")}
+                    {i18nT("employer.businessVerification")}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    {i18nT("Cryptographically validate business parameters on JobNest registry.")}
+                    {i18nT("employer.cryptographicallyValidateBusinessParametersOnJobnestRegistry")}
                   </CardDescription>
                 </CardHeader>
 
@@ -674,14 +677,14 @@ export default function EmployerOnboardingPage() {
                         variant="success"
                         className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold py-0.5 px-2 mt-1"
                       >
-                        {i18nT("Verified Business Badge Active")}
+                        {i18nT("employer.verifiedBusinessBadgeActive")}
                       </Badge>
                     ) : (
                       <Badge
                         variant="warning"
                         className="bg-amber-950/60 border border-amber-500/30 text-amber-400 text-[9px] font-bold py-0.5 px-2 mt-1"
                       >
-                        {i18nT("Pending Document Review")}
+                        {i18nT("employer.pendingDocumentReview")}
                       </Badge>
                     )}
                   </div>
@@ -689,7 +692,7 @@ export default function EmployerOnboardingPage() {
                   {/* Document Uploader */}
                   <div className="flex flex-col gap-2">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">
-                      {i18nT("Document Credentials File")}
+                      {i18nT("employer.documentCredentialsFile")}
                     </span>
 
                     <div className="relative">
@@ -708,26 +711,26 @@ export default function EmployerOnboardingPage() {
                         {loading ? (
                           <>
                             <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                            <span>{i18nT("Processing Business registry document...")}</span>
+                            <span>{i18nT("employer.processingBusinessRegistryDocument")}</span>
                           </>
                         ) : uploadedDoc ? (
                           <>
                             <FileText className="w-8 h-8 text-amber-500" />
                             <span className="text-emerald-400 font-bold">
-                              {i18nT("GST / License Uploaded Successfully")}
+                              {i18nT("employer.gstLicenseUploadedSuccessfully")}
                             </span>
                             <span className="text-[10px] text-muted-foreground">
-                              {i18nT("Click to upload another file")}
+                              {i18nT("employer.clickToUploadAnotherFile")}
                             </span>
                           </>
                         ) : (
                           <>
                             <Upload className="w-8 h-8 text-muted-foreground" />
                             <span className="font-semibold text-foreground">
-                              {i18nT("Upload Business License / GSTIN / Aadhaar")}
+                              {i18nT("employer.uploadBusinessLicenseGstinAadhaar")}
                             </span>
                             <span className="text-[10px] text-muted">
-                              {i18nT("Supports JPG, PNG, PDF up to 4MB")}
+                              {i18nT("employer.supportsJpgPngPdfUpTo4mb")}
                             </span>
                           </>
                         )}
@@ -758,10 +761,10 @@ export default function EmployerOnboardingPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl font-bold flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-amber-500" />
-                    {i18nT("Business Location Geofence")}
+                    {i18nT("employer.businessLocationGeofence")}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    {i18nT("Pin your business address to establish your hiring radius geofence.")}
+                    {i18nT("employer.pinYourBusinessAddressToEstablishYourHiring")}
                   </CardDescription>
                 </CardHeader>
 
@@ -775,7 +778,7 @@ export default function EmployerOnboardingPage() {
                   <div className="flex flex-col gap-2 text-xs">
                     <div className="flex justify-between font-bold">
                       <span className="text-muted-foreground">
-                        {i18nT("Hiring Service Radius:")}
+                        {i18nT("employer.hiringServiceRadius")}
                       </span>
                       <span className="text-amber-500 font-mono">
                         {radiusKm}
@@ -803,7 +806,7 @@ export default function EmployerOnboardingPage() {
                       {loading ? (
                         <>
                           <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin mr-1.5" />
-                          {i18nT("Detecting coordinates...")}
+                          {i18nT("employer.detectingCoordinates")}
                         </>
                       ) : (
                         "Auto-detect Business Coordinates"
@@ -834,10 +837,10 @@ export default function EmployerOnboardingPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl font-bold flex items-center gap-2">
                     <Sliders className="w-5 h-5 text-amber-500" />
-                    {i18nT("Hiring Preferences")}
+                    {i18nT("employer.hiringPreferences")}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    {i18nT("Tell us what types of workers you want to hire.")}
+                    {i18nT("employer.tellUsWhatTypesOfWorkersYouWant")}
                   </CardDescription>
                 </CardHeader>
 
@@ -845,7 +848,7 @@ export default function EmployerOnboardingPage() {
                   {/* Category choices */}
                   <div className="flex flex-col gap-2">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">
-                      {i18nT("Worker Categories Needed")}
+                      {i18nT("employer.workerCategoriesNeeded")}
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {[
@@ -877,7 +880,7 @@ export default function EmployerOnboardingPage() {
                   {/* Languages preferred */}
                   <div className="flex flex-col gap-2">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">
-                      {i18nT("Preferred Languages")}
+                      {i18nT("employer.preferredLanguages")}
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {["English", "Hindi", "Telugu", "Tamil", "Kannada"].map((lang) => {
@@ -903,14 +906,14 @@ export default function EmployerOnboardingPage() {
                   {/* Daily Budget slider */}
                   <div className="flex flex-col gap-2 text-xs">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">
-                      {i18nT("Expected Daily Budget Limit")}
+                      {i18nT("employer.expectedDailyBudgetLimit")}
                     </span>
                     <div className="flex items-center justify-between font-mono bg-black/20 border border-border/20 p-2.5 rounded-xl">
                       <span className="flex items-center text-amber-500 font-bold">
                         <DollarSign className="w-3.5 h-3.5" />
                         <span>
                           ₹{budgetMin}
-                          {i18nT("/ day")}
+                          {i18nT("employer.day")}
                         </span>
                       </span>
                       <span className="text-muted-foreground">-</span>
@@ -918,7 +921,7 @@ export default function EmployerOnboardingPage() {
                         <DollarSign className="w-3.5 h-3.5" />
                         <span>
                           ₹{budgetMax}
-                          {i18nT("/ day")}
+                          {i18nT("employer.day")}
                         </span>
                       </span>
                     </div>
@@ -937,11 +940,11 @@ export default function EmployerOnboardingPage() {
                   <div className="flex flex-col gap-3 pt-2">
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                        {i18nT("Working Hours Preference")}
+                        {i18nT("employer.workingHoursPreference")}
                       </span>
                       <input
                         type="text"
-                        placeholder={i18nT("e.g. 09:00 AM - 06:00 PM")}
+                        placeholder={i18nT("employer.eg0900Am0600Pm")}
                         value={workingHours}
                         onChange={(e) => setWorkingHours(e.target.value)}
                         className="bg-black/25 border border-border/40 rounded-xl px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-amber-500"
@@ -951,17 +954,17 @@ export default function EmployerOnboardingPage() {
                     <div className="grid grid-cols-2 gap-3 items-center">
                       <div className="flex flex-col gap-1.5">
                         <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                          {i18nT("Hiring Frequency")}
+                          {i18nT("employer.hiringFrequency")}
                         </span>
                         <select
                           value={hiringFrequency}
                           onChange={(e) => setHiringFrequency(e.target.value)}
                           className="bg-black/25 border border-border/40 rounded-xl p-2.5 text-xs text-foreground focus:outline-hidden focus:border-amber-500 cursor-pointer"
                         >
-                          <option value="Daily">{i18nT("Daily gigs")}</option>
-                          <option value="Weekly">{i18nT("Weekly contracts")}</option>
-                          <option value="Monthly">{i18nT("Monthly intervals")}</option>
-                          <option value="Occasional">{i18nT("Occasional hiring")}</option>
+                          <option value="Daily">{i18nT("employer.dailyGigs")}</option>
+                          <option value="Weekly">{i18nT("employer.weeklyContracts")}</option>
+                          <option value="Monthly">{i18nT("employer.monthlyIntervals")}</option>
+                          <option value="Occasional">{i18nT("employer.occasionalHiring")}</option>
                         </select>
                       </div>
 
@@ -976,7 +979,7 @@ export default function EmployerOnboardingPage() {
                           />
 
                           <span className="text-xs font-semibold">
-                            {i18nT("Urgent Hiring Active")}
+                            {i18nT("employer.urgentHiringActive")}
                           </span>
                         </label>
                       </div>
@@ -1001,11 +1004,10 @@ export default function EmployerOnboardingPage() {
                     <CheckCircle className="w-8 h-8 animate-bounce" />
                   </div>
                   <CardTitle className="text-xl md:text-2xl font-black text-foreground">
-                    {i18nT("Business Profile Complete!")}
+                    {i18nT("employer.businessProfileComplete")}
                   </CardTitle>
                   <CardDescription className="text-xs leading-normal mt-2">
-                    {i18nT(
-                      "Congratulations. Your JobNest employer register credential has been successfully generated."
+                    {i18nT("employer.congratulationsYourJobnestEmployerRegisterCredentialHasBeen"
                     )}
                   </CardDescription>
                 </CardHeader>
@@ -1015,17 +1017,17 @@ export default function EmployerOnboardingPage() {
                   <div className="bg-black/25 rounded-2xl border border-border/40 p-4.5 flex items-center justify-between">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                        {i18nT("Hiring Score Index")}
+                        {i18nT("employer.hiringScoreIndex")}
                       </span>
                       <span className="text-lg font-black text-foreground">
-                        {i18nT("100% Registry Score")}
+                        {i18nT("employer.100RegistryScore")}
                       </span>
                     </div>
                     <Badge
                       variant="success"
                       className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 font-bold px-2 py-1"
                     >
-                      {i18nT("Ready to Hire")}
+                      {i18nT("employer.readyToHire")}
                     </Badge>
                   </div>
 
@@ -1033,12 +1035,12 @@ export default function EmployerOnboardingPage() {
                   <div className="border border-border/20 bg-zinc-950 p-4 rounded-2xl flex flex-col gap-2">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider flex items-center gap-1.5">
                       <TrendingUp className="w-4 h-4 text-amber-500" />
-                      {i18nT("Hiring Next Steps")}
+                      {i18nT("employer.hiringNextSteps")}
                     </span>
                     <ul className="list-disc pl-4 flex flex-col gap-1 text-[11px] text-muted-foreground">
-                      <li>{i18nT("Post your first hyperlocal gig project mapping.")}</li>
-                      <li>{i18nT("Review matching local worker applicants live coordinates.")}</li>
-                      <li>{i18nT("Secure payments escrow funding options.")}</li>
+                      <li>{i18nT("employer.postYourFirstHyperlocalGigProjectMapping")}</li>
+                      <li>{i18nT("employer.reviewMatchingLocalWorkerApplicantsLiveCoordinates")}</li>
+                      <li>{i18nT("employer.securePaymentsEscrowFundingOptions")}</li>
                     </ul>
                   </div>
 
@@ -1099,7 +1101,7 @@ export default function EmployerOnboardingPage() {
               <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
             ) : (
               <span className="flex items-center justify-center gap-1.5">
-                {i18nT("Start Hiring")}
+                {i18nT("employer.startHiring")}
 
                 <ArrowRight className="w-4 h-4" />
               </span>

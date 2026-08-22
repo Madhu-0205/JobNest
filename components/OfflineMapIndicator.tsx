@@ -56,10 +56,10 @@ export function OfflineMapIndicator({
       <CardContent className="pt-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <Typography variant="h4" className="text-base font-bold">{i18nT("Map Tile Caching Engine")}
+            <Typography variant="h4" className="text-base font-bold">{i18nT("common.mapTileCachingEngine")}
 
             </Typography>
-            <Typography variant="muted" className="text-xs">{i18nT("OpenStreetMap tile caching database status")}
+            <Typography variant="muted" className="text-xs">{i18nT("common.openstreetmapTileCachingDatabaseStatus")}
 
             </Typography>
           </div>
@@ -70,7 +70,7 @@ export function OfflineMapIndicator({
 
         <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-lg border border-border">
           <div>
-            <Typography variant="muted" className="text-xs block">{i18nT("Cache Storage size")}
+            <Typography variant="muted" className="text-xs block">{i18nT("common.cacheStorageSize")}
 
             </Typography>
             <Typography variant="h3" as="span" className="text-lg font-bold gold-gradient-text">
@@ -78,17 +78,17 @@ export function OfflineMapIndicator({
             </Typography>
           </div>
           <div>
-            <Typography variant="muted" className="text-xs block">{i18nT("Offline Availability")}
+            <Typography variant="muted" className="text-xs block">{i18nT("common.offlineAvailability")}
 
             </Typography>
-            <Typography variant="h3" as="span" className="text-lg font-semibold text-foreground">{i18nT("95.4% Coverage")}
+            <Typography variant="h3" as="span" className="text-lg font-semibold text-foreground">{i18nT("common.954Coverage")}
 
             </Typography>
           </div>
         </div>
 
         <div className="flex justify-between items-center gap-2 pt-2 border-t border-border">
-          <Typography variant="muted" className="text-xs">{i18nT("Test offline behaviors:")}
+          <Typography variant="muted" className="text-xs">{i18nT("common.testOfflineBehaviors")}
 
           </Typography>
           <button

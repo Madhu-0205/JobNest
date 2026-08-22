@@ -21,10 +21,10 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {const {
     <html lang="en" className="h-full">
       <body className="h-full bg-[#060608] text-[#f5f5f7] flex flex-col items-center justify-center p-6 text-center antialiased">
         <div className="max-w-md w-full border border-zinc-850 bg-[#0c0c0e] p-8 rounded shadow-2xl">
-          <h1 className="text-3xl font-extrabold tracking-tight text-rose-400 mb-2">{i18nT("Critical Failure")}
+          <h1 className="text-3xl font-extrabold tracking-tight text-rose-400 mb-2">{i18nT("app.criticalFailure")}
 
           </h1>
-          <p className="text-sm text-zinc-400 mb-6">{i18nT("A fatal initialization error occurred. The incident has been recorded.")}
+          <p className="text-sm text-zinc-400 mb-6">{i18nT("app.aFatalInitializationErrorOccurredTheIncidentHas")}
 
           </p>
           
@@ -37,7 +37,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {const {
           <button
             type="button"
             onClick={reset}
-            className="w-full inline-flex items-center justify-center font-medium rounded-md h-11 px-5 text-base bg-gradient-to-r from-amber-500 to-amber-600 text-zinc-950 hover:opacity-95 transition-all">{i18nT("Reset Application")}
+            className="w-full inline-flex items-center justify-center font-medium rounded-md h-11 px-5 text-base bg-gradient-to-r from-amber-500 to-amber-600 text-zinc-950 hover:opacity-95 transition-all">{i18nT("app.resetApplication")}
 
 
           </button>

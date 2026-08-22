@@ -500,17 +500,10 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                 onChange={(e) => setLang(e.target.value)}
                 className="bg-muted text-foreground text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border outline-none cursor-pointer">
                 
-              <option value="en">{i18nT("English (English)")}</option>
-              <option value="hi">{i18nT("हिंदी (Hindi)")}</option>
-              <option value="te">{i18nT("తెలుగు (Telugu)")}</option>
-              <option value="ta">{i18nT("தமிழ் (Tamil)")}</option>
-              <option value="kn">{i18nT("ಕನ್ನಡ (Kannada)")}</option>
-              <option value="ml">{i18nT("മലയാളം (Malayalam)")}</option>
-              <option value="mr">{i18nT("मराठी (Marathi)")}</option>
-              <option value="gu">{i18nT("ગુજરાતી (Gujarati)")}</option>
-              <option value="pa">{i18nT("ਪੰਜਾਬੀ (Punjabi)")}</option>
-              <option value="bn">{i18nT("বাংলা (Bengali)")}</option>
-              <option value="or">{i18nT("ଓଡ଼ିଆ (Odia)")}</option>
+              <option value="en">{i18nT("app.english")}</option>
+              <option value="te">{i18nT("app.")}</option>
+              <option value="hi">{i18nT("app.")}</option>
+              <option value="ta">{i18nT("app.")}</option>
             </select>
           </div>
         </div>
@@ -522,7 +515,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
           <Typography variant="h2" className="font-bold gold-gradient-text">{t.title}</Typography>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="primary" className="text-xs">{i18nT("Phase 5 Audit Active")}
+          <Badge variant="primary" className="text-xs">{i18nT("app.phase5AuditActive")}
 
           </Badge>
         </div>
@@ -537,7 +530,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-base gold-gradient-text">{t.trustScore}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Real-time weighted score calculation according to trust vectors.")}
+              <CardDescription className="text-xs">{i18nT("app.realtimeWeightedScoreCalculationAccordingToTrustVectors")}
 
               </CardDescription>
             </CardHeader>
@@ -551,7 +544,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                 <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/80 mt-1">
                   {t.scoreExplain}
                 </span>
-                <div className="w-full bg-muted h-2 rounded-full overflow-hidden mt-3 max-w-[200px]">
+                <div className="w-full bg-muted h-2 rounded-full overflow-hidden mt-3 max-w-50">
                   <div
                     className="bg-linear-to-r from-amber-500 to-amber-600 h-full rounded-full transition-all duration-500"
                     style={{ width: `${computedScore}%` }} />
@@ -566,41 +559,41 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                 </Typography>
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
-                  <span className="text-muted-foreground">{i18nT("Identity Verified (+30)")}</span>
+                  <span className="text-muted-foreground">{i18nT("app.identityVerified30")}</span>
                   <input
                     type="checkbox"
                     checked={scoreIdentityVerified}
                     onChange={(e) => setScoreIdentityVerified(e.target.checked)}
                     className="cursor-pointer accent-amber-500"
-                    aria-label={i18nT("Toggle Identity Verification status for score simulation")} />
+                    aria-label={i18nT("app.toggleIdentityVerificationStatusForScoreSimulation")} />
                   
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
-                  <span className="text-muted-foreground">{i18nT("Business GST Verified (+20)")}</span>
+                  <span className="text-muted-foreground">{i18nT("app.businessGstVerified20")}</span>
                   <input
                     type="checkbox"
                     checked={scoreBusinessVerified}
                     onChange={(e) => setScoreBusinessVerified(e.target.checked)}
                     className="cursor-pointer accent-amber-500"
-                    aria-label={i18nT("Toggle Business GST Verification status for score simulation")} />
+                    aria-label={i18nT("app.toggleBusinessGstVerificationStatusForScoreSimulation")} />
                   
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
-                  <span className="text-muted-foreground">{i18nT("Profile Complete (+15)")}</span>
+                  <span className="text-muted-foreground">{i18nT("app.profileComplete15")}</span>
                   <input
                     type="checkbox"
                     checked={scoreProfileComplete}
                     onChange={(e) => setScoreProfileComplete(e.target.checked)}
                     className="cursor-pointer accent-amber-500"
-                    aria-label={i18nT("Toggle Profile Completeness status for score simulation")} />
+                    aria-label={i18nT("app.toggleProfileCompletenessStatusForScoreSimulation")} />
                   
                 </div>
 
                 <div className="flex flex-col gap-1 text-xs py-1 border-b border-border/10">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">{i18nT("Average Rating:")}{scoreRatingAvg.toFixed(1)}{i18nT("stars")}</span>
+                    <span className="text-muted-foreground">{i18nT("app.averageRating")}{scoreRatingAvg.toFixed(1)}{i18nT("stars")}</span>
                   </div>
                   <input
                     type="range"
@@ -610,12 +603,12 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                     value={scoreRatingAvg}
                     onChange={(e) => setScoreRatingAvg(parseFloat(e.target.value))}
                     className="w-full accent-amber-500 cursor-pointer"
-                    aria-label={i18nT("Adjust Average Rating for score simulation")} />
+                    aria-label={i18nT("app.adjustAverageRatingForScoreSimulation")} />
                   
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1">
-                  <span className="text-muted-foreground">{i18nT("Active Disputes (-15 pts each)")}</span>
+                  <span className="text-muted-foreground">{i18nT("app.activeDisputes15PtsEach")}</span>
                   <input
                     type="number"
                     min="0"
@@ -623,7 +616,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                     value={scoreDisputesCount}
                     onChange={(e) => setScoreDisputesCount(parseInt(e.target.value) || 0)}
                     className="w-12 bg-muted text-foreground text-center border border-border rounded py-0.5 text-xs font-bold outline-none"
-                    aria-label={i18nT("Set Active Disputes count for score simulation")} />
+                    aria-label={i18nT("app.setActiveDisputesCountForScoreSimulation")} />
                   
                 </div>
               </div>
@@ -637,24 +630,24 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               {scoreIdentityVerified &&
-              <Badge variant="success" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("🛡️ Verified Identity")}
+              <Badge variant="success" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("app.verifiedIdentity")}
 
               </Badge>
               }
               {scoreBusinessVerified &&
-              <Badge variant="primary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("🚜 Verified Business")}
+              <Badge variant="primary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("app.verifiedBusiness")}
 
               </Badge>
               }
               {scoreRatingAvg >= 4.5 &&
-              <Badge variant="warning" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("🏆 Top Rated Worker")}
+              <Badge variant="warning" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("app.topRatedWorker")}
 
               </Badge>
               }
-              <Badge variant="secondary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("⚡ Fast Responder")}
+              <Badge variant="secondary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("app.fastResponder")}
 
               </Badge>
-              <Badge variant="secondary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("🤝 Trusted Partner")}
+              <Badge variant="secondary" className="text-[10px] uppercase font-bold py-1 px-2.5">{i18nT("app.trustedPartner")}
 
               </Badge>
             </CardContent>
@@ -669,7 +662,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-base gold-gradient-text">{t.identityKyc}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Upload official identification documents for moderator review.")}
+              <CardDescription className="text-xs">{i18nT("app.uploadOfficialIdentificationDocumentsForModeratorReview")}
 
               </CardDescription>
             </CardHeader>
@@ -684,11 +677,11 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                   onChange={(e) => setKycDocType(e.target.value)}
                   className="bg-muted text-foreground text-xs px-2 py-1.5 rounded border border-border outline-none cursor-pointer">
                   
-                  <option value="aadhaar">{i18nT("Aadhaar (Indian ID)")}</option>
-                  <option value="pan">{i18nT("PAN Card (Tax Registration)")}</option>
-                  <option value="passport">{i18nT("Passport International")}</option>
-                  <option value="driving_licence">{i18nT("Driving License")}</option>
-                  <option value="voter_id">{i18nT("Voter Identification")}</option>
+                  <option value="aadhaar">{i18nT("app.aadhaarIndianId")}</option>
+                  <option value="pan">{i18nT("app.panCardTaxRegistration")}</option>
+                  <option value="passport">{i18nT("app.passportInternational")}</option>
+                  <option value="driving_licence">{i18nT("app.drivingLicense")}</option>
+                  <option value="voter_id">{i18nT("app.voterIdentification")}</option>
                 </select>
               </div>
 
@@ -698,7 +691,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                 </label>
                 <Input
                   id="kyc-doc-num"
-                  placeholder={i18nT("Enter document reference ID number...")}
+                  placeholder={i18nT("app.enterDocumentReferenceIdNumber")}
                   value={kycDocNum}
                   onChange={(e) => setKycDocNum(e.target.value)}
                   className="h-8.5 text-xs" />
@@ -707,7 +700,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
 
               <div className="border border-dashed border-border/60 p-3 rounded-lg text-center bg-black/10 flex flex-col items-center justify-center">
                 <span className="text-lg">📁</span>
-                <span className="text-[10px] text-muted-foreground mt-1">{i18nT("Select scanned document file scans")}</span>
+                <span className="text-[10px] text-muted-foreground mt-1">{i18nT("app.selectScannedDocumentFileScans")}</span>
               </div>
 
               <Button size="sm" onClick={handleKycSubmit} className="bg-amber-600 hover:bg-amber-700 w-full text-xs">
@@ -720,7 +713,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-base gold-gradient-text">{t.businessGst}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Validate organization tax registrations.")}
+              <CardDescription className="text-xs">{i18nT("app.validateOrganizationTaxRegistrations")}
 
               </CardDescription>
             </CardHeader>
@@ -732,7 +725,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                   </label>
                   <Input
                     id="gst-num"
-                    placeholder={i18nT("e.g. 29AAAAA0000A1Z1")}
+                    placeholder={i18nT("app.eg29aaaaa0000a1z1")}
                     value={gstNumInput}
                     onChange={(e) => setGstNumInput(e.target.value)}
                     className="h-8.5 text-xs" />
@@ -750,18 +743,18 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
               {gstCompanyName &&
               <div className="text-xs bg-muted/40 p-2.5 rounded border border-border/30 flex flex-col gap-1">
                   <div>
-                    <span className="text-[9px] text-muted-foreground block">{i18nT("Business Legal Name")}</span>
+                    <span className="text-[9px] text-muted-foreground block">{i18nT("app.businessLegalName")}</span>
                     <span className="font-semibold">{gstCompanyName}</span>
                   </div>
                   {gstAddress &&
                 <div>
-                      <span className="text-[9px] text-muted-foreground block">{i18nT("Registered Address")}</span>
+                      <span className="text-[9px] text-muted-foreground block">{i18nT("app.registeredAddress")}</span>
                       <span>{gstAddress}</span>
                     </div>
                 }
                   {gstCategory &&
                 <div>
-                      <span className="text-[9px] text-muted-foreground block">{i18nT("Sector Classification")}</span>
+                      <span className="text-[9px] text-muted-foreground block">{i18nT("app.sectorClassification")}</span>
                       <span className="italic text-amber-500">{gstCategory}</span>
                     </div>
                 }
@@ -793,7 +786,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                 <span className="w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping" />
                 }
               </CardTitle>
-              <CardDescription className="text-xs">{i18nT("Activate warning alerts and log tracking status telemetry immediately.")}
+              <CardDescription className="text-xs">{i18nT("app.activateWarningAlertsAndLogTrackingStatusTelemetry")}
 
               </CardDescription>
             </CardHeader>
@@ -825,7 +818,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                   <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider text-rose-400">
                     {t.timeline}
                   </Typography>
-                  <div className="bg-black/35 rounded-xl border border-rose-500/30 p-2.5 font-mono text-[9px] h-[100px] overflow-y-auto flex flex-col gap-1.5 text-rose-300">
+                  <div className="bg-black/35 rounded-xl border border-rose-500/30 p-2.5 font-mono text-[9px] h-25 overflow-y-auto flex flex-col gap-1.5 text-rose-300">
                     {safety.incidentTimeline.map((log, idx) =>
                   <div key={idx} className="border-b border-rose-500/10 pb-1">
                         <span className="font-semibold text-rose-400">
@@ -840,7 +833,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
 
               {/* Trusted Contacts Grid */}
               <div className="flex flex-col gap-2.5">
-                <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">{i18nT("Trusted Emergency Contacts")}
+                <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">{i18nT("app.trustedEmergencyContacts")}
 
                 </Typography>
 
@@ -894,17 +887,17 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
               <CardTitle className="text-base gold-gradient-text">{t.disputesMediation}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Active opportunity dispute mediation timeline logs.")}
+              <CardDescription className="text-xs">{i18nT("app.activeOpportunityDisputeMediationTimelineLogs")}
 
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               
               {/* Timeline scroller */}
-              <div className="bg-black/20 border border-border/40 rounded-xl p-2.5 flex flex-col gap-2.5 h-[150px] overflow-y-auto">
+              <div className="bg-black/20 border border-border/40 rounded-xl p-2.5 flex flex-col gap-2.5 h-37.5 overflow-y-auto">
                 {dispute.disputes.length > 0 &&
                 <div className="flex flex-col gap-1.5 mb-2 border-b border-border/25 pb-2">
-                    <span className="text-[10px] uppercase font-bold text-amber-500">{i18nT("Dispute Case:")}
+                    <span className="text-[10px] uppercase font-bold text-amber-500">{i18nT("app.disputeCase")}
                     {dispute.disputes[0].reason}
                     </span>
                     <p className="text-[10px] text-muted-foreground italic">
@@ -917,7 +910,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                 <Button
                   size="sm"
                   onClick={() => dispute.loadTimeline("d1")}
-                  className="m-auto text-[10px] bg-muted text-foreground border border-border">{i18nT("Load Mediation Conversation Timeline Logs")}
+                  className="m-auto text-[10px] bg-muted text-foreground border border-border">{i18nT("app.loadMediationConversationTimelineLogs")}
 
 
                 </Button> :
@@ -956,7 +949,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
               {dispute.activeTimeline.length > 0 &&
               <div className="flex gap-1.5">
                   <Input
-                  placeholder={i18nT("Enter mediation notes...")}
+                  placeholder={i18nT("app.enterMediationNotes")}
                   value={disputeMsgInput}
                   onChange={(e) => setDisputeMsgInput(e.target.value)}
                   className="h-8.5 text-xs" />
@@ -983,7 +976,7 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                         ⚠️ {sig.type}
                       </span>
                       <Badge variant="danger" className="text-[8px] px-1 py-0 font-bold">
-                        {(sig.score * 100).toFixed(0)}{i18nT("% Alert")}
+                        {(sig.score * 100).toFixed(0)}{i18nT("app.alert")}
                     </Badge>
                     </div>
                     <p className="text-[9px] text-muted-foreground">{sig.details}</p>

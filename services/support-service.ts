@@ -133,6 +133,9 @@ export class SupportService {
         };
       });
     } catch {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("Configuration Error: Database unavailable for SupportService. Mock simulation is prohibited in production.");
+      }
       logger.warn("[SupportService] DB unavailable. Returning simulated tickets.");
       return SIMULATED_TICKETS;
     }

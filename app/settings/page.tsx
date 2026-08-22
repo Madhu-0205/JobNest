@@ -39,8 +39,8 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
     <ProductShell>
       <div className="flex flex-col gap-6 max-w-3xl mx-auto">
         <div>
-          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Account Settings")}</Typography>
-          <Typography variant="muted" className="text-xs">{i18nT("Manage your regional application parameters, live telemetry configurations, and feature flags.")}
+          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.accountSettings")}</Typography>
+          <Typography variant="muted" className="text-xs">{i18nT("app.manageYourRegionalApplicationParametersLiveTelemetryConfigurations")}
 
           </Typography>
         </div>
@@ -56,25 +56,25 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
           {/* Feature Flags Overrides */}
           <Card className="glass-card p-6 flex flex-col gap-4">
             <Typography variant="h3" className="font-bold flex items-center gap-2">
-              <Sliders className="w-5 h-5 text-primary" />{i18nT("Feature Flags & System Overrides")}
+              <Sliders className="w-5 h-5 text-primary" />{i18nT("app.featureFlagsSystemOverrides")}
 
             </Typography>
-            <p className="text-xs text-muted-foreground">{i18nT("Toggle specific hyperlocal marketplace engine features on or off. Note that some features are restricted by your user role.")}
+            <p className="text-xs text-muted-foreground">{i18nT("app.toggleSpecificHyperlocalMarketplaceEngineFeaturesOnOr")}
 
             </p>
 
             <div className="flex flex-col gap-3.5 mt-2">
               <div className="flex justify-between items-center pb-3 border-b border-border/20">
                 <div>
-                  <span className="text-xs font-bold block text-foreground">{i18nT("Semantic Hybrid Search")}</span>
-                  <span className="text-[10px] text-muted-foreground">{i18nT("Enables natural query understanding for AI search.")}</span>
+                  <span className="text-xs font-bold block text-foreground">{i18nT("app.semanticHybridSearch")}</span>
+                  <span className="text-[10px] text-muted-foreground">{i18nT("app.enablesNaturalQueryUnderstandingForAiSearch")}</span>
                 </div>
                 <button
                   onClick={() => setSemanticSearch(!semanticSearch)}
                   className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${
                   semanticSearch ? "bg-primary justify-end" : "bg-muted justify-start"}`
                   }
-                  aria-label={i18nT("Toggle Semantic Hybrid Search")}>
+                  aria-label={i18nT("app.toggleSemanticHybridSearch")}>
                   
                   <span className="w-5 h-5 rounded-full bg-background shadow-md" />
                 </button>
@@ -82,15 +82,15 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
 
               <div className="flex justify-between items-center pb-3 border-b border-border/20">
                 <div>
-                  <span className="text-xs font-bold block text-foreground">{i18nT("Escrow Payment Routing")}</span>
-                  <span className="text-[10px] text-muted-foreground">{i18nT("Enforce smart escrow deposits before gig starts.")}</span>
+                  <span className="text-xs font-bold block text-foreground">{i18nT("app.escrowPaymentRouting")}</span>
+                  <span className="text-[10px] text-muted-foreground">{i18nT("app.enforceSmartEscrowDepositsBeforeGigStarts")}</span>
                 </div>
                 <button
                   onClick={() => setEscrowRouting(!escrowRouting)}
                   className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${
                   escrowRouting ? "bg-primary justify-end" : "bg-muted justify-start"}`
                   }
-                  aria-label={i18nT("Toggle Escrow Payment Routing")}>
+                  aria-label={i18nT("app.toggleEscrowPaymentRouting")}>
                   
                   <span className="w-5 h-5 rounded-full bg-background shadow-md" />
                 </button>
@@ -98,15 +98,15 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
 
               <div className="flex justify-between items-center pb-3 border-b border-border/20">
                 <div>
-                  <span className="text-xs font-bold block text-foreground">{i18nT("Live Telemetry Tracking")}</span>
-                  <span className="text-[10px] text-muted-foreground">{i18nT("Broadcast coordinates update in background.")}</span>
+                  <span className="text-xs font-bold block text-foreground">{i18nT("app.liveTelemetryTracking")}</span>
+                  <span className="text-[10px] text-muted-foreground">{i18nT("app.broadcastCoordinatesUpdateInBackground")}</span>
                 </div>
                 <button
                   onClick={() => setLiveTracking(!liveTracking)}
                   className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${
                   liveTracking ? "bg-primary justify-end" : "bg-muted justify-start"}`
                   }
-                  aria-label={i18nT("Toggle Live Telemetry Tracking")}>
+                  aria-label={i18nT("app.toggleLiveTelemetryTracking")}>
                   
                   <span className="w-5 h-5 rounded-full bg-background shadow-md" />
                 </button>
@@ -114,8 +114,8 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
 
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="text-xs font-bold block text-foreground">{i18nT("KYC Face Verification")}</span>
-                  <span className="text-[10px] text-muted-foreground flex items-center gap-1.5 mt-0.5">{i18nT("Requires verification API active.")}
+                  <span className="text-xs font-bold block text-foreground">{i18nT("app.kycFaceVerification")}</span>
+                  <span className="text-[10px] text-muted-foreground flex items-center gap-1.5 mt-0.5">{i18nT("app.requiresVerificationApiActive")}
 
                     <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3 flex items-center border-none">{i18nT("Beta")}</Badge>
                   </span>
@@ -125,7 +125,7 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
                   className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${
                   faceKyc ? "bg-primary justify-end" : "bg-muted justify-start"}`
                   }
-                  aria-label={i18nT("Toggle KYC Face Verification")}>
+                  aria-label={i18nT("app.toggleKycFaceVerification")}>
                   
                   <span className="w-5 h-5 rounded-full bg-background shadow-md" />
                 </button>
@@ -136,13 +136,13 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
           {/* Regional Localization Preference */}
           <Card className="glass-card p-6 flex flex-col gap-4">
             <Typography variant="h3" className="font-bold flex items-center gap-2">
-              <Globe className="w-5 h-5 text-primary" />{i18nT("Regional & Language Preferences")}
+              <Globe className="w-5 h-5 text-primary" />{i18nT("app.regionalLanguagePreferences")}
 
             </Typography>
 
             <div className="flex flex-col gap-3.5">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">{i18nT("Language selection")}</label>
+                <label className="text-xs font-semibold text-muted-foreground">{i18nT("app.languageSelection")}</label>
                 <div className="grid grid-cols-3 gap-2 bg-muted/40 p-1.5 rounded-xl border border-border/40 text-xs">
                   {["en", "hi", "te"].map((code) =>
                   <button
@@ -161,15 +161,15 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
 
               <div className="flex justify-between items-center mt-2 border-t border-border/20 pt-4">
                 <div>
-                  <span className="text-xs font-bold block text-foreground">{i18nT("Push Notifications")}</span>
-                  <span className="text-[10px] text-muted-foreground">{i18nT("Receive push notification alerts for nearby opportunities.")}</span>
+                  <span className="text-xs font-bold block text-foreground">{i18nT("app.pushNotifications")}</span>
+                  <span className="text-[10px] text-muted-foreground">{i18nT("app.receivePushNotificationAlertsForNearbyOpportunities")}</span>
                 </div>
                 <button
                   onClick={() => setPushNotif(!pushNotif)}
                   className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${
                   pushNotif ? "bg-primary justify-end" : "bg-muted justify-start"}`
                   }
-                  aria-label={i18nT("Toggle Push Notifications")}>
+                  aria-label={i18nT("app.togglePushNotifications")}>
                   
                   <span className="w-5 h-5 rounded-full bg-background shadow-md" />
                 </button>
@@ -177,7 +177,7 @@ export default function SettingsPage() {const { t: i18nT } = useI18n();
             </div>
           </Card>
 
-          <Button variant="primary" onClick={handleSaveSettings} className="w-full mt-2">{i18nT("Save All Configurations")}
+          <Button variant="primary" onClick={handleSaveSettings} className="w-full mt-2">{i18nT("app.saveAllConfigurations")}
 
           </Button>
 

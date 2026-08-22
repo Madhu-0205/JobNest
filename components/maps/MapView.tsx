@@ -451,17 +451,17 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
             {/* Stats row: Trust Score & Price */}
             <div className="grid grid-cols-2 gap-3 bg-muted/30 p-3 rounded-xl border border-border/40 text-xs">
               <div>
-                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("Security Rating")}</span>
-                <span className="font-bold text-foreground">{i18nT("96% Trust Score")}</span>
+                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("common.securityRating")}</span>
+                <span className="font-bold text-foreground">{i18nT("common.96TrustScore")}</span>
               </div>
               <div>
-                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("Expected Pay")}</span>
-                <span className="font-bold text-emerald-400">₹{job.salaryMin} - ₹{job.salaryMax}{i18nT("/ day")}</span>
+                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("common.expectedPay")}</span>
+                <span className="font-bold text-emerald-400">₹{job.salaryMin} - ₹{job.salaryMax}{i18nT("common.day")}</span>
               </div>
             </div>
 
             {/* CTA Action */}
-            <Button size="sm" className="w-full rounded-xl font-bold text-xs py-2.5 bg-primary text-primary-foreground hover:bg-primary/95 shadow-md">{i18nT("Apply for Gig Opportunity")}
+            <Button size="sm" className="w-full rounded-xl font-bold text-xs py-2.5 bg-primary text-primary-foreground hover:bg-primary/95 shadow-md">{i18nT("common.applyForGigOpportunity")}
 
             </Button>
           </div>);
@@ -494,7 +494,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
                 <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                   <span className="font-semibold text-amber-500">4.9 ★</span>
                   <span>•</span>
-                  <span>{worker.jobTitle} ({worker.experienceYears}{i18nT("Yrs Exp)")}</span>
+                  <span>{worker.jobTitle} ({worker.experienceYears}{i18nT("common.yrsExp")}</span>
                 </div>
               </div>
               <div className="text-right">
@@ -511,21 +511,21 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
             {/* Stats row: Trust Score & Price */}
             <div className="grid grid-cols-2 gap-3 bg-muted/30 p-3 rounded-xl border border-border/40 text-xs">
               <div>
-                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("Trust Score")}</span>
-                <span className="font-bold text-foreground">{worker.trustScore || 95}{i18nT("% Verifiable")}</span>
+                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("common.trustScore")}</span>
+                <span className="font-bold text-foreground">{worker.trustScore || 95}{i18nT("common.verifiable")}</span>
               </div>
               <div>
-                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("Expected Pay")}</span>
-                <span className="font-bold text-emerald-400">{i18nT("₹400 - ₹800 / day")}</span>
+                <span className="text-[10px] text-muted-foreground uppercase block">{i18nT("common.expectedPay")}</span>
+                <span className="font-bold text-emerald-400">{i18nT("common.400800Day")}</span>
               </div>
             </div>
 
             {/* CTA Action */}
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="w-full text-xs rounded-xl py-2.5">{i18nT("View Profile")}
+              <Button variant="outline" size="sm" className="w-full text-xs rounded-xl py-2.5">{i18nT("common.viewProfile")}
 
               </Button>
-              <Button size="sm" className="w-full text-xs rounded-xl py-2.5 font-bold bg-primary text-primary-foreground hover:bg-primary/95 shadow-md">{i18nT("Book Professional")}
+              <Button size="sm" className="w-full text-xs rounded-xl py-2.5 font-bold bg-primary text-primary-foreground hover:bg-primary/95 shadow-md">{i18nT("common.bookProfessional")}
 
               </Button>
             </div>
@@ -538,7 +538,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
   };
 
   return (
-    <div className="relative w-full h-[550px] rounded-3xl overflow-hidden border border-primary/10 shadow-xl bg-card">
+    <div className="relative w-full h-137.5 rounded-3xl overflow-hidden border border-primary/10 shadow-xl bg-card">
       {/* Mapbox/MapLibre container */}
       <div ref={mapContainer} className="w-full h-full" />
 
@@ -546,7 +546,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       {permissionStatus === "loading" &&
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <Typography variant="muted" className="text-xs font-semibold">{i18nT("Acquiring secure GPS satellite lock...")}
+          <Typography variant="muted" className="text-xs font-semibold">{i18nT("common.acquiringSecureGpsSatelliteLock")}
 
         </Typography>
         </div>
@@ -560,10 +560,10 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
-              <Typography variant="h3" className="text-lg font-bold text-destructive">{i18nT("Security Policy Violation")}
+              <Typography variant="h3" className="text-lg font-bold text-destructive">{i18nT("common.securityPolicyViolation")}
 
             </Typography>
-              <Typography variant="p" className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{i18nT("Impossible location jump or telemetry spoofing detected. Secure GPS verification failed. Access restricted.")}
+              <Typography variant="p" className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{i18nT("common.impossibleLocationJumpOrTelemetrySpoofingDetectedSecure")}
 
             </Typography>
             </div>
@@ -595,7 +595,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       {isOffline &&
       <div className="absolute top-4 left-4 z-20 bg-amber-500/90 text-black font-bold text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
           <CloudOff className="w-3.5 h-3.5" />
-          <span>{i18nT("Offline Mode — Cached Map & Opportunities")}</span>
+          <span>{i18nT("common.offlineModeCachedMapOpportunities")}</span>
         </div>
       }
 
@@ -607,12 +607,10 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
               <ShieldAlert className="w-6 h-6 animate-bounce" />
             </div>
             <div>
-              <Typography variant="h3" className="text-lg font-bold text-foreground">{i18nT("Location Permission Required")}
+              <Typography variant="h3" className="text-lg font-bold text-foreground">{i18nT("common.locationPermissionRequired")}
 
             </Typography>
-              <Typography variant="p" className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{i18nT("Browser location access is currently disabled. We've set your default location to Bengaluru.\n                To find jobs near you, search for your city or click retry.")}
-
-
+              <Typography variant="p" className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{i18nT("common.browserLocationAccessIsCurrentlyDisabledWeveSetYourDefault")}
             </Typography>
             </div>
 
@@ -622,7 +620,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
               type="text"
               value={deniedSearchQuery}
               onChange={(e) => setDeniedSearchQuery(e.target.value)}
-              placeholder={i18nT("Enter city (e.g. 'Mumbai', 'Chennai')...")}
+              placeholder={i18nT("common.enterCityEgMumbaiChennai")}
               className="flex-1 bg-muted border border-border text-foreground text-xs px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary" />
             
               <Button
@@ -639,7 +637,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
             variant="outline"
             size="sm"
             onClick={refreshLocation}
-            className="w-full text-xs py-2 rounded-xl mt-1">{i18nT("Retry GPS Connection")}
+            className="w-full text-xs py-2 rounded-xl mt-1">{i18nT("common.retryGpsConnection")}
 
 
           </Button>
@@ -698,7 +696,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
             className="h-8 rounded-lg bg-background/90 text-primary border-primary/20 flex items-center gap-1">
             
               <Share2 className="w-3.5 h-3.5" />
-              <span>{i18nT("Share Location")}</span>
+              <span>{i18nT("common.shareLocation")}</span>
             </Button>
           </div>
         </div>

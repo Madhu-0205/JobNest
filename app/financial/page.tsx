@@ -125,8 +125,8 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
           {/* Wallet Balance Board */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base gold-gradient-text">{i18nT("My Wallet Balances")}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Active wallet credentials and currency storage.")}
+              <CardTitle className="text-base gold-gradient-text">{i18nT("app.myWalletBalances")}</CardTitle>
+              <CardDescription className="text-xs">{i18nT("app.activeWalletCredentialsAndCurrencyStorage")}
 
               </CardDescription>
             </CardHeader>
@@ -149,13 +149,13 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
 
               {/* Deposit Quick Action */}
               <div className="flex flex-col gap-2 border-t border-border/10 pt-3">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="deposit-amt">{i18nT("Quick Deposit Balance (INR)")}
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="deposit-amt">{i18nT("app.quickDepositBalanceInr")}
 
                 </label>
                 <div className="flex gap-2">
                   <Input
                     id="deposit-amt"
-                    placeholder={i18nT("Enter deposit amount...")}
+                    placeholder={i18nT("app.enterDepositAmount")}
                     value={depositAmount}
                     onChange={(e) => setDepositAmount(e.target.value)}
                     className="h-8.5 text-xs font-mono" />
@@ -168,7 +168,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
 
               {/* Payout Quick Action */}
               <div className="flex flex-col gap-2 border-t border-border/10 pt-3">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="payout-amt">{i18nT("Request Payout / Bank Transfer")}
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="payout-amt">{i18nT("app.requestPayoutBankTransfer")}
 
                 </label>
                 <div className="flex gap-2">
@@ -180,7 +180,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
                     className="h-8.5 text-xs font-mono w-24" />
                   
                   <Input
-                    placeholder={i18nT("UPI ID or Bank Account...")}
+                    placeholder={i18nT("app.upiIdOrBankAccount")}
                     value={payoutDest}
                     onChange={(e) => setPayoutDest(e.target.value)}
                     className="h-8.5 text-xs flex-1" />
@@ -197,8 +197,8 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
           {/* Double-Entry Ledger Immutable Audit */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base text-amber-500 font-bold">{i18nT("Double-Entry Ledger Audit")}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Balanced transaction logs. Total Sum offset = ₹0.00")}
+              <CardTitle className="text-base text-amber-500 font-bold">{i18nT("app.doubleentryLedgerAudit")}</CardTitle>
+              <CardDescription className="text-xs">{i18nT("app.balancedTransactionLogsTotalSumOffset000")}
 
               </CardDescription>
             </CardHeader>
@@ -227,8 +227,8 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
           {/* Escrow holds mediation list */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base gold-gradient-text">{i18nT("Escrow Holding Accounts")}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Active deposits securely locked in escrow.")}
+              <CardTitle className="text-base gold-gradient-text">{i18nT("app.escrowHoldingAccounts")}</CardTitle>
+              <CardDescription className="text-xs">{i18nT("app.activeDepositsSecurelyLockedInEscrow")}
 
               </CardDescription>
             </CardHeader>
@@ -237,7 +237,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
               {escrow.escrows.map((item) =>
               <div key={item.id} className="border border-border/40 rounded-xl p-3.5 bg-black/10 flex flex-col gap-3">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-semibold text-amber-500">{i18nT("Escrow Account #")}{item.id}</span>
+                    <span className="font-semibold text-amber-500">{i18nT("app.escrowAccount")}{item.id}</span>
                     <Badge variant={item.status === "disputed" ? "danger" : "warning"} className="text-[8px] font-bold">
                       {item.status.toUpperCase()}
                     </Badge>
@@ -245,11 +245,11 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <span className="text-[9px] text-muted-foreground block">{i18nT("Held Amount")}</span>
+                      <span className="text-[9px] text-muted-foreground block">{i18nT("app.heldAmount")}</span>
                       <span className="font-bold text-lg font-mono">₹{item.amount}</span>
                     </div>
                     <div>
-                      <span className="text-[9px] text-muted-foreground block">{i18nT("Platform commission (5%)")}</span>
+                      <span className="text-[9px] text-muted-foreground block">{i18nT("app.platformCommission5")}</span>
                       <span className="font-mono text-muted-foreground">₹{item.commission_amount}</span>
                     </div>
                   </div>
@@ -257,7 +257,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
                   {/* Partial release controls */}
                   <div className="flex flex-col gap-1.5 border-t border-border/10 pt-2">
                     <div className="flex justify-between text-[10px] text-muted-foreground">
-                      <label htmlFor={`release-range-${item.id}`}>{i18nT("Amount to Release:")}</label>
+                      <label htmlFor={`release-range-${item.id}`}>{i18nT("app.amountToRelease")}</label>
                       <span className="font-bold text-amber-500">₹{escrowReleaseAmount}</span>
                     </div>
                     <input
@@ -275,7 +275,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
                       size="sm"
                       onClick={() => handleReleaseEscrowFunds(item.id)}
                       disabled={item.status === "released"}
-                      className="bg-amber-600 hover:bg-amber-700 text-[10px] h-7.5 flex-1">{i18nT("Release Funds")}
+                      className="bg-amber-600 hover:bg-amber-700 text-[10px] h-7.5 flex-1">{i18nT("app.releaseFunds")}
 
 
                     </Button>
@@ -284,7 +284,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
                       variant="outline"
                       onClick={() => escrow.triggerDisputeHold(item.id)}
                       disabled={item.status === "disputed" || item.status === "released"}
-                      className="text-[10px] h-7.5 border-rose-500/30 text-rose-500 hover:bg-rose-500/10 flex-1">{i18nT("File Dispute")}
+                      className="text-[10px] h-7.5 border-rose-500/30 text-rose-500 hover:bg-rose-500/10 flex-1">{i18nT("app.fileDispute")}
 
 
                     </Button>
@@ -299,18 +299,18 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
           {/* Coupon and rewards console */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base gold-gradient-text">{i18nT("Coupons & Referral Rewards")}</CardTitle>
+              <CardTitle className="text-base gold-gradient-text">{i18nT("app.couponsReferralRewards")}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] text-muted-foreground font-semibold" htmlFor="coupon-code">{i18nT("Apply Discount Coupon Code")}
+                <label className="text-[10px] text-muted-foreground font-semibold" htmlFor="coupon-code">{i18nT("app.applyDiscountCouponCode")}
 
                 </label>
                 <div className="flex gap-2">
                   <Input
                     id="coupon-code"
-                    placeholder={i18nT("e.g. WELCOME10, FESTIVE50")}
+                    placeholder={i18nT("app.egWelcome10Festive50")}
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
                     className="h-8 text-xs font-mono uppercase" />
@@ -326,7 +326,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
 
               {/* Referrals tracker */}
               <div className="flex flex-col gap-2 border-t border-border/10 pt-3">
-                <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider">{i18nT("Referrals Program Status")}
+                <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider">{i18nT("app.referralsProgramStatus")}
 
                 </Typography>
                 <div className="flex flex-col gap-1.5">
@@ -337,7 +337,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
                     
                       <div className="flex flex-col">
                         <span className="font-semibold">{ref.referredName}</span>
-                        <span className="text-[9px] text-muted-foreground">{i18nT("Joined 3 days ago")}</span>
+                        <span className="text-[9px] text-muted-foreground">{i18nT("app.joined3DaysAgo")}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant={ref.status === "qualified" ? "success" : "secondary"} className="text-[8px] font-bold">
@@ -361,15 +361,15 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
           {/* GST Ready Invoice sheets previewer */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base gold-gradient-text">{i18nT("GST Tax Invoice Sheet")}</CardTitle>
-              <CardDescription className="text-xs">{i18nT("Tax breakdowns, CGST, SGST, IGST subdivisions.")}
+              <CardTitle className="text-base gold-gradient-text">{i18nT("app.gstTaxInvoiceSheet")}</CardTitle>
+              <CardDescription className="text-xs">{i18nT("app.taxBreakdownsCgstSgstIgstSubdivisions")}
 
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               
               <div className="flex items-center gap-3">
-                <label className="text-[10px] font-semibold text-muted-foreground" htmlFor="state-select">{i18nT("Billing Place / State:")}
+                <label className="text-[10px] font-semibold text-muted-foreground" htmlFor="state-select">{i18nT("app.billingPlaceState")}
 
                 </label>
                 <select
@@ -378,68 +378,68 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
                   onChange={(e) => setGstStateCode(e.target.value)}
                   className="bg-muted text-foreground text-xs px-2 py-1 rounded border border-border outline-none cursor-pointer">
                   
-                  <option value="29">{i18nT("Karnataka (Local State: split CGST/SGST)")}</option>
-                  <option value="33">{i18nT("Tamil Nadu (Interstate: IGST 18%)")}</option>
+                  <option value="29">{i18nT("app.karnatakaLocalStateSplitCgstsgst")}</option>
+                  <option value="33">{i18nT("app.tamilNaduInterstateIgst18")}</option>
                 </select>
               </div>
 
               {/* Receipt mockup card */}
               <div className="border border-border/50 rounded-xl p-3.5 bg-black/30 font-mono text-[10px] flex flex-col gap-2.5 text-muted-foreground">
                 <div className="text-center border-b border-border/25 pb-2">
-                  <span className="font-bold text-foreground text-xs block">{i18nT("TAX INVOICE / RECEIPT")}</span>
-                  <span className="text-[8px]">{i18nT("JOBNEST V2 PRIVATE LIMITED")}</span>
-                  <span className="text-[8px] block">{i18nT("GSTIN: 29AAAAA0000A1Z1")}</span>
+                  <span className="font-bold text-foreground text-xs block">{i18nT("app.taxInvoiceReceipt")}</span>
+                  <span className="text-[8px]">{i18nT("app.jobnestV2PrivateLimited")}</span>
+                  <span className="text-[8px] block">{i18nT("app.gstin29aaaaa0000a1z1")}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span>{i18nT("Invoice: INV-2026-98124")}</span>
+                  <span>{i18nT("app.invoiceInv202698124")}</span>
                   <span>{i18nT("Date:")}{new Date().toLocaleDateString()}</span>
                 </div>
 
                 <div className="border-b border-border/20 pb-1">
                   <div className="flex justify-between font-bold text-foreground mb-1">
-                    <span>{i18nT("Item Description")}</span>
+                    <span>{i18nT("app.itemDescription")}</span>
                     <span>{i18nT("Total")}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>{i18nT("1x Coconut Field Clearing")}</span>
+                    <span>{i18nT("app.1xCoconutFieldClearing")}</span>
                     <span>₹1,000.00</span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1 text-[9px] border-b border-border/20 pb-1.5">
                   <div className="flex justify-between">
-                    <span>{i18nT("Base Subtotal")}</span>
+                    <span>{i18nT("app.baseSubtotal")}</span>
                     <span>₹1,000.00</span>
                   </div>
                   
                   {gstStateCode === "29" ?
                   <>
                       <div className="flex justify-between text-amber-500">
-                        <span>{i18nT("CGST @ 9%")}</span>
+                        <span>{i18nT("app.cgst9")}</span>
                         <span>₹90.00</span>
                       </div>
                       <div className="flex justify-between text-amber-500">
-                        <span>{i18nT("SGST @ 9%")}</span>
+                        <span>{i18nT("app.sgst9")}</span>
                         <span>₹90.00</span>
                       </div>
                     </> :
 
                   <div className="flex justify-between text-amber-500">
-                      <span>{i18nT("IGST @ 18%")}</span>
+                      <span>{i18nT("app.igst18")}</span>
                       <span>₹180.00</span>
                     </div>
                   }
                 </div>
 
                 <div className="flex justify-between font-bold text-foreground text-xs pt-1">
-                  <span>{i18nT("Grand Total (GST Incl.)")}</span>
+                  <span>{i18nT("app.grandTotalGstIncl")}</span>
                   <span>₹1,180.00</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5 border-t border-border/10 pt-3">
-                <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider">{i18nT("Invoices History Ledger")}
+                <Typography variant="muted" className="text-[10px] font-bold uppercase tracking-wider">{i18nT("app.invoicesHistoryLedger")}
 
                 </Typography>
                 <div className="flex flex-col gap-1.5">

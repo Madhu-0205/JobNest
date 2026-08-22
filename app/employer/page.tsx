@@ -37,11 +37,14 @@ const MapView = dynamic(
   () => import("@/components/maps/MapView").then((mod) => mod.MapView),
   {
     ssr: false,
-    loading: () =>
-    <div className="w-full h-[320px] md:h-[385px] rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
+    loading: function LoadingFallback() {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { t: i18nT } = require("@/lib/i18n/context").useI18n();
+      return (<div className="w-full h-[320px] md:h-[385px] rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-        <span className="text-xs text-muted-foreground">Loading active worker tracking maps...</span>
-      </div>
+        <span className="text-xs text-muted-foreground">{i18nT("employer.loadingActiveWorkerTrackingMaps")}</span>
+      </div>);
+    }
 
   }
 );
@@ -244,10 +247,10 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
             
             <div className="flex flex-col gap-1">
               <div className="flex flex-wrap items-center gap-2">
-                <Typography variant="h2" className="text-lg md:text-xl font-black text-foreground tracking-tight">{i18nT("Welcome back,")}
+                <Typography variant="h2" className="text-lg md:text-xl font-black text-foreground tracking-tight">{i18nT("employer.welcomeBack")}
                   {user.name}!
                 </Typography>
-                <Badge variant="success" className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 font-bold text-[8px] py-0 px-1.5">{i18nT("GST Verified")}
+                <Badge variant="success" className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 font-bold text-[8px] py-0 px-1.5">{i18nT("employer.gstVerified")}
 
                 </Badge>
               </div>
@@ -270,7 +273,7 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
               className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-background py-3 px-5 font-black text-xs rounded-xl shadow-luxury flex items-center justify-center gap-1.5 cursor-pointer">
               
               <Plus className="w-4 h-4" />
-              <span>{i18nT("Post a Job")}</span>
+              <span>{i18nT("employer.postAJob")}</span>
             </Button>
           </div>
         </div>
@@ -282,7 +285,7 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
             className="bg-card hover:bg-muted border border-border/30 rounded-xl p-3.5 text-xs font-semibold flex flex-col items-center gap-2 cursor-pointer transition-colors shadow-sm">
             
             <Plus className="w-5 h-5 text-amber-500" />
-            <span>{i18nT("Create Job")}</span>
+            <span>{i18nT("employer.createJob")}</span>
           </button>
           
           <button
@@ -290,7 +293,7 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
             className="bg-card hover:bg-muted border border-border/30 rounded-xl p-3.5 text-xs font-semibold flex flex-col items-center gap-2 cursor-pointer transition-colors shadow-sm">
             
             <Users className="w-5 h-5 text-amber-500" />
-            <span>{i18nT("Browse Workers")}</span>
+            <span>{i18nT("employer.browseWorkers")}</span>
           </button>
 
           <button
@@ -336,12 +339,12 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
             <Card className="glass-panel border-border shadow-luxury overflow-hidden">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-base font-bold gold-gradient-text">{i18nT("Live Neighborhood Worker Radar")}</CardTitle>
-                  <CardDescription className="text-xs">{i18nT("Displays available service providers within your geofenced hiring boundary.")}
+                  <CardTitle className="text-base font-bold gold-gradient-text">{i18nT("employer.liveNeighborhoodWorkerRadar")}</CardTitle>
+                  <CardDescription className="text-xs">{i18nT("employer.displaysAvailableServiceProvidersWithinYourGeofencedHiring")}
 
                   </CardDescription>
                 </div>
-                <Badge variant="success" className="text-[10px] font-bold">{i18nT("8 Available Workers Online")}
+                <Badge variant="success" className="text-[10px] font-bold">{i18nT("employer.8AvailableWorkersOnline")}
 
                 </Badge>
               </CardHeader>
@@ -354,10 +357,10 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
             <Card className="glass-panel border-border shadow-luxury p-5">
               <CardHeader className="p-0 pb-4 flex flex-row items-center justify-between border-b border-border/10">
                 <div>
-                  <CardTitle className="text-base font-bold text-foreground">{i18nT("Active Hiring Postings")}</CardTitle>
-                  <CardDescription className="text-xs">{i18nT("Manage active projects and pending applicants.")}</CardDescription>
+                  <CardTitle className="text-base font-bold text-foreground">{i18nT("employer.activeHiringPostings")}</CardTitle>
+                  <CardDescription className="text-xs">{i18nT("employer.manageActiveProjectsAndPendingApplicants")}</CardDescription>
                 </div>
-                <span className="text-[10px] text-muted-foreground font-semibold">{i18nT("Total Postings:")}{activeJobs.length}</span>
+                <span className="text-[10px] text-muted-foreground font-semibold">{i18nT("employer.totalPostings")}{activeJobs.length}</span>
               </CardHeader>
               
               <CardContent className="p-0 pt-4 flex flex-col gap-3">
@@ -372,13 +375,13 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                         <span className="font-bold text-foreground text-sm">{job.title}</span>
                         <Badge variant="secondary" className="text-[8px] font-bold uppercase">{job.category}</Badge>
                       </div>
-                      <span className="text-[10px] text-muted-foreground block">{i18nT("Posted")}{job.postedTime}{i18nT("• Budget:")}{job.salary}</span>
+                      <span className="text-[10px] text-muted-foreground block">{i18nT("Posted")}{job.postedTime}{i18nT("employer.budget")}{job.salary}</span>
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
                       <div className="flex flex-col items-end">
                         <span className="text-xs font-bold text-amber-500 font-mono">{job.applicants}{i18nT("Applicants")}</span>
-                        <span className="text-[9px] text-muted">{i18nT("Awaiting review")}</span>
+                        <span className="text-[9px] text-muted">{i18nT("employer.awaitingReview")}</span>
                       </div>
                       <ArrowRight className="w-4 h-4 text-muted-foreground" />
                     </div>
@@ -397,25 +400,25 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
               <CardHeader className="pb-3 flex flex-row items-center justify-between border-b border-amber-500/10">
                 <div>
                   <CardTitle className="text-sm font-bold text-amber-400 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />{i18nT("AI Hiring Intelligence")}
+                    <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />{i18nT("employer.aiHiringIntelligence")}
 
                   </CardTitle>
-                  <CardDescription className="text-[10px] text-amber-500/70">{i18nT("Matching metrics derived from profile settings.")}</CardDescription>
+                  <CardDescription className="text-[10px] text-amber-500/70">{i18nT("employer.matchingMetricsDerivedFromProfileSettings")}</CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="pt-4 flex flex-col gap-4 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{i18nT("Expected Matching Time:")}</span>
-                  <span className="font-bold text-emerald-400">{i18nT("14 mins average")}</span>
+                  <span className="text-muted-foreground">{i18nT("employer.expectedMatchingTime")}</span>
+                  <span className="font-bold text-emerald-400">{i18nT("employer.14MinsAverage")}</span>
                 </div>
                 <div className="flex justify-between border-b border-border/10 pb-3">
-                  <span className="text-muted-foreground">{i18nT("Average Carpentry Rate:")}</span>
-                  <span className="font-bold text-amber-400">{i18nT("₹1,200 - ₹1,500/day")}</span>
+                  <span className="text-muted-foreground">{i18nT("employer.averageCarpentryRate")}</span>
+                  <span className="font-bold text-amber-400">{i18nT("employer.12001500day")}</span>
                 </div>
 
                 <div className="flex flex-col gap-2.5">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground block tracking-wider">{i18nT("Hiring Tips")}</span>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">{i18nT("Urgent switch checkmarks prioritize push alerts on handymen coordinates devices within 4 km, accelerating SLA responses.")}
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground block tracking-wider">{i18nT("employer.hiringTips")}</span>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">{i18nT("employer.urgentSwitchCheckmarksPrioritizePushAlertsOnHandymen")}
 
                   </p>
                 </div>
@@ -425,17 +428,17 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
             {/* Active applications statistics */}
             <Card className="glass-panel border-border shadow-luxury">
               <CardHeader className="pb-3 border-b border-border/10">
-                <CardTitle className="text-sm font-bold text-foreground">{i18nT("Hiring Dashboard Stats")}</CardTitle>
-                <CardDescription className="text-xs">{i18nT("Summary of overall pipeline activities.")}</CardDescription>
+                <CardTitle className="text-sm font-bold text-foreground">{i18nT("employer.hiringDashboardStats")}</CardTitle>
+                <CardDescription className="text-xs">{i18nT("employer.summaryOfOverallPipelineActivities")}</CardDescription>
               </CardHeader>
               <CardContent className="pt-4 grid grid-cols-2 gap-4.5 text-center text-xs">
                 <div className="border-r border-border/10">
                   <span className="text-lg font-black text-foreground font-mono">11</span>
-                  <span className="block text-[9px] text-muted-foreground uppercase mt-0.5">{i18nT("Total Hired")}</span>
+                  <span className="block text-[9px] text-muted-foreground uppercase mt-0.5">{i18nT("employer.totalHired")}</span>
                 </div>
                 <div>
                   <span className="text-lg font-black text-amber-500 font-mono">₹4,800</span>
-                  <span className="block text-[9px] text-muted-foreground uppercase mt-0.5">{i18nT("In Escrow Vault")}</span>
+                  <span className="block text-[9px] text-muted-foreground uppercase mt-0.5">{i18nT("employer.inEscrowVault")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -462,10 +465,10 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                 </button>
 
                 <div className="flex flex-col gap-1.5 pt-4">
-                  <Typography variant="h3" className="font-extrabold text-lg text-foreground">{i18nT("Post Hyperlocal Opportunity")}
+                  <Typography variant="h3" className="font-extrabold text-lg text-foreground">{i18nT("employer.postHyperlocalOpportunity")}
 
                 </Typography>
-                  <Typography variant="muted" className="text-xs">{i18nT("Broadcast a new gig role to nearby Handymen coordinates instantly.")}
+                  <Typography variant="muted" className="text-xs">{i18nT("employer.broadcastANewGigRoleToNearbyHandymen")}
 
                 </Typography>
                 </div>
@@ -477,7 +480,7 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                   onClick={() => setPreviewActive(false)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
                   !previewActive ? "bg-amber-600/20 text-amber-300 border border-amber-500/30" : "text-muted-foreground hover:text-foreground"}`
-                  }>{i18nT("Details Form")}
+                  }>{i18nT("employer.detailsForm")}
 
 
                 </button>
@@ -486,7 +489,7 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                   onClick={() => setPreviewActive(true)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
                   previewActive ? "bg-amber-600/20 text-amber-300 border border-amber-500/30" : "text-muted-foreground hover:text-foreground"}`
-                  }>{i18nT("Live Preview")}
+                  }>{i18nT("employer.livePreview")}
 
 
                 </button>
@@ -496,7 +499,7 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
               /* ── PREVIEW TAB ── */
               <div className="flex flex-col gap-4 border border-border/40 rounded-2xl p-4 bg-black/20">
                     <Badge variant="primary" className="bg-amber-500/10 border border-amber-500/30 text-amber-400 self-start text-[8px] uppercase">
-                      {jobCategory}{i18nT("Opportunity Preview")}
+                      {jobCategory}{i18nT("employer.opportunityPreview")}
                 </Badge>
                     
                     <div className="flex flex-col gap-1">
@@ -510,11 +513,11 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
 
                     <div className="grid grid-cols-2 gap-3 text-[11px] border-t border-border/10 pt-3">
                       <div>
-                        <span className="text-muted-foreground block text-[9px] uppercase font-bold">{i18nT("Estimated Payout")}</span>
+                        <span className="text-muted-foreground block text-[9px] uppercase font-bold">{i18nT("employer.estimatedPayout")}</span>
                         <span className="font-mono font-bold text-amber-500">₹{salaryMin} - ₹{salaryMax}</span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground block text-[9px] uppercase font-bold">{i18nT("Arrangement Duration")}</span>
+                        <span className="text-muted-foreground block text-[9px] uppercase font-bold">{i18nT("employer.arrangementDuration")}</span>
                         <span>{duration}</span>
                       </div>
                     </div>
@@ -523,8 +526,8 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
               /* ── FORM TAB ── */
               <form onSubmit={handlePublishJob} className="flex flex-col gap-4">
                     <Input
-                  label={i18nT("Opportunity Title")}
-                  placeholder={i18nT("e.g. Wooden Door Frame Repair")}
+                  label={i18nT("employer.opportunityTitle")}
+                  placeholder={i18nT("employer.egWoodenDoorFrameRepair")}
                   required
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)} />
@@ -532,7 +535,7 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
 
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="flex flex-col gap-1.5">
-                        <span className="font-semibold text-foreground/80">{i18nT("Worker Category")}</span>
+                        <span className="font-semibold text-foreground/80">{i18nT("employer.workerCategory")}</span>
                         <select
                       value={jobCategory}
                       onChange={(e) => setJobCategory(e.target.value)}
@@ -541,35 +544,35 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                           <option value="Carpenter">{i18nT("Carpenter")}</option>
                           <option value="Plumber">{i18nT("Plumber")}</option>
                           <option value="Electrician">{i18nT("Electrician")}</option>
-                          <option value="Agricultural Worker">{i18nT("Agricultural Worker")}</option>
-                          <option value="AC Technician">{i18nT("AC Technician")}</option>
+                          <option value="Agricultural Worker">{i18nT("employer.agriculturalWorker")}</option>
+                          <option value="AC Technician">{i18nT("employer.acTechnician")}</option>
                         </select>
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <span className="font-semibold text-foreground/80">{i18nT("Schedule Timeline")}</span>
+                        <span className="font-semibold text-foreground/80">{i18nT("employer.scheduleTimeline")}</span>
                         <select
                       value={schedule}
                       onChange={(e) => setSchedule(e.target.value)}
                       className="bg-black/25 border border-border/40 rounded-lg p-2.5 text-foreground cursor-pointer focus:outline-hidden focus:border-amber-500">
                       
-                          <option value="Immediate">{i18nT("Immediate (Today)")}</option>
-                          <option value="Tomorrow">{i18nT("Next Day (Tomorrow)")}</option>
-                          <option value="Flexible">{i18nT("Flexible Schedule")}</option>
+                          <option value="Immediate">{i18nT("employer.immediateToday")}</option>
+                          <option value="Tomorrow">{i18nT("employer.nextDayTomorrow")}</option>
+                          <option value="Flexible">{i18nT("employer.flexibleSchedule")}</option>
                         </select>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <Input
-                    label={i18nT("Min Salary (₹)")}
+                    label={i18nT("employer.minSalary")}
                     type="number"
                     required
                     value={salaryMin}
                     onChange={(e) => setSalaryMin(parseInt(e.target.value) || 0)} />
                   
                       <Input
-                    label={i18nT("Max Salary (₹)")}
+                    label={i18nT("employer.maxSalary")}
                     type="number"
                     required
                     value={salaryMax}
@@ -579,14 +582,14 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
 
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <Input
-                    label={i18nT("Estimated Duration")}
-                    placeholder={i18nT("e.g. 4 Hours / 2 Days")}
+                    label={i18nT("employer.estimatedDuration")}
+                    placeholder={i18nT("employer.eg4Hours2Days")}
                     required
                     value={duration}
                     onChange={(e) => setDuration(e.target.value)} />
                   
                       <Input
-                    label={i18nT("Office Pincode")}
+                    label={i18nT("employer.officePincode")}
                     placeholder="522002"
                     value={jobLocation}
                     onChange={(e) => setJobLocation(e.target.value)} />
@@ -594,11 +597,11 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                     </div>
 
                     <div className="flex flex-col gap-1.5 text-xs">
-                      <label className="font-semibold text-foreground/80">{i18nT("Job Specifications Details")}</label>
+                      <label className="font-semibold text-foreground/80">{i18nT("employer.jobSpecificationsDetails")}</label>
                       <textarea
                     required
                     rows={3}
-                    placeholder={i18nT("Specify tasks, tools needed, and expectations...")}
+                    placeholder={i18nT("employer.specifyTasksToolsNeededAndExpectations")}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="bg-black/25 border border-border/40 p-2.5 rounded-xl text-xs placeholder:text-muted-foreground focus:outline-hidden focus:border-amber-500 resize-none" />
@@ -606,8 +609,8 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                     </div>
 
                     <Input
-                  label={i18nT("Required Skills (comma separated)")}
-                  placeholder={i18nT("e.g. Chisel tooling, Measurements")}
+                  label={i18nT("employer.requiredSkillsCommaSeparated")}
+                  placeholder={i18nT("employer.egChiselToolingMeasurements")}
                   value={requiredSkills}
                   onChange={(e) => setRequiredSkills(e.target.value)} />
                 
@@ -620,14 +623,14 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                       onChange={(e) => setUrgency(e.target.checked)}
                       className="rounded accent-amber-500" />
                     
-                        <span>{i18nT("Urgent Hiring Switch (Priority broadcast)")}</span>
+                        <span>{i18nT("employer.urgentHiringSwitchPriorityBroadcast")}</span>
                       </label>
                     </div>
 
                     {/* Geofence hiring radius slider */}
                     <div className="flex flex-col gap-2 text-xs">
                       <div className="flex justify-between font-bold">
-                        <span className="text-muted-foreground">{i18nT("Broadcast Radius:")}</span>
+                        <span className="text-muted-foreground">{i18nT("employer.broadcastRadius")}</span>
                         <span className="text-amber-500 font-mono">{hiringRadius}{i18nT("Km")}</span>
                       </div>
                       <input
@@ -642,11 +645,11 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
 
                     {isLoading ?
                 <Button variant="primary" disabled className="w-full py-3">
-                        <Loader2 className="w-4 h-4 animate-spin mr-1.5" />{i18nT("Validating funding ledgers...")}
+                        <Loader2 className="w-4 h-4 animate-spin mr-1.5" />{i18nT("employer.validatingFundingLedgers")}
 
                 </Button> :
 
-                <Button variant="primary" type="submit" className="w-full py-3 cursor-pointer font-bold bg-amber-600 hover:bg-amber-700 text-background">{i18nT("Publish Opportunity & Deposit Escrow")}
+                <Button variant="primary" type="submit" className="w-full py-3 cursor-pointer font-bold bg-amber-600 hover:bg-amber-700 text-background">{i18nT("employer.publishOpportunityDepositEscrow")}
 
                 </Button>
                 }

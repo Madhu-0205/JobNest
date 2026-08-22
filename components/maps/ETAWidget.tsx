@@ -29,7 +29,7 @@ export function ETAWidget({
             <Typography variant="h4" className="text-sm font-bold m-0 leading-none">
               {etaMinutes}{i18nT("mins")}
             </Typography>
-            <span className="text-[10px] text-muted">{i18nT("Arrival Estimate")}</span>
+            <span className="text-[10px] text-muted">{i18nT("common.arrivalEstimate")}</span>
           </div>
         </div>
         <div className="h-6 w-px bg-border/40" />
@@ -39,7 +39,7 @@ export function ETAWidget({
             <Typography variant="h4" className="text-sm font-bold m-0 leading-none">
               {distanceKm}{i18nT("km")}
             </Typography>
-            <span className="text-[10px] text-muted">{i18nT("Distance (")}{formattedMode})</span>
+            <span className="text-[10px] text-muted">{i18nT("common.distance")}{formattedMode})</span>
           </div>
         </div>
       </div>

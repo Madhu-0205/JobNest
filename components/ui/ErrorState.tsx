@@ -67,7 +67,7 @@ export function ErrorState({
       <Button
         variant="outline"
         onClick={onRetry}
-        className="hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20">{i18nT("Try Again")}
+        className="hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20">{i18nT("common.tryAgain")}
 
 
       </Button>

@@ -47,11 +47,14 @@ const MapView = dynamic(
   () => import("@/components/maps/MapView").then((mod) => mod.MapView),
   {
     ssr: false,
-    loading: () =>
-    <div className="w-full h-137.5 rounded-3xl overflow-hidden border border-primary/10 shadow-xl bg-card flex flex-col items-center justify-center gap-3">
+    loading: function LoadingFallback() {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { t: i18nT } = require("@/lib/i18n/context").useI18n();
+      return (<div className="w-full h-137.5 rounded-3xl overflow-hidden border border-primary/10 shadow-xl bg-card flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="text-xs text-muted-foreground">Loading interactive neighborhood map...</span>
-      </div>
+        <span className="text-xs text-muted-foreground">{i18nT("app.loadingInteractiveNeighborhoodMap")}</span>
+      </div>);
+    }
 
   }
 );
@@ -81,6 +84,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
   const [signupForm, setSignupForm] = useState({
     email: "",
     password: "",
+    confirmPassword: "",
     displayName: "",
     username: "",
     role: "worker" as UserRole
@@ -215,6 +219,44 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
           setErrorMessage(result.error?.message || "Authentication failed. Please verify credentials.");
         }
       } else {
+        console.info("[DEBUG] Validating signup form data");
+        if (!signupForm.email) {
+          console.info("[DEBUG] Return: missing email");
+          setErrorMessage("Please enter your email.");
+          return;
+        }
+        if (!signupForm.password) {
+          console.info("[DEBUG] Return: missing password");
+          setErrorMessage("Please enter a password.");
+          return;
+        }
+        if (signupForm.password.length < 8) {
+          console.info("[DEBUG] Return: password length failure");
+          setErrorMessage("Password must be at least 8 characters long.");
+          return;
+        }
+        if (signupForm.password !== signupForm.confirmPassword) {
+          console.info("[DEBUG] Return: password mismatch");
+          setErrorMessage("Passwords do not match.");
+          return;
+        }
+        if (!/[A-Z]/.test(signupForm.password) || !/[a-z]/.test(signupForm.password) || !/[0-9]/.test(signupForm.password) || !/[^a-zA-Z0-9]/.test(signupForm.password)) {
+          console.info("[DEBUG] Return: password complexity failure");
+          setErrorMessage("Password must contain at least one uppercase, lowercase, number, and special character.");
+          return;
+        }
+        if (!signupForm.displayName || signupForm.displayName.length < 2) {
+          console.info("[DEBUG] Return: missing profile fields (displayName)");
+          setErrorMessage("Display name must be at least 2 characters.");
+          return;
+        }
+        if (!signupForm.username || signupForm.username.length < 3) {
+          console.info("[DEBUG] Return: missing profile fields (username)");
+          setErrorMessage("Username must be at least 3 characters.");
+          return;
+        }
+
+        console.info("[DEBUG] Calling signUpAction Server Action...");
         // Run signUpAction
         const result = await signUpAction({
           email: signupForm.email,
@@ -223,12 +265,23 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
           username: signupForm.username,
           role: signupForm.role
         });
+        console.info("[DEBUG] signUpAction returned:", result);
 
         if (result.success) {
-          setUserRole(signupForm.role);
-          setOnboardingStep(2); // trigger profile setup onboarding
+          if (result.data?.requiresEmailConfirmation) {
+            setSuccessMessage(i18nT("app.accountCreatedPleaseVerifyYourEmail"));
+          } else {
+            setUserRole(signupForm.role);
+            setOnboardingStep(2); // trigger profile setup onboarding
+          }
         } else {
-          setErrorMessage(result.error?.message || "Registration failed. Please try again.");
+          let msg = "Something went wrong. Please try again.";
+          if (result.error?.message === "RATE_LIMIT") msg = "Too many signup attempts. Please try again later.";
+          if (result.error?.message === "DUPLICATE_ACCOUNT") msg = "An account with this email already exists.";
+          if (result.error?.message === "NETWORK_FAILURE") msg = "Unable to connect to the authentication service. Please try again.";
+          if (result.error?.code === "VALIDATION_FAILED") msg = "Input validation failed. Please check your details.";
+          
+          setErrorMessage(i18nT(msg));
         }
       }
     } catch (err) {
@@ -380,7 +433,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               <Typography variant="h3" as="span" className="font-bold tracking-tight text-lg leading-none gold-gradient-text">{i18nT("JobNest")}
 
               </Typography>
-              <span className="text-[10px] text-primary tracking-widest font-mono uppercase">{i18nT("V2 Enterprise")}</span>
+              <span className="text-[10px] text-primary tracking-widest font-mono uppercase">{i18nT("app.v2Enterprise")}</span>
             </span>
           </div>
 
@@ -398,10 +451,10 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                 onChange={(e) => setUserRole(e.target.value as UserRole)}
                 className="bg-card border border-border rounded-lg text-xs py-1 px-2 text-foreground focus:ring-1 focus:ring-primary focus:outline-none">
                 
-                  <option value="worker">{i18nT("Worker Mode")}</option>
-                  <option value="employer">{i18nT("Employer Mode")}</option>
-                  <option value="resident">{i18nT("Resident Mode")}</option>
-                  <option value="admin">{i18nT("Admin Panel")}</option>
+                  <option value="worker">{i18nT("app.workerMode")}</option>
+                  <option value="employer">{i18nT("app.employerMode")}</option>
+                  <option value="resident">{i18nT("app.residentMode")}</option>
+                  <option value="admin">{i18nT("app.adminPanel")}</option>
                 </select>
 
                 <LanguageSwitcher />
@@ -422,10 +475,10 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
 
             <div className="flex items-center gap-4">
                 <LanguageSwitcher />
-                <Button variant="outline" size="sm" onClick={() => {setAuthTab("signin");setShowAuthModal(true);}}>{i18nT("Sign In")}
+                <Button variant="outline" size="sm" onClick={() => {setAuthTab("signin");setShowAuthModal(true);}}>{i18nT("app.signIn")}
 
               </Button>
-                <Button variant="primary" size="sm" onClick={() => {setAuthTab("signup");setShowAuthModal(true);}}>{i18nT("Get Started")}
+                <Button variant="primary" size="sm" onClick={() => {setAuthTab("signup");setShowAuthModal(true);}}>{i18nT("app.getStarted")}
 
               </Button>
               </div>
@@ -470,15 +523,15 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               <div className="relative text-center py-10 flex flex-col items-center gap-6 overflow-hidden rounded-3xl border border-border/40 bg-linear-to-b from-card/30 via-background to-background px-4 md:px-8">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-primary/10 blur-[120px] mix-blend-screen" />
                 
-                <Badge variant="primary" className="mb-2 border-primary/30 text-primary bg-primary/5">{i18nT("🌟 AI-Powered Hyperlocal Opportunity Engine")}
+                <Badge variant="primary" className="mb-2 border-primary/30 text-primary bg-primary/5">{i18nT("app.aipoweredHyperlocalOpportunityEngine")}
 
               </Badge>
                 
-                <Typography variant="h1" className="max-w-4xl tracking-tight leading-none text-4xl md:text-5xl font-extrabold">{i18nT("Connecting Skilled Locals with")}
-                <span className="gold-gradient-text block sm:inline">{i18nT("Nearby Opportunities")}</span>
+                <Typography variant="h1" className="max-w-4xl tracking-tight leading-none text-4xl md:text-5xl font-extrabold">{i18nT("app.connectingSkilledLocalsWith")}
+                <span className="gold-gradient-text block sm:inline">{i18nT("app.nearbyOpportunities")}</span>
                 </Typography>
                 
-                <Typography variant="lead" className="max-w-2xl text-xs md:text-sm text-muted-foreground">{i18nT("Find handymen, farmers, local service experts, or publish active gigs in your municipality with escrow protection, translation support, and live telemetry tracking.")}
+                <Typography variant="lead" className="max-w-2xl text-xs md:text-sm text-muted-foreground">{i18nT("app.findHandymenFarmersLocalServiceExpertsOrPublish")}
 
               </Typography>
 
@@ -488,14 +541,14 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                     <Search className="w-5 h-5 text-primary" />
                     <input
                     type="text"
-                    placeholder={i18nT("e.g. Find me an electrician within 3 km...")}
+                    placeholder={i18nT("app.egFindMeAnElectricianWithin3Km")}
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleAISearch()}
                     className="w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground/60 text-sm focus:outline-none" />
                   
                   </div>
-                  <Button variant="primary" size="md" onClick={handleAISearch} isLoading={loading}>{i18nT("Ask AI Assistant")}
+                  <Button variant="primary" size="md" onClick={handleAISearch} isLoading={loading}>{i18nT("app.askAiAssistant")}
 
                 </Button>
                 </div>
@@ -513,12 +566,12 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                 {/* Column 1: Nearby Opportunities Feed */}
                 <div className="flex flex-col gap-4 glass-card p-6 rounded-2xl">
                   <div className="flex flex-col gap-1.5 border-b border-border/50 pb-3">
-                    <Badge variant="secondary" className="w-fit">{i18nT("Beta Network")}</Badge>
+                    <Badge variant="secondary" className="w-fit">{i18nT("app.betaNetwork")}</Badge>
                     <Typography variant="h3" className="font-bold flex items-center gap-2 text-foreground">
-                      <MapIcon className="w-5 h-5 text-primary" />{i18nT("Nearby Gigs Feed")}
+                      <MapIcon className="w-5 h-5 text-primary" />{i18nT("app.nearbyGigsFeed")}
 
                   </Typography>
-                    <Typography variant="muted" className="text-xs">{i18nT("Live posts within 3 km of your current coordinates. Click to apply.")}
+                    <Typography variant="muted" className="text-xs">{i18nT("app.livePostsWithin3KmOfYourCurrent")}
 
                   </Typography>
                   </div>
@@ -526,31 +579,31 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   <div className="flex flex-col gap-3.5 my-2">
                     <div className="p-3 bg-secondary/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-start mb-1.5">
-                        <span className="text-xs font-semibold text-primary">{i18nT("Plumbing Leak Fix")}</span>
+                        <span className="text-xs font-semibold text-primary">{i18nT("app.plumbingLeakFix")}</span>
                         <span className="text-[10px] text-emerald-400 font-mono">{i18nT("₹500/hr")}</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground">{i18nT("Fixing domestic pipe joints in village layout. Expected duration: 2 hours.")}</p>
+                      <p className="text-[11px] text-muted-foreground">{i18nT("app.fixingDomesticPipeJointsInVillageLayoutExpected")}</p>
                       <div className="flex gap-2 mt-2 items-center text-[10px] text-muted">
                         <MapPin className="w-3.5 h-3.5 text-primary" />
-                        <span>{i18nT("1.4 km away • Active")}</span>
+                        <span>{i18nT("app.14KmAwayActive")}</span>
                       </div>
                     </div>
 
                     <div className="p-3 bg-secondary/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-start mb-1.5">
-                        <span className="text-xs font-semibold text-primary">{i18nT("Agriculture Field Helper")}</span>
-                        <span className="text-[10px] text-emerald-400 font-mono">{i18nT("₹3,000 fixed")}</span>
+                        <span className="text-xs font-semibold text-primary">{i18nT("app.agricultureFieldHelper")}</span>
+                        <span className="text-[10px] text-emerald-400 font-mono">{i18nT("app.3000Fixed")}</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground">{i18nT("Harvesting support needed for organic farm paddy field.")}</p>
+                      <p className="text-[11px] text-muted-foreground">{i18nT("app.harvestingSupportNeededForOrganicFarmPaddyField")}</p>
                       <div className="flex gap-2 mt-2 items-center text-[10px] text-muted">
                         <MapPin className="w-3.5 h-3.5 text-primary" />
-                        <span>{i18nT("2.8 km away • Urgent")}</span>
+                        <span>{i18nT("app.28KmAwayUrgent")}</span>
                       </div>
                     </div>
                   </div>
 
                   <Button variant="outline" className="w-full justify-between mt-2" onClick={() => {setAuthTab("signup");setShowAuthModal(true);}}>
-                    <span>{i18nT("Join to view all 47 gigs")}</span>
+                    <span>{i18nT("app.joinToViewAll47Gigs")}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -558,12 +611,12 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                 {/* Column 2: Nearby Workers Preview */}
                 <div className="flex flex-col gap-4 glass-card p-6 rounded-2xl">
                   <div className="flex flex-col gap-1.5 border-b border-border/50 pb-3">
-                    <Badge variant="secondary" className="w-fit">{i18nT("Verified Locals")}</Badge>
+                    <Badge variant="secondary" className="w-fit">{i18nT("app.verifiedLocals")}</Badge>
                     <Typography variant="h3" className="font-bold flex items-center gap-2 text-foreground">
-                      <Award className="w-5 h-5 text-primary" />{i18nT("Nearby Service Providers")}
+                      <Award className="w-5 h-5 text-primary" />{i18nT("app.nearbyServiceProviders")}
 
                   </Typography>
-                    <Typography variant="muted" className="text-xs">{i18nT("Highest-rated local technicians and handymen active in Guntur.")}
+                    <Typography variant="muted" className="text-xs">{i18nT("app.highestratedLocalTechniciansAndHandymenActiveInGuntur")}
 
                   </Typography>
                   </div>
@@ -571,29 +624,29 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   <div className="flex flex-col gap-3.5 my-2">
                     <div className="p-3 bg-secondary/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all cursor-pointer flex justify-between items-center">
                       <div>
-                        <span className="text-xs font-semibold text-foreground block">{i18nT("Arun Kumar")}</span>
-                        <span className="text-[10px] text-muted-foreground">{i18nT("Carpenter • 5 Years Exp")}</span>
+                        <span className="text-xs font-semibold text-foreground block">{i18nT("app.arunKumar")}</span>
+                        <span className="text-[10px] text-muted-foreground">{i18nT("app.carpenter5YearsExp")}</span>
                       </div>
                       <div className="text-right">
                         <span className="text-xs font-bold text-amber-500 block">4.9 ★</span>
-                        <span className="text-[9px] text-emerald-400 font-mono">{i18nT("Available Now")}</span>
+                        <span className="text-[9px] text-emerald-400 font-mono">{i18nT("app.availableNow")}</span>
                       </div>
                     </div>
 
                     <div className="p-3 bg-secondary/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all cursor-pointer flex justify-between items-center">
                       <div>
-                        <span className="text-xs font-semibold text-foreground block">{i18nT("Suresh Prasad")}</span>
-                        <span className="text-[10px] text-muted-foreground">{i18nT("Electrician • 3 Years Exp")}</span>
+                        <span className="text-xs font-semibold text-foreground block">{i18nT("app.sureshPrasad")}</span>
+                        <span className="text-[10px] text-muted-foreground">{i18nT("app.electrician3YearsExp")}</span>
                       </div>
                       <div className="text-right">
                         <span className="text-xs font-bold text-amber-500 block">4.8 ★</span>
-                        <span className="text-[9px] text-emerald-400 font-mono">{i18nT("Available Now")}</span>
+                        <span className="text-[9px] text-emerald-400 font-mono">{i18nT("app.availableNow")}</span>
                       </div>
                     </div>
                   </div>
 
                   <Button variant="outline" className="w-full justify-between mt-2" onClick={() => {setAuthTab("signup");setShowAuthModal(true);}}>
-                    <span>{i18nT("Register as Worker / Employer")}</span>
+                    <span>{i18nT("app.registerAsWorkerEmployer")}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -605,8 +658,8 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                     <Shield className="w-5 h-5" />
                   </div>
-                  <Typography variant="h4" className="font-bold">{i18nT("WCAG & Trust Scored")}</Typography>
-                  <p className="text-xs text-muted-foreground">{i18nT("JobNest features WCAG AA compliant contrast designs and a cryptographic Trust & Safety audit ledger keeping ratings transparent.")}
+                  <Typography variant="h4" className="font-bold">{i18nT("app.wcagTrustScored")}</Typography>
+                  <p className="text-xs text-muted-foreground">{i18nT("app.jobnestFeaturesWcagAaCompliantContrastDesignsAnd")}
 
                 </p>
                 </Card>
@@ -614,8 +667,8 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                     <Wallet className="w-5 h-5" />
                   </div>
-                  <Typography variant="h4" className="font-bold">{i18nT("Instant Escrow Release")}</Typography>
-                  <p className="text-xs text-muted-foreground">{i18nT("Protect payouts dynamically. Lock funds on hire, track worker ETA in real-time, and release automatically upon validated gig completion.")}
+                  <Typography variant="h4" className="font-bold">{i18nT("app.instantEscrowRelease")}</Typography>
+                  <p className="text-xs text-muted-foreground">{i18nT("app.protectPayoutsDynamicallyLockFundsOnHireTrack")}
 
                 </p>
                 </Card>
@@ -623,8 +676,8 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                     <Globe className="w-5 h-5" />
                   </div>
-                  <Typography variant="h4" className="font-bold">{i18nT("Multilingual Translation")}</Typography>
-                  <p className="text-xs text-muted-foreground">{i18nT("Seamlessly translate descriptions and messaging in English, Telugu, and Hindi to bridge local language divides.")}
+                  <Typography variant="h4" className="font-bold">{i18nT("app.multilingualTranslation")}</Typography>
+                  <p className="text-xs text-muted-foreground">{i18nT("app.seamlesslyTranslateDescriptionsAndMessagingInEnglishTelugu")}
 
                 </p>
                 </Card>
@@ -632,13 +685,13 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
 
               {/* Premium Footer */}
               <footer className="border-t border-border bg-card/20 py-8 rounded-2xl px-6 flex flex-col md:flex-row items-center justify-between gap-4 mt-8">
-                <Typography variant="muted" className="text-xs">{i18nT("© 2026 JobNest V2 Enterprise. Rebuilt for beta public launch.")}
+                <Typography variant="muted" className="text-xs">{i18nT("app.2026JobnestV2EnterpriseRebuiltForBetaPublic")}
 
               </Typography>
                 <div className="flex gap-4">
-                  <Typography variant="muted" className="text-xs hover:text-foreground cursor-pointer">{i18nT("Security Protocol")}</Typography>
-                  <Typography variant="muted" className="text-xs hover:text-foreground cursor-pointer">{i18nT("Ledger API")}</Typography>
-                  <Typography variant="muted" className="text-xs hover:text-foreground cursor-pointer">{i18nT("Terms of Service")}</Typography>
+                  <Typography variant="muted" className="text-xs hover:text-foreground cursor-pointer">{i18nT("app.securityProtocol")}</Typography>
+                  <Typography variant="muted" className="text-xs hover:text-foreground cursor-pointer">{i18nT("app.ledgerApi")}</Typography>
+                  <Typography variant="muted" className="text-xs hover:text-foreground cursor-pointer">{i18nT("app.termsOfService")}</Typography>
                 </div>
               </footer>
             </motion.div> :
@@ -690,7 +743,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   }>
                   
                     <Sparkles className="w-5.5 h-5.5" />
-                    <span>{i18nT("AI Pro")}</span>
+                    <span>{i18nT("app.aiPro")}</span>
                   </button>
                   <button
                   onClick={() => setActiveTab("chat")}
@@ -750,7 +803,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   onClick={() => setAuthTab("signin")}
                   className={`flex-1 pb-3 text-sm font-semibold border-b-2 transition-colors ${
                   authTab === "signin" ? "border-primary text-primary" : "border-transparent text-muted"}`
-                  }>{i18nT("Sign In")}
+                  }>{i18nT("app.signIn")}
 
 
                 </button>
@@ -759,7 +812,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   onClick={() => setAuthTab("signup")}
                   className={`flex-1 pb-3 text-sm font-semibold border-b-2 transition-colors ${
                   authTab === "signup" ? "border-primary text-primary" : "border-transparent text-muted"}`
-                  }>{i18nT("Create Account")}
+                  }>{i18nT("app.createAccount")}
 
 
                 </button>
@@ -773,21 +826,21 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                     {authTab === "signup" &&
                 <>
                         <Input
-                    label={i18nT("Full Name")}
-                    placeholder={i18nT("e.g. Arun Kumar")}
+                    label={i18nT("app.fullName")}
+                    placeholder={i18nT("app.egArunKumar")}
                     required
                     value={signupForm.displayName}
                     onChange={(e) => setSignupForm({ ...signupForm, displayName: e.target.value })} />
                   
                         <Input
-                    label={i18nT("Unique Username")}
-                    placeholder={i18nT("e.g. arun_pro")}
+                    label={i18nT("app.uniqueUsername")}
+                    placeholder={i18nT("app.egArunpro")}
                     required
                     value={signupForm.username}
                     onChange={(e) => setSignupForm({ ...signupForm, username: e.target.value })} />
                   
                         <div className="flex flex-col gap-1.5">
-                          <label className="text-sm font-medium text-foreground/80">{i18nT("Select Account Type")}</label>
+                          <label className="text-sm font-medium text-foreground/80">{i18nT("app.selectAccountType")}</label>
                           <div className="grid grid-cols-3 gap-2">
                             {(["worker", "employer", "resident"] as UserRole[]).map((role) =>
                       <button
@@ -809,7 +862,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                 }
 
                     <Input
-                  label={i18nT("Email Address")}
+                  label={i18nT("app.emailAddress")}
                   type="email"
                   placeholder={i18nT("name@domain.com")}
                   required
@@ -820,10 +873,21 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                     <Input
                   label={i18nT("Password")}
                   type="password"
-                  placeholder={i18nT("Minimum 6 characters")}
+                  placeholder={i18nT("app.minimum8Characters1Uppercase1Special")}
                   required
                   value={signupForm.password}
                   onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })} />
+                
+                  {authTab === "signup" && (
+                    <Input
+                      label={i18nT("app.confirmPassword")}
+                      type="password"
+                      placeholder={i18nT("app.reenterPassword")}
+                      required
+                      value={signupForm.confirmPassword}
+                      onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
+                    />
+                  )}
                 
                   </div>
 
@@ -835,48 +899,48 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
             // Onboarding & Profile Setup Flow
             <div className="p-6 flex flex-col gap-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-primary font-mono font-bold uppercase tracking-wider">{i18nT("Step")}{onboardingStep}{i18nT("of 2")}</span>
-                    <Badge variant="primary">{i18nT("Onboarding Active")}</Badge>
+                    <span className="text-xs text-primary font-mono font-bold uppercase tracking-wider">{i18nT("Step")}{onboardingStep}{i18nT("app.of2")}</span>
+                    <Badge variant="primary">{i18nT("app.onboardingActive")}</Badge>
                   </div>
 
-                  <Typography variant="h3" className="font-bold tracking-tight">{i18nT("Onboarding: Tell us about yourself")}
+                  <Typography variant="h3" className="font-bold tracking-tight">{i18nT("app.onboardingTellUsAboutYourself")}
 
               </Typography>
-                  <Typography variant="muted" className="text-xs leading-normal">{i18nT("This profile information synchronizes with nearby searches in your hyperlocal geofence.")}
+                  <Typography variant="muted" className="text-xs leading-normal">{i18nT("app.thisProfileInformationSynchronizesWithNearbySearchesIn")}
 
               </Typography>
 
                   <div className="flex flex-col gap-3.5 my-2">
                     <Input
-                  label={i18nT("Your Professional Job Title")}
-                  placeholder={i18nT("e.g. Carpenter, Plumber, Handyman")} />
+                  label={i18nT("app.yourProfessionalJobTitle")}
+                  placeholder={i18nT("app.egCarpenterPlumberHandyman")} />
                 
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-medium text-foreground/80">{i18nT("Bio Description")}</label>
+                      <label className="text-sm font-medium text-foreground/80">{i18nT("app.bioDescription")}</label>
                       <textarea
                     rows={3}
-                    placeholder={i18nT("Detail your experience, tools, and availability...")}
+                    placeholder={i18nT("app.detailYourExperienceToolsAndAvailability")}
                     className="w-full rounded-md glass-input px-3.5 py-2 text-sm text-foreground focus:outline-none" />
                   
                     </div>
 
                     <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium text-foreground/80 flex items-center justify-between">
-                        <span>{i18nT("Upload Identity for KYC Validation")}</span>
-                        <span className="text-[10px] text-amber-500 font-semibold">{i18nT("*Required for verification badge")}</span>
+                        <span>{i18nT("app.uploadIdentityForKycValidation")}</span>
+                        <span className="text-[10px] text-amber-500 font-semibold">{i18nT("app.requiredForVerificationBadge")}</span>
                       </label>
                       <div className="border border-dashed border-border hover:border-primary/40 rounded-xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2">
                         <Upload className="w-6 h-6 text-primary" />
-                        <span className="text-xs text-muted">{i18nT("Click or drag Aadhaar PDF / Card image")}</span>
+                        <span className="text-xs text-muted">{i18nT("app.clickOrDragAadhaarPdfCardImage")}</span>
                         <input type="file" accept="image/*,application/pdf" className="hidden" id="onboard-kyc-upload" onChange={handleKycUpload} />
-                        <label htmlFor="onboard-kyc-upload" className="text-[10px] bg-secondary border border-border px-2 py-1 rounded-md text-foreground font-semibold cursor-pointer">{i18nT("Select File")}</label>
+                        <label htmlFor="onboard-kyc-upload" className="text-[10px] bg-secondary border border-border px-2 py-1 rounded-md text-foreground font-semibold cursor-pointer">{i18nT("app.selectFile")}</label>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex gap-3 mt-2">
                     <Button variant="outline" className="flex-1" onClick={() => setOnboardingStep(1)}>{i18nT("Back")}</Button>
-                    <Button variant="primary" className="flex-1" onClick={handleOnboardingFinish} isLoading={loading}>{i18nT("Complete Profile")}</Button>
+                    <Button variant="primary" className="flex-1" onClick={handleOnboardingFinish} isLoading={loading}>{i18nT("app.completeProfile")}</Button>
                   </div>
                 </div>
             }
@@ -900,7 +964,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-2xl bg-primary/5 border border-primary/20 p-4 rounded-xl text-left mt-4 text-xs font-semibold text-primary leading-relaxed whitespace-pre-line">
         
-        <span className="block font-bold mb-1">{i18nT("🤖 AI Insights:")}</span>
+        <span className="block font-bold mb-1">{i18nT("app.aiInsights")}</span>
         {aiResponse}
       </motion.div>);
 
@@ -928,8 +992,8 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
         <div className="flex flex-col gap-4 animate-fade-in">
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
-              <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Hyperlocal Live Gigs Map")}</Typography>
-              <Typography variant="muted" className="text-xs">{i18nT("Real-time active gigs. Center on your location and click any marker to apply.")}
+              <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.hyperlocalLiveGigsMap")}</Typography>
+              <Typography variant="muted" className="text-xs">{i18nT("app.realtimeActiveGigsCenterOnYourLocationAnd")}
 
               </Typography>
             </div>
@@ -937,19 +1001,19 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
             <div className="flex flex-wrap gap-2.5 bg-muted/40 p-2.5 rounded-xl border border-border/40 text-xs">
               <div className="px-2 border-r border-border/40">
                 <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Location")}</span>
-                <span className="font-semibold text-foreground font-mono">{i18nT("Guntur Central")}</span>
+                <span className="font-semibold text-foreground font-mono">{i18nT("app.gunturCentral")}</span>
               </div>
               <div className="px-2 border-r border-border/40">
-                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Nearby Jobs")}</span>
-                <span className="font-semibold text-primary">{i18nT("5 active")}</span>
+                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("app.nearbyJobs")}</span>
+                <span className="font-semibold text-primary">{i18nT("app.5Active")}</span>
               </div>
               <div className="px-2 border-r border-border/40">
-                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Avg Distance")}</span>
-                <span className="font-semibold text-foreground">{i18nT("1.4 km")}</span>
+                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("app.avgDistance")}</span>
+                <span className="font-semibold text-foreground">{i18nT("app.14Km")}</span>
               </div>
               <div className="px-2">
-                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Response ETA")}</span>
-                <span className="font-semibold text-emerald-400">{i18nT("12 mins")}</span>
+                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("app.responseEta")}</span>
+                <span className="font-semibold text-emerald-400">{i18nT("app.12Mins")}</span>
               </div>
             </div>
           </div>
@@ -966,9 +1030,9 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               <div>
                 <Typography variant="h3" className="font-bold flex items-center gap-2">
                   {userName}
-                  <Badge variant="success" className="text-[10px] px-2 py-0.5 border-emerald-500/30 text-emerald-400 bg-emerald-500/5">{i18nT("Verified Pro")}</Badge>
+                  <Badge variant="success" className="text-[10px] px-2 py-0.5 border-emerald-500/30 text-emerald-400 bg-emerald-500/5">{i18nT("app.verifiedPro")}</Badge>
                 </Typography>
-                <Typography variant="muted" className="text-xs">{i18nT("Carpentry & Domestic Utility Expert • Guntur Geofence")}
+                <Typography variant="muted" className="text-xs">{i18nT("app.carpentryDomesticUtilityExpertGunturGeofence")}
 
                 </Typography>
               </div>
@@ -976,29 +1040,29 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
             <div className="grid grid-cols-3 gap-4 mt-6 border-t border-border pt-4 text-center">
               <div>
                 <span className="text-2xl font-bold text-primary">₹{walletBalance}</span>
-                <span className="block text-[10px] text-muted uppercase">{i18nT("Wallet Balance")}</span>
+                <span className="block text-[10px] text-muted uppercase">{i18nT("app.walletBalance")}</span>
               </div>
               <div>
                 <span className="text-2xl font-bold text-foreground">12</span>
-                <span className="block text-[10px] text-muted uppercase">{i18nT("Gigs Done")}</span>
+                <span className="block text-[10px] text-muted uppercase">{i18nT("app.gigsDone")}</span>
               </div>
               <div>
                 <span className="text-2xl font-bold text-foreground">96%</span>
-                <span className="block text-[10px] text-muted uppercase">{i18nT("Trust Score")}</span>
+                <span className="block text-[10px] text-muted uppercase">{i18nT("app.trustScore")}</span>
               </div>
             </div>
           </Card>
 
           <Card className="glass-card flex flex-col justify-between p-5">
             <div className="flex justify-between items-start">
-              <span className="text-xs text-muted uppercase font-mono tracking-wider">{i18nT("KYC Compliance")}</span>
+              <span className="text-xs text-muted uppercase font-mono tracking-wider">{i18nT("app.kycCompliance")}</span>
               <Badge variant={kycStatus === "verified" ? "success" : kycStatus === "pending" ? "warning" : "danger"}>
                 {kycStatus}
               </Badge>
             </div>
             
             <div className="my-4">
-              <Typography variant="h4" className="font-bold text-sm">{i18nT("Identity & Ledger Verification")}</Typography>
+              <Typography variant="h4" className="font-bold text-sm">{i18nT("app.identityLedgerVerification")}</Typography>
               <Typography variant="muted" className="text-xs mt-1">
                 {kycStatus === "verified" ?
                 "Your Aadhaar identity has been validated on the trust registry." :
@@ -1013,7 +1077,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
             <div className="relative">
                 <input type="file" id="kyc-upload-dashboard" className="hidden" onChange={handleKycUpload} />
                 <label htmlFor="kyc-upload-dashboard" className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-primary/20 text-primary font-bold text-xs bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all">
-                  <Upload className="w-4 h-4" />{i18nT("Upload Identity Card")}
+                  <Upload className="w-4 h-4" />{i18nT("app.uploadIdentityCard")}
 
               </label>
               </div>
@@ -1025,7 +1089,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 flex flex-col gap-4">
             <Typography variant="h3" className="font-bold flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />{i18nT("AI Matching Recommendations")}
+              <Sparkles className="w-5 h-5 text-primary" />{i18nT("app.aiMatchingRecommendations")}
 
             </Typography>
             
@@ -1033,15 +1097,15 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col md:flex-row justify-between md:items-center gap-4 hover:border-primary/30 transition-all">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <Typography variant="h4" className="font-bold text-base">{i18nT("Wooden Door Frame Repair")}</Typography>
-                    <Badge variant="primary" className="text-[9px] px-1.5 py-0">{i18nT("98% Match")}</Badge>
+                    <Typography variant="h4" className="font-bold text-base">{i18nT("app.woodenDoorFrameRepair")}</Typography>
+                    <Badge variant="primary" className="text-[9px] px-1.5 py-0">{i18nT("app.98Match")}</Badge>
                   </div>
-                  <span className="text-xs text-muted-foreground">{i18nT("Suresh K. • 1.2 km away")}</span>
-                  <span className="text-xs text-muted mt-1">{i18nT("Skills needed: Wood joinery, Chisel tooling, measurements.")}</span>
+                  <span className="text-xs text-muted-foreground">{i18nT("app.sureshK12KmAway")}</span>
+                  <span className="text-xs text-muted mt-1">{i18nT("app.skillsNeededWoodJoineryChiselToolingMeasurements")}</span>
                 </div>
                 <div className="flex md:flex-col items-end gap-2 justify-between">
                   <span className="text-lg font-bold text-primary">₹1,200</span>
-                  <Button variant="primary" size="sm" onClick={() => {setActiveTab("chat");setSuccessMessage("Initiated direct chat with employer!");}}>{i18nT("Chat & Apply")}
+                  <Button variant="primary" size="sm" onClick={() => {setActiveTab("chat");setSuccessMessage("Initiated direct chat with employer!");}}>{i18nT("app.chatApply")}
 
                   </Button>
                 </div>
@@ -1050,15 +1114,15 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col md:flex-row justify-between md:items-center gap-4 hover:border-primary/30 transition-all">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <Typography variant="h4" className="font-bold text-base">{i18nT("Furniture Polishing & Varnish")}</Typography>
-                    <Badge variant="primary" className="text-[9px] px-1.5 py-0">{i18nT("91% Match")}</Badge>
+                    <Typography variant="h4" className="font-bold text-base">{i18nT("app.furniturePolishingVarnish")}</Typography>
+                    <Badge variant="primary" className="text-[9px] px-1.5 py-0">{i18nT("app.91Match")}</Badge>
                   </div>
-                  <span className="text-xs text-muted-foreground">{i18nT("Deepak R. • 3.5 km away")}</span>
-                  <span className="text-xs text-muted mt-1">{i18nT("Skills needed: Sanding, Spray painting, Varnish brushwork.")}</span>
+                  <span className="text-xs text-muted-foreground">{i18nT("app.deepakR35KmAway")}</span>
+                  <span className="text-xs text-muted mt-1">{i18nT("app.skillsNeededSandingSprayPaintingVarnishBrushwork")}</span>
                 </div>
                 <div className="flex md:flex-col items-end gap-2 justify-between">
                   <span className="text-lg font-bold text-primary">₹3,500</span>
-                  <Button variant="primary" size="sm" onClick={() => {setActiveTab("chat");setSuccessMessage("Initiated direct chat with employer!");}}>{i18nT("Chat & Apply")}
+                  <Button variant="primary" size="sm" onClick={() => {setActiveTab("chat");setSuccessMessage("Initiated direct chat with employer!");}}>{i18nT("app.chatApply")}
 
                   </Button>
                 </div>
@@ -1067,17 +1131,17 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
           </div>
 
           <div className="flex flex-col gap-4">
-            <Typography variant="h3" className="font-bold">{i18nT("Active Applications")}</Typography>
+            <Typography variant="h3" className="font-bold">{i18nT("app.activeApplications")}</Typography>
             <div className="p-4 bg-card/60 border border-border rounded-xl flex flex-col gap-3">
               <div className="flex justify-between items-center pb-2 border-b border-border">
-                <span className="text-xs font-semibold">{i18nT("Agricultural helper")}</span>
-                <Badge variant="secondary">{i18nT("In Review")}</Badge>
+                <span className="text-xs font-semibold">{i18nT("app.agriculturalHelper")}</span>
+                <Badge variant="secondary">{i18nT("app.inReview")}</Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground">{i18nT("Sponsor: Guntur Coop")}</span>
+                <span className="text-xs text-muted-foreground">{i18nT("app.sponsorGunturCoop")}</span>
                 <span className="text-xs text-primary font-bold">₹3,000</span>
               </div>
-              <p className="text-[10px] text-muted">{i18nT("Applied July 14, 2026. SLA response due in 2 hours.")}</p>
+              <p className="text-[10px] text-muted">{i18nT("app.appliedJuly142026SlaResponseDueIn")}</p>
             </div>
           </div>
         </div>
@@ -1093,32 +1157,32 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
-              <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Nearby Available Workers Map")}</Typography>
-              <Typography variant="muted" className="text-xs">{i18nT("Real-time active service providers nearby. Click a worker pin to view rating and book.")}
+              <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.nearbyAvailableWorkersMap")}</Typography>
+              <Typography variant="muted" className="text-xs">{i18nT("app.realtimeActiveServiceProvidersNearbyClickAWorker")}
 
               </Typography>
             </div>
             {/* Live Stats Row */}
             <div className="flex flex-wrap gap-2.5 bg-muted/40 p-2.5 rounded-xl border border-border/40 text-xs">
               <div className="px-2 border-r border-border/40">
-                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Active Handymen")}</span>
-                <span className="font-semibold text-foreground">{i18nT("3 online")}</span>
+                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("app.activeHandymen")}</span>
+                <span className="font-semibold text-foreground">{i18nT("app.3Online")}</span>
               </div>
               <div className="px-2 border-r border-border/40">
                 <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Availability")}</span>
-                <span className="font-semibold text-emerald-400">{i18nT("Available Now")}</span>
+                <span className="font-semibold text-emerald-400">{i18nT("app.availableNow")}</span>
               </div>
               <div className="px-2 border-r border-border/40">
-                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Avg Trust Score")}</span>
-                <span className="font-semibold text-foreground">{i18nT("95% score")}</span>
+                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("app.avgTrustScore")}</span>
+                <span className="font-semibold text-foreground">{i18nT("app.95Score")}</span>
               </div>
               <div className="px-2 border-r border-border/40">
-                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Avg Distance")}</span>
-                <span className="font-semibold text-foreground">{i18nT("1.5 km")}</span>
+                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("app.avgDistance")}</span>
+                <span className="font-semibold text-foreground">{i18nT("app.15Km")}</span>
               </div>
               <div className="px-2">
-                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("Live Status")}</span>
-                <span className="font-semibold text-primary">{i18nT("Sync active")}</span>
+                <span className="text-[10px] text-muted-foreground block uppercase">{i18nT("app.liveStatus")}</span>
+                <span className="font-semibold text-primary">{i18nT("app.syncActive")}</span>
               </div>
             </div>
           </div>
@@ -1129,27 +1193,27 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
           {/* Post Opportunity Form */}
           <Card className="glass-card p-6 rounded-2xl lg:col-span-2 flex flex-col gap-4">
             <Typography variant="h3" className="font-bold flex items-center gap-2">
-              <Plus className="w-5 h-5 text-primary" />{i18nT("Post Hyperlocal Opportunity")}
+              <Plus className="w-5 h-5 text-primary" />{i18nT("app.postHyperlocalOpportunity")}
 
             </Typography>
-            <Typography variant="muted" className="text-xs">{i18nT("Fill details to publish a new gig or task. It will broadcast to all registered workers in Guntur geofence.")}
+            <Typography variant="muted" className="text-xs">{i18nT("app.fillDetailsToPublishANewGigOr")}
 
             </Typography>
 
             <form onSubmit={handlePostOpportunity} className="flex flex-col gap-4 mt-2">
               <Input
-                label={i18nT("Opportunity Title")}
-                placeholder={i18nT("e.g. Plumber needed to repair leak")}
+                label={i18nT("app.opportunityTitle")}
+                placeholder={i18nT("app.egPlumberNeededToRepairLeak")}
                 required
                 value={jobForm.title}
                 onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })} />
               
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-foreground/80">{i18nT("Task Description")}</label>
+                <label className="text-sm font-medium text-foreground/80">{i18nT("app.taskDescription")}</label>
                 <textarea
                   rows={4}
                   required
-                  placeholder={i18nT("Detail the work parameters, skills, tools, and timing details...")}
+                  placeholder={i18nT("app.detailTheWorkParametersSkillsToolsAndTiming")}
                   value={jobForm.description}
                   onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
                   className="w-full rounded-md glass-input px-3.5 py-2 text-sm text-foreground focus:outline-none" />
@@ -1158,14 +1222,14 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
 
               <div className="grid grid-cols-2 gap-4">
                 <Input
-                  label={i18nT("Daily Pay Budget Min (₹)")}
+                  label={i18nT("app.dailyPayBudgetMin")}
                   type="number"
                   required
                   value={jobForm.salaryMin}
                   onChange={(e) => setJobForm({ ...jobForm, salaryMin: Number(e.target.value) })} />
                 
                 <Input
-                  label={i18nT("Daily Pay Budget Max (₹)")}
+                  label={i18nT("app.dailyPayBudgetMax")}
                   type="number"
                   required
                   value={jobForm.salaryMax}
@@ -1175,20 +1239,20 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
 
               <div className="grid grid-cols-2 gap-4">
                 <Input
-                  label={i18nT("Broadcast Radius (meters)")}
+                  label={i18nT("app.broadcastRadiusMeters")}
                   type="number"
                   value={jobForm.hiringRadius}
                   onChange={(e) => setJobForm({ ...jobForm, hiringRadius: Number(e.target.value) })} />
                 
                 <Input
-                  label={i18nT("Job Pincode")}
+                  label={i18nT("app.jobPincode")}
                   type="text"
                   value={jobForm.pincode}
                   onChange={(e) => setJobForm({ ...jobForm, pincode: e.target.value })} />
                 
               </div>
 
-              <Button type="submit" variant="primary" className="w-full mt-2" isLoading={loading}>{i18nT("Publish to Hyperlocal Feed")}
+              <Button type="submit" variant="primary" className="w-full mt-2" isLoading={loading}>{i18nT("app.publishToHyperlocalFeed")}
 
               </Button>
             </form>
@@ -1197,7 +1261,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
           {/* Active Jobs & Candidate Ranking */}
           <div className="flex flex-col gap-4">
             <Typography variant="h3" className="font-bold flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" />{i18nT("AI Candidate Match Rankings")}
+              <Award className="w-5 h-5 text-primary" />{i18nT("app.aiCandidateMatchRankings")}
 
             </Typography>
 
@@ -1205,16 +1269,16 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               <div className="p-4 bg-card/60 border border-border rounded-xl hover:border-primary/20 transition-all flex flex-col gap-2">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-xs font-bold text-foreground">{i18nT("Arun Kumar")}</span>
-                    <span className="block text-[10px] text-muted">{i18nT("Carpenter • 1.2 km away")}</span>
+                    <span className="text-xs font-bold text-foreground">{i18nT("app.arunKumar")}</span>
+                    <span className="block text-[10px] text-muted">{i18nT("app.carpenter12KmAway")}</span>
                   </div>
-                  <Badge variant="primary">{i18nT("98% Match")}</Badge>
+                  <Badge variant="primary">{i18nT("app.98Match")}</Badge>
                 </div>
                 <div className="text-[10px] text-muted flex gap-3">
-                  <span>{i18nT("Trust: 96%")}</span>
-                  <span>{i18nT("Exp: 5 yrs")}</span>
+                  <span>{i18nT("app.trust96")}</span>
+                  <span>{i18nT("app.exp5Yrs")}</span>
                 </div>
-                <Button variant="primary" size="sm" className="w-full mt-2" onClick={() => {setActiveTab("chat");setSuccessMessage("Chat opened with candidate!");}}>{i18nT("Hire & Lock Escrow")}
+                <Button variant="primary" size="sm" className="w-full mt-2" onClick={() => {setActiveTab("chat");setSuccessMessage("Chat opened with candidate!");}}>{i18nT("app.hireLockEscrow")}
 
                 </Button>
               </div>
@@ -1222,16 +1286,16 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               <div className="p-4 bg-card/60 border border-border rounded-xl hover:border-primary/20 transition-all flex flex-col gap-2">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-xs font-bold text-foreground">{i18nT("Rajesh Reddy")}</span>
-                    <span className="block text-[10px] text-muted">{i18nT("Plumber • 2.5 km away")}</span>
+                    <span className="text-xs font-bold text-foreground">{i18nT("app.rajeshReddy")}</span>
+                    <span className="block text-[10px] text-muted">{i18nT("app.plumber25KmAway")}</span>
                   </div>
-                  <Badge variant="secondary">{i18nT("89% Match")}</Badge>
+                  <Badge variant="secondary">{i18nT("app.89Match")}</Badge>
                 </div>
                 <div className="text-[10px] text-muted flex gap-3">
-                  <span>{i18nT("Trust: 91%")}</span>
-                  <span>{i18nT("Exp: 3 yrs")}</span>
+                  <span>{i18nT("app.trust91")}</span>
+                  <span>{i18nT("app.exp3Yrs")}</span>
                 </div>
-                <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => {setActiveTab("chat");setSuccessMessage("Chat opened with candidate!");}}>{i18nT("Contact Candidate")}
+                <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => {setActiveTab("chat");setSuccessMessage("Chat opened with candidate!");}}>{i18nT("app.contactCandidate")}
 
                 </Button>
               </div>
@@ -1246,7 +1310,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
   function RenderResidentDashboard() {const { t: i18nT } = useI18n();
     return (
       <div className="flex flex-col gap-6">
-        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Book Local Services")}</Typography>
+        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.bookLocalServices")}</Typography>
         
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-in">
@@ -1271,7 +1335,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
         {/* Resident Home Help Map */}
         <div className="flex flex-col gap-4">
           <Typography variant="h3" className="font-bold flex items-center gap-2">
-            <MapIcon className="w-5 h-5 text-primary" />{i18nT("Home Help & Services Map")}
+            <MapIcon className="w-5 h-5 text-primary" />{i18nT("app.homeHelpServicesMap")}
 
           </Typography>
           <MapView mode="resident" />
@@ -1280,7 +1344,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
         {/* Nearby Service Providers Cards List */}
         <div className="flex flex-col gap-4">
           <Typography variant="h3" className="font-bold flex items-center gap-2">
-            <Award className="w-5 h-5 text-primary" />{i18nT("Nearby Available Handymen & Service Providers")}
+            <Award className="w-5 h-5 text-primary" />{i18nT("app.nearbyAvailableHandymenServiceProviders")}
 
           </Typography>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1289,16 +1353,16 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">{i18nT("AK")}</div>
                   <div>
-                    <span className="text-xs font-bold text-foreground block">{i18nT("Arun Kumar")}</span>
-                    <span className="text-[10px] text-muted-foreground">{i18nT("Carpenter • 1.2 km away")}</span>
+                    <span className="text-xs font-bold text-foreground block">{i18nT("app.arunKumar")}</span>
+                    <span className="text-[10px] text-muted-foreground">{i18nT("app.carpenter12KmAway")}</span>
                   </div>
                 </div>
-                <Badge variant="primary" className="text-[9px]">{i18nT("96% Trust")}</Badge>
+                <Badge variant="primary" className="text-[9px]">{i18nT("app.96Trust")}</Badge>
               </div>
-              <p className="text-[11px] text-muted-foreground">{i18nT("Expert in wood joinery, tables assembly, and home repairs.")}</p>
+              <p className="text-[11px] text-muted-foreground">{i18nT("app.expertInWoodJoineryTablesAssemblyAndHome")}</p>
               <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
                 <span className="text-xs font-mono font-bold text-emerald-400">{i18nT("₹400/day")}</span>
-                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => {setActiveTab("chat");setSuccessMessage("Contacted Arun Kumar!");}}>{i18nT("Book Now")}</Button>
+                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => {setActiveTab("chat");setSuccessMessage("Contacted Arun Kumar!");}}>{i18nT("app.bookNow")}</Button>
               </div>
             </div>
 
@@ -1307,16 +1371,16 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">{i18nT("SP")}</div>
                   <div>
-                    <span className="text-xs font-bold text-foreground block">{i18nT("Suresh Prasad")}</span>
-                    <span className="text-[10px] text-muted-foreground">{i18nT("Electrician • 1.5 km away")}</span>
+                    <span className="text-xs font-bold text-foreground block">{i18nT("app.sureshPrasad")}</span>
+                    <span className="text-[10px] text-muted-foreground">{i18nT("app.electrician15KmAway")}</span>
                   </div>
                 </div>
-                <Badge variant="primary" className="text-[9px]">{i18nT("98% Trust")}</Badge>
+                <Badge variant="primary" className="text-[9px]">{i18nT("app.98Trust")}</Badge>
               </div>
-              <p className="text-[11px] text-muted-foreground">{i18nT("Expert in household wiring, fuse joints, and fan installs.")}</p>
+              <p className="text-[11px] text-muted-foreground">{i18nT("app.expertInHouseholdWiringFuseJointsAndFan")}</p>
               <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
                 <span className="text-xs font-mono font-bold text-emerald-400">{i18nT("₹500/day")}</span>
-                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => {setActiveTab("chat");setSuccessMessage("Contacted Suresh Prasad!");}}>{i18nT("Book Now")}</Button>
+                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => {setActiveTab("chat");setSuccessMessage("Contacted Suresh Prasad!");}}>{i18nT("app.bookNow")}</Button>
               </div>
             </div>
 
@@ -1325,16 +1389,16 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-xs text-primary">{i18nT("KR")}</div>
                   <div>
-                    <span className="text-xs font-bold text-foreground block">{i18nT("Kiran Rao")}</span>
-                    <span className="text-[10px] text-muted-foreground">{i18nT("Plumber • 3.2 km away")}</span>
+                    <span className="text-xs font-bold text-foreground block">{i18nT("app.kiranRao")}</span>
+                    <span className="text-[10px] text-muted-foreground">{i18nT("app.plumber32KmAway")}</span>
                   </div>
                 </div>
-                <Badge variant="primary" className="text-[9px]">{i18nT("92% Trust")}</Badge>
+                <Badge variant="primary" className="text-[9px]">{i18nT("app.92Trust")}</Badge>
               </div>
-              <p className="text-[11px] text-muted-foreground">{i18nT("Expert in pipe leak fix, drain cleaning, and bathroom fittings.")}</p>
+              <p className="text-[11px] text-muted-foreground">{i18nT("app.expertInPipeLeakFixDrainCleaningAnd")}</p>
               <div className="flex justify-between items-center mt-1 border-t border-border/40 pt-2">
                 <span className="text-xs font-mono font-bold text-emerald-400">{i18nT("₹450/day")}</span>
-                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => {setActiveTab("chat");setSuccessMessage("Contacted Kiran Rao!");}}>{i18nT("Book Now")}</Button>
+                <Button variant="primary" size="sm" className="h-7 px-3 text-[10px] rounded-lg" onClick={() => {setActiveTab("chat");setSuccessMessage("Contacted Kiran Rao!");}}>{i18nT("app.bookNow")}</Button>
               </div>
             </div>
           </div>
@@ -1345,10 +1409,10 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
           <Card className="glass-card p-5 lg:col-span-2 flex flex-col justify-between">
             <div>
               <Typography variant="h3" className="font-bold flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />{i18nT("Active Escrow Safety Manager")}
+                <Shield className="w-5 h-5 text-primary" />{i18nT("app.activeEscrowSafetyManager")}
 
               </Typography>
-              <Typography variant="muted" className="text-xs mt-1">{i18nT("Protect payments. Funds are locked securely in the escrow ledger and released only after you verify the completed task.")}
+              <Typography variant="muted" className="text-xs mt-1">{i18nT("app.protectPaymentsFundsAreLockedSecurelyInThe")}
 
               </Typography>
             </div>
@@ -1359,40 +1423,40 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                   <Lock className="w-5 h-5" />
                 </span>
                 <div>
-                  <span className="text-xs font-bold block">{i18nT("Job: Leak joint repair in Guntur")}</span>
-                  <span className="text-[10px] text-muted">{i18nT("Contractor: Arun Kumar • Locked: ₹1,500")}</span>
+                  <span className="text-xs font-bold block">{i18nT("app.jobLeakJointRepairInGuntur")}</span>
+                  <span className="text-[10px] text-muted">{i18nT("app.contractorArunKumarLocked1500")}</span>
                 </div>
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setSuccessMessage("Dispute raised. Safety audit initiated.")}>{i18nT("Raise Dispute")}</Button>
-                <Button variant="primary" size="sm" onClick={() => setSuccessMessage("Escrow funds released to worker balance!")}>{i18nT("Release Payout")}</Button>
+                <Button variant="outline" size="sm" onClick={() => setSuccessMessage("Dispute raised. Safety audit initiated.")}>{i18nT("app.raiseDispute")}</Button>
+                <Button variant="primary" size="sm" onClick={() => setSuccessMessage("Escrow funds released to worker balance!")}>{i18nT("app.releasePayout")}</Button>
               </div>
             </div>
 
             <div className="text-[10px] text-muted flex gap-2">
               <AlertTriangle className="w-3.5 h-3.5 text-primary" />
-              <span>{i18nT("JobNest guarantees 100% resolution checks under SLA protocols.")}</span>
+              <span>{i18nT("app.jobnestGuarantees100ResolutionChecksUnderSlaProtocols")}</span>
             </div>
           </Card>
 
           <Card className="glass-card p-5 flex flex-col justify-between">
-            <Typography variant="h4" className="font-bold">{i18nT("Bookings History")}</Typography>
+            <Typography variant="h4" className="font-bold">{i18nT("app.bookingsHistory")}</Typography>
             <div className="flex flex-col gap-3 my-4">
               <div className="flex justify-between items-center text-xs pb-1 border-b border-border">
-                <span>{i18nT("Wiring Fix")}</span>
+                <span>{i18nT("app.wiringFix")}</span>
                 <span className="font-semibold text-emerald-400">{i18nT("Completed")}</span>
               </div>
               <div className="flex justify-between items-center text-xs pb-1 border-b border-border">
-                <span>{i18nT("Paddy Harvester")}</span>
+                <span>{i18nT("app.paddyHarvester")}</span>
                 <span className="font-semibold text-emerald-400">{i18nT("Completed")}</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span>{i18nT("Table Assembly")}</span>
+                <span>{i18nT("app.tableAssembly")}</span>
                 <span className="font-semibold text-emerald-400">{i18nT("Completed")}</span>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="w-full">{i18nT("View Receipts Ledger")}</Button>
+            <Button variant="outline" size="sm" className="w-full">{i18nT("app.viewReceiptsLedger")}</Button>
           </Card>
         </div>
       </div>);
@@ -1403,13 +1467,13 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
   function RenderAdminDashboard() {const { t: i18nT } = useI18n();
     return (
       <div className="flex flex-col gap-6">
-        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Trust & Safety Admin Console")}</Typography>
+        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.trustSafetyAdminConsole")}</Typography>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Feature Flag Overrides */}
           <Card className="glass-card p-5 md:col-span-2 flex flex-col gap-4">
             <Typography variant="h3" className="font-bold flex items-center gap-2">
-              <Sliders className="w-5 h-5 text-primary" />{i18nT("Global System Feature Overrides")}
+              <Sliders className="w-5 h-5 text-primary" />{i18nT("app.globalSystemFeatureOverrides")}
 
             </Typography>
             
@@ -1452,19 +1516,19 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
           {/* SLA Support & Audit Logs summary */}
           <Card className="glass-card p-5 flex flex-col justify-between">
             <div>
-              <Typography variant="h4" className="font-bold">{i18nT("System Status Metrics")}</Typography>
+              <Typography variant="h4" className="font-bold">{i18nT("app.systemStatusMetrics")}</Typography>
               <div className="flex flex-col gap-3 my-4 text-xs">
                 <div className="flex justify-between items-center">
-                  <span>{i18nT("API Health Gate:")}</span>
-                  <span className="text-emerald-400 font-bold">{i18nT("99.7% OK")}</span>
+                  <span>{i18nT("app.apiHealthGate")}</span>
+                  <span className="text-emerald-400 font-bold">{i18nT("app.997Ok")}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>{i18nT("Fraud Alert Queue:")}</span>
-                  <span className="text-amber-400 font-bold">{i18nT("2 alerts")}</span>
+                  <span>{i18nT("app.fraudAlertQueue")}</span>
+                  <span className="text-amber-400 font-bold">{i18nT("app.2Alerts")}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>{i18nT("Active Workers Map:")}</span>
-                  <span className="text-primary font-bold">{i18nT("3,841 online")}</span>
+                  <span>{i18nT("app.activeWorkersMap")}</span>
+                  <span className="text-primary font-bold">{i18nT("app.3841Online")}</span>
                 </div>
               </div>
             </div>
@@ -1485,7 +1549,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
                 } finally {
                   setLoading(false);
                 }
-              }}>{i18nT("Fetch Audit Logs")}
+              }}>{i18nT("app.fetchAuditLogs")}
 
 
             </Button>
@@ -1501,15 +1565,15 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
-            <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Geofenced Map Explorer")}</Typography>
-            <Typography variant="muted" className="text-xs">{i18nT("Search nearby workers and gigs within circular geofenced zones.")}
+            <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.geofencedMapExplorer")}</Typography>
+            <Typography variant="muted" className="text-xs">{i18nT("app.searchNearbyWorkersAndGigsWithinCircularGeofenced")}
 
             </Typography>
           </div>
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder={i18nT("Filter by pincode...")}
+              placeholder={i18nT("app.filterByPincode")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-card border border-border px-3 py-1.5 rounded-lg text-xs text-foreground focus:ring-1 focus:ring-primary focus:outline-none" />
@@ -1522,16 +1586,16 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="p-4 bg-card/60 border border-border rounded-xl">
-            <Typography variant="h4" className="font-bold text-sm">{i18nT("Radius Parameter")}</Typography>
-            <Typography variant="muted" className="text-xs">{i18nT("Hiring and notification circle: 3,000 meters.")}</Typography>
+            <Typography variant="h4" className="font-bold text-sm">{i18nT("app.radiusParameter")}</Typography>
+            <Typography variant="muted" className="text-xs">{i18nT("app.hiringAndNotificationCircle3000Meters")}</Typography>
           </Card>
           <Card className="p-4 bg-card/60 border border-border rounded-xl">
-            <Typography variant="h4" className="font-bold text-sm">{i18nT("Current Location")}</Typography>
-            <Typography variant="muted" className="text-xs">{i18nT("Lat: 12.9716, Lon: 77.5946 (Guntur Central)")}</Typography>
+            <Typography variant="h4" className="font-bold text-sm">{i18nT("app.currentLocation")}</Typography>
+            <Typography variant="muted" className="text-xs">{i18nT("app.lat129716Lon775946GunturCentral")}</Typography>
           </Card>
           <Card className="p-4 bg-card/60 border border-border rounded-xl">
-            <Typography variant="h4" className="font-bold text-sm">{i18nT("Tracking Telemetry")}</Typography>
-            <Typography variant="muted" className="text-xs">{i18nT("GPS Security Spoofing detection active.")}</Typography>
+            <Typography variant="h4" className="font-bold text-sm">{i18nT("app.trackingTelemetry")}</Typography>
+            <Typography variant="muted" className="text-xs">{i18nT("app.gpsSecuritySpoofingDetectionActive")}</Typography>
           </Card>
         </div>
       </div>);
@@ -1543,8 +1607,8 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
     return (
       <div className="flex flex-col gap-6">
         <div>
-          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("AI Recommendation Console")}</Typography>
-          <Typography variant="muted" className="text-xs">{i18nT("Query JobNest data in natural language or improve your profile.")}
+          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.aiRecommendationConsole")}</Typography>
+          <Typography variant="muted" className="text-xs">{i18nT("app.queryJobnestDataInNaturalLanguageOrImprove")}
 
           </Typography>
         </div>
@@ -1553,40 +1617,40 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
           <Card className="glass-card p-5 lg:col-span-2 flex flex-col gap-4">
             <div className="flex items-center gap-2 text-primary font-bold">
               <Sparkles className="w-5 h-5" />
-              <span>{i18nT("Ask AI Pro Assistant")}</span>
+              <span>{i18nT("app.askAiProAssistant")}</span>
             </div>
 
             <textarea
               rows={4}
-              placeholder={i18nT("e.g. Find me a carpenter in Guntur with at least 3 years experience...")}
+              placeholder={i18nT("app.egFindMeACarpenterInGunturWith")}
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               className="w-full rounded-md glass-input px-3.5 py-3 text-sm text-foreground focus:outline-none placeholder:text-muted/50" />
             
 
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm" onClick={() => setAiPrompt("Enhance my profile bio description to highlight carpentry details.")}>{i18nT("Enhance Profile")}</Button>
-              <Button variant="primary" size="sm" onClick={handleAISearch} isLoading={loading}>{i18nT("Analyze query")}</Button>
+              <Button variant="outline" size="sm" onClick={() => setAiPrompt("Enhance my profile bio description to highlight carpentry details.")}>{i18nT("app.enhanceProfile")}</Button>
+              <Button variant="primary" size="sm" onClick={handleAISearch} isLoading={loading}>{i18nT("app.analyzeQuery")}</Button>
             </div>
 
             {AIResponsePanel()}
           </Card>
 
           <Card className="glass-card p-5 flex flex-col gap-3">
-            <Typography variant="h4" className="font-bold">{i18nT("Regional Salary Intel")}</Typography>
-            <Typography variant="muted" className="text-xs">{i18nT("Salary index for typical gigs in your zone (pincode 522002):")}</Typography>
+            <Typography variant="h4" className="font-bold">{i18nT("app.regionalSalaryIntel")}</Typography>
+            <Typography variant="muted" className="text-xs">{i18nT("app.salaryIndexForTypicalGigsInYourZone")}</Typography>
             <div className="flex flex-col gap-2.5 mt-2 text-xs font-semibold">
               <div className="flex justify-between items-center">
                 <span>{i18nT("Carpentry:")}</span>
-                <span className="text-primary">{i18nT("₹600 - ₹900/day")}</span>
+                <span className="text-primary">{i18nT("app.600900day")}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>{i18nT("Electrician:")}</span>
-                <span className="text-primary">{i18nT("₹700 - ₹1,200/day")}</span>
+                <span className="text-primary">{i18nT("app.7001200day")}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span>{i18nT("Agri Harvesting:")}</span>
-                <span className="text-primary">{i18nT("₹300 - ₹500/day")}</span>
+                <span>{i18nT("app.agriHarvesting")}</span>
+                <span className="text-primary">{i18nT("app.300500day")}</span>
               </div>
             </div>
           </Card>
@@ -1599,7 +1663,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
   function RenderChatMessenger() {const { t: i18nT } = useI18n();
     return (
       <div className="flex flex-col gap-4 h-[65vh]">
-        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Chat Rooms Ledger")}</Typography>
+        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.chatRoomsLedger")}</Typography>
         
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 border border-border rounded-2xl overflow-hidden bg-card/30 backdrop-blur-md">
           {/* Chat Rooms List Sidebar */}
@@ -1607,7 +1671,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
             <div className="p-4 border-b border-border">
               <input
                 type="text"
-                placeholder={i18nT("Search conversations...")}
+                placeholder={i18nT("app.searchConversations")}
                 className="w-full bg-secondary/80 border border-border rounded-lg text-xs py-1.5 px-3 focus:outline-none" />
               
             </div>
@@ -1645,7 +1709,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               <div>
                 <span className="text-xs font-bold block">{chatRooms.find((r) => r.id === activeRoomId)?.name}</span>
                 <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />{i18nT("Active Now")}
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />{i18nT("app.activeNow")}
 
                 </span>
               </div>
@@ -1691,7 +1755,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
               </Button>
               <input
                 type="text"
-                placeholder={i18nT("Type your message...")}
+                placeholder={i18nT("app.typeYourMessage")}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendChatMessage()}
@@ -1711,28 +1775,28 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
   function RenderWalletProfile() {const { t: i18nT } = useI18n();
     return (
       <div className="flex flex-col gap-6">
-        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Earnings & Account Ledger")}</Typography>
+        <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.earningsAccountLedger")}</Typography>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           <Card className="glass-card p-6 flex flex-col gap-4 lg:col-span-2">
             <div className="flex justify-between items-center pb-4 border-b border-border">
               <div>
-                <span className="text-xs text-muted uppercase font-mono tracking-wider">{i18nT("Withdrawable Balance")}</span>
+                <span className="text-xs text-muted uppercase font-mono tracking-wider">{i18nT("app.withdrawableBalance")}</span>
                 <span className="text-4xl font-extrabold text-primary block mt-1">₹{walletBalance}</span>
               </div>
-              <Badge variant="success">{i18nT("Instant Settlement Active")}</Badge>
+              <Badge variant="success">{i18nT("app.instantSettlementActive")}</Badge>
             </div>
 
             <form onSubmit={handleWalletWithdrawal} className="flex flex-col gap-3 mt-2">
               <Input
-                label={i18nT("Transfer Payout to Bank (₹)")}
+                label={i18nT("app.transferPayoutToBank")}
                 type="number"
-                placeholder={i18nT("Amount to withdraw")}
+                placeholder={i18nT("app.amountToWithdraw")}
                 required
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)} />
               
-              <Button type="submit" variant="primary" className="w-full mt-2" isLoading={loading}>{i18nT("Initiate Payout")}
+              <Button type="submit" variant="primary" className="w-full mt-2" isLoading={loading}>{i18nT("app.initiatePayout")}
 
               </Button>
             </form>
@@ -1740,7 +1804,7 @@ export default function PremiumHomePage() {const { t: i18nT } = useI18n();
 
           <Card className="glass-card p-5 flex flex-col gap-4">
             <Typography variant="h4" className="font-bold flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-primary" />{i18nT("Transaction Ledger History")}
+              <TrendingUp className="w-4 h-4 text-primary" />{i18nT("app.transactionLedgerHistory")}
 
             </Typography>
 

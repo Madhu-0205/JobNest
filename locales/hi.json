@@ -1130,5 +1130,22 @@
   "10 km": "10 कि.मी",
   "20 km": "20 किमी",
   "Battery Optimizer Active": "बैटरी ऑप्टिमाइज़र सक्रिय",
-  "Optimize Battery": "बैटरी अनुकूलित करें"
+  "Optimize Battery": "बैटरी अनुकूलित करें",
+  "Loading geofenced job area...": "जियोफेंस्ड कार्य क्षेत्र लोड हो रहा है...",
+  "Loading geofenced business map...": "जियोफेंस्ड व्यवसाय मानचित्र लोड हो रहा है...",
+  "Loading active worker tracking maps...": "सक्रिय कार्यकर्ता ट्रैकिंग मानचित्र लोड हो रहे हैं...",
+  "Loading interactive neighborhood map...": "इंटरैक्टिव पड़ोस मानचित्र लोड हो रहा है...",
+  "Loading interactive geofence radar...": "इंटरैक्टिव जियोफेंस रडार लोड हो रहा है...",
+  "Loading active neighborhood map...": "सक्रिय पड़ोस मानचित्र लोड हो रहा है...",
+  "Loading Guntur geofence map layers...": "गुंटूर जियोफ़ेंस मानचित्र परतें लोड हो रही हैं...",
+  "search.gigsPlaceholder": "गिग्स खोजें (उदा. '5 किमी के भीतर इलेक्ट्रीशियन')...",
+  "Confirm Password": "पासवर्ड की पुष्टि करें",
+  "Re-enter password": "पासवर्ड फिर से दर्ज करें",
+  "Minimum 8 characters, 1 uppercase, 1 special": "न्यूनतम 8 अक्षर, 1 बड़ा अक्षर, 1 विशेष अक्षर",
+  "Account created. Please verify your email.": "खाता बन गया। कृपया अपना ईमेल सत्यापित करें।",
+  "Too many signup attempts. Please try again later.": "बहुत अधिक साइनअप प्रयास हुए हैं। कृपया बाद में पुनः प्रयास करें।",
+  "An account with this email already exists.": "इस ईमेल वाला एक खाता पहले से मौजूद है।",
+  "Unable to connect to the authentication service. Please try again.": "प्रमाणीकरण सेवा से कनेक्ट करने में असमर्थ। कृपया पुनः प्रयास करें।",
+  "Input validation failed. Please check your details.": "इनपुट सत्यापन विफल रहा। कृपया अपने विवरण की जाँच करें।",
+  "Something went wrong. Please try again.": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।"
 }

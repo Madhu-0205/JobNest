@@ -72,8 +72,8 @@ export default function WalletPage() {const { t: i18nT } = useI18n();
     <ProductShell>
       <div className="flex flex-col gap-6 max-w-5xl mx-auto">
         <div>
-          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Escrow Wallet Ledger")}</Typography>
-          <Typography variant="muted" className="text-xs">{i18nT("Deposit funds, release completed gig escrows, and audit cryptographic double-entry ledger audits.")}
+          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.escrowWalletLedger")}</Typography>
+          <Typography variant="muted" className="text-xs">{i18nT("app.depositFundsReleaseCompletedGigEscrowsAndAudit")}
 
           </Typography>
         </div>
@@ -88,35 +88,35 @@ export default function WalletPage() {const { t: i18nT } = useI18n();
           {/* Balance card */}
           <Card className="glass-card p-6 flex flex-col justify-between md:col-span-1 bg-linear-to-br from-primary/10 to-transparent border-primary/20">
             <div className="flex justify-between items-start">
-              <span className="text-xs text-muted uppercase font-mono tracking-wider">{i18nT("Available Balance")}</span>
+              <span className="text-xs text-muted uppercase font-mono tracking-wider">{i18nT("app.availableBalance")}</span>
               <Wallet className="w-5 h-5 text-primary" />
             </div>
             <div className="my-6">
               <span className="text-4xl font-extrabold text-foreground">₹{user.walletBalance.toLocaleString()}</span>
-              <span className="block text-[10px] text-muted-foreground mt-1">{i18nT("100% liquid Indian Rupees (INR)")}</span>
+              <span className="block text-[10px] text-muted-foreground mt-1">{i18nT("app.100LiquidIndianRupeesInr")}</span>
             </div>
             <div className="text-[10px] text-muted flex gap-1.5 items-center">
               <Lock className="w-3.5 h-3.5 text-primary" />
-              <span>{i18nT("₹1,000 additional locked in active escrows")}</span>
+              <span>{i18nT("app.1000AdditionalLockedInActiveEscrows")}</span>
             </div>
           </Card>
 
           {/* Deposit panel */}
           <Card className="glass-card p-6 flex flex-col gap-4">
             <Typography variant="h3" className="font-bold text-sm flex items-center gap-2">
-              <ArrowUpRight className="w-4 h-4 text-emerald-400" />{i18nT("Deposit Wallet Funds")}
+              <ArrowUpRight className="w-4 h-4 text-emerald-400" />{i18nT("app.depositWalletFunds")}
 
             </Typography>
             <form onSubmit={handleDeposit} className="flex flex-col gap-3">
               <Input
-                label={i18nT("Deposit Amount (₹)")}
+                label={i18nT("app.depositAmount")}
                 type="number"
                 required
-                placeholder={i18nT("e.g. 1500")}
+                placeholder={i18nT("app.eg1500")}
                 value={depositAmt}
                 onChange={(e) => setDepositAmt(e.target.value)} />
               
-              <Button variant="primary" type="submit" isLoading={loading} className="w-full mt-2">{i18nT("Deposit via Razorpay")}
+              <Button variant="primary" type="submit" isLoading={loading} className="w-full mt-2">{i18nT("app.depositViaRazorpay")}
 
               </Button>
             </form>
@@ -125,27 +125,27 @@ export default function WalletPage() {const { t: i18nT } = useI18n();
           {/* Payout/Withdrawal panel */}
           <Card className="glass-card p-6 flex flex-col gap-4">
             <Typography variant="h3" className="font-bold text-sm flex items-center gap-2">
-              <ArrowDownLeft className="w-4 h-4 text-amber-500" />{i18nT("Instant Bank Payout")}
+              <ArrowDownLeft className="w-4 h-4 text-amber-500" />{i18nT("app.instantBankPayout")}
 
             </Typography>
             <form onSubmit={handleWithdrawal} className="flex flex-col gap-3">
               <Input
-                label={i18nT("Withdraw Amount (₹)")}
+                label={i18nT("app.withdrawAmount")}
                 type="number"
                 required
                 max={user.walletBalance}
-                placeholder={i18nT("e.g. 500")}
+                placeholder={i18nT("app.eg500")}
                 value={withdrawAmt}
                 onChange={(e) => setWithdrawAmt(e.target.value)} />
               
               <Input
-                label={i18nT("UPI ID / Bank Account")}
+                label={i18nT("app.upiIdBankAccount")}
                 required
-                placeholder={i18nT("e.g. arun@upi")}
+                placeholder={i18nT("app.egArunupi")}
                 value={withdrawDest}
                 onChange={(e) => setWithdrawDest(e.target.value)} />
               
-              <Button variant="outline" type="submit" isLoading={loading} className="w-full mt-2" disabled={parseFloat(withdrawAmt) > user.walletBalance}>{i18nT("Request Settlement payout")}
+              <Button variant="outline" type="submit" isLoading={loading} className="w-full mt-2" disabled={parseFloat(withdrawAmt) > user.walletBalance}>{i18nT("app.requestSettlementPayout")}
 
               </Button>
             </form>
@@ -155,14 +155,14 @@ export default function WalletPage() {const { t: i18nT } = useI18n();
         {/* Ledger transaction logs */}
         <div className="flex flex-col gap-4">
           <Typography variant="h3" className="font-bold flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />{i18nT("Audit Ledger Transactions")}
+            <FileText className="w-5 h-5 text-primary" />{i18nT("app.auditLedgerTransactions")}
 
           </Typography>
           <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-luxury">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-muted/30 border-b border-border/30 text-muted-foreground font-semibold">
-                  <th className="p-4">{i18nT("Transaction ID")}</th>
+                  <th className="p-4">{i18nT("app.transactionId")}</th>
                   <th className="p-4">{i18nT("Date")}</th>
                   <th className="p-4">{i18nT("Description")}</th>
                   <th className="p-4 text-right">{i18nT("Amount")}</th>

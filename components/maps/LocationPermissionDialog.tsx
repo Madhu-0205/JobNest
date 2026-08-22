@@ -19,29 +19,29 @@ export function LocationPermissionDialog({ isOpen, onClose, onGrant }: LocationP
           <div className="w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 text-primary">
             <MapPin className="w-6 h-6 animate-bounce" />
           </div>
-          <DialogTitle className="text-xl font-bold tracking-tight text-foreground">{i18nT("Activate Hyperlocal Map")}
+          <DialogTitle className="text-xl font-bold tracking-tight text-foreground">{i18nT("common.activateHyperlocalMap")}
 
           </DialogTitle>
         </DialogHeader>
         
         <div className="my-4">
-          <Typography variant="p" className="text-xs text-muted text-center leading-relaxed">{i18nT("JobNest matches you with nearby jobs, available workers, and local gigs in real-time. To begin matching, we require permission to access your GPS coordinates.")}
+          <Typography variant="p" className="text-xs text-muted text-center leading-relaxed">{i18nT("common.jobnestMatchesYouWithNearbyJobsAvailableWorkers")}
 
           </Typography>
           
           <div className="flex items-start gap-2.5 mt-4 p-3 rounded-lg border border-border bg-card/40 text-left text-[11px] text-muted">
             <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-            <span>{i18nT("Your coordinates are verified using built-in anti-spoofing and secure telemetry. We respect your privacy and never sell tracking data.")}
+            <span>{i18nT("common.yourCoordinatesAreVerifiedUsingBuiltinAntispoofingAnd")}
 
             </span>
           </div>
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2 w-full">
-          <Button variant="outline" size="sm" onClick={onClose} className="w-full text-xs py-2 rounded-lg">{i18nT("Use Search Instead")}
+          <Button variant="outline" size="sm" onClick={onClose} className="w-full text-xs py-2 rounded-lg">{i18nT("common.useSearchInstead")}
 
           </Button>
-          <Button variant="primary" size="sm" onClick={onGrant} className="w-full text-xs py-2 rounded-lg font-bold">{i18nT("Allow GPS Access")}
+          <Button variant="primary" size="sm" onClick={onGrant} className="w-full text-xs py-2 rounded-lg font-bold">{i18nT("common.allowGpsAccess")}
 
           </Button>
         </DialogFooter>

@@ -21,6 +21,14 @@ const eslintConfig = defineConfig([
       "react/prop-types": "off",
       "react-hooks/set-state-in-effect": "off"
     }
+  },
+  {
+    files: ["scripts/**/*.js", "*.js", "scratch/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-console": "off"
+    }
   }
 ]);
 

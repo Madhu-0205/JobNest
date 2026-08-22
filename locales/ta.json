@@ -1130,5 +1130,22 @@
   "10 km": "10 కి.మీ",
   "20 km": "20 కి.మీ",
   "Battery Optimizer Active": "బ్యాటరీ ఆప్టిమైజర్ యాక్టివ్",
-  "Optimize Battery": "బ్యాటరీని ఆప్టిమైజ్ చేయండి"
+  "Optimize Battery": "బ్యాటరీని ఆప్టిమైజ్ చేయండి",
+  "Loading geofenced job area...": "ஜியோஃபென்ஸ் செய்யப்பட்ட வேலைப் பகுதியை ஏற்றுகிறது...",
+  "Loading geofenced business map...": "ஜியோஃபென்ஸ் செய்யப்பட்ட வணிக வரைபடத்தை ஏற்றுகிறது...",
+  "Loading active worker tracking maps...": "செயலில் உள்ள பணியாளர் கண்காணிப்பு வரைபடங்களை ஏற்றுகிறது...",
+  "Loading interactive neighborhood map...": "ஊடாடும் சுற்றுப்புற வரைபடத்தை ஏற்றுகிறது...",
+  "Loading interactive geofence radar...": "ஊடாடும் ஜியோஃபென்ஸ் ரேடாரை ஏற்றுகிறது...",
+  "Loading active neighborhood map...": "செயலில் உள்ள அக்கம் பக்க வரைபடத்தை ஏற்றுகிறது...",
+  "Loading Guntur geofence map layers...": "குண்டூர் ஜியோஃபென்ஸ் வரைபட அடுக்குகளை ஏற்றுகிறது...",
+  "search.gigsPlaceholder": "கிக்குகளைத் தேடுங்கள் (எ.கா. '5 கிமீக்குள் எலக்ட்ரீஷியன்')...",
+  "Confirm Password": "கடவுச்சொல்லை உறுதிப்படுத்தவும்",
+  "Re-enter password": "கடவுச்சொல்லை மீண்டும் உள்ளிடவும்",
+  "Minimum 8 characters, 1 uppercase, 1 special": "குறைந்தபட்சம் 8 எழுத்துக்கள், 1 பெரிய எழுத்து, 1 சிறப்பு எழுத்து",
+  "Account created. Please verify your email.": "கணக்கு உருவாக்கப்பட்டது. உங்கள் மின்னஞ்சலை சரிபார்க்கவும்.",
+  "Too many signup attempts. Please try again later.": "மிகவும் அதிகமான பதிவு முயற்சிகள். பின்னர் மீண்டும் முயற்சிக்கவும்.",
+  "An account with this email already exists.": "இந்த மின்னஞ்சலுடன் ஒரு கணக்கு ஏற்கனவே உள்ளது.",
+  "Unable to connect to the authentication service. Please try again.": "அங்கீகார சேவையுடன் இணைக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+  "Input validation failed. Please check your details.": "உள்ளீடு சரிபார்ப்பு தோல்வியடைந்தது. உங்கள் விவரங்களை சரிபார்க்கவும்.",
+  "Something went wrong. Please try again.": "ஏதோ தவறு நடந்துவிட்டது. மீண்டும் முயற்சிக்கவும்."
 }

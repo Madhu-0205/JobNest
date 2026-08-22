@@ -23,7 +23,7 @@ export function Loading({ className, size = "md", fullPage = false }: LoadingPro
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
-    aria-label={i18nT("Loading content")}
+    aria-label={i18nT("common.loadingContent")}
     role="progressbar">
     
       <circle className="opacity-15" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -40,7 +40,7 @@ export function Loading({ className, size = "md", fullPage = false }: LoadingPro
       <div className="fixed inset-0 bg-background/80 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in">
         <div className="flex flex-col items-center gap-4">
           {spinner}
-          <span className="text-sm font-medium text-muted-foreground/80">{i18nT("Loading JobNest...")}</span>
+          <span className="text-sm font-medium text-muted-foreground/80">{i18nT("common.loadingJobnest")}</span>
         </div>
       </div>);
 

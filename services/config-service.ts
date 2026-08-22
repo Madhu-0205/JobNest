@@ -61,8 +61,8 @@ export class ConfigService {
    */
   static get payments() {
     return {
-      razorpayKeyId: env.RAZORPAY_KEY_ID || "mock-key-id",
-      razorpayKeySecret: env.RAZORPAY_KEY_SECRET || "mock-key-secret",
+      razorpayKeyId: env.NODE_ENV === "production" ? env.RAZORPAY_KEY_ID : (env.RAZORPAY_KEY_ID || "mock-key-id"),
+      razorpayKeySecret: env.NODE_ENV === "production" ? env.RAZORPAY_KEY_SECRET : (env.RAZORPAY_KEY_SECRET || "mock-key-secret"),
       currency: "INR",
       transactionFeePercentage: 2.0, // 2% service charge
     };
@@ -73,8 +73,8 @@ export class ConfigService {
    */
   static get storage() {
     return {
-      supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL || "https://mock.supabase.co",
-      supabaseAnonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "mock-anon-key",
+      supabaseUrl: env.NODE_ENV === "production" ? env.NEXT_PUBLIC_SUPABASE_URL : (env.NEXT_PUBLIC_SUPABASE_URL || "https://mock.supabase.co"),
+      supabaseAnonKey: env.NODE_ENV === "production" ? env.NEXT_PUBLIC_SUPABASE_ANON_KEY : (env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "mock-anon-key"),
       maxFileSizeBytes: 5 * 1024 * 1024, // 5MB Upload Limit
       allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
       avatarBucket: "avatars",

@@ -39,11 +39,14 @@ const MapView = dynamic(
   () => import("@/components/maps/MapView").then((mod) => mod.MapView),
   {
     ssr: false,
-    loading: () =>
-    <div className="w-full h-[320px] md:h-[400px] rounded-3xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
+    loading: function LoadingFallback() {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { t: i18nT } = require("@/lib/i18n/context").useI18n();
+      return (<div className="w-full h-[320px] md:h-[400px] rounded-3xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-        <span className="text-xs text-muted-foreground">Loading Guntur geofence map layers...</span>
-      </div>
+        <span className="text-xs text-muted-foreground">{i18nT("worker.loadingGunturGeofenceMapLayers")}</span>
+      </div>);
+    }
 
   }
 );
@@ -199,10 +202,10 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             </Avatar>
             <div className="flex flex-col gap-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <Typography variant="h2" className="text-xl md:text-2xl font-black text-foreground tracking-tight">{i18nT("Good Morning,")}
+                <Typography variant="h2" className="text-xl md:text-2xl font-black text-foreground tracking-tight">{i18nT("worker.goodMorning")}
                   {user.name}!
                 </Typography>
-                <Badge variant="success" className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 font-bold text-[10px]">{i18nT("Online Pro")}
+                <Badge variant="success" className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 font-bold text-[10px]">{i18nT("worker.onlinePro")}
 
                 </Badge>
               </div>
@@ -217,7 +220,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                 <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
                 <span className="flex items-center gap-1">
                   <Sun className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{weatherTemp}{i18nT("°C •")}{weatherCondition}</span>
+                  <span>{weatherTemp}{i18nT("worker.c")}{weatherCondition}</span>
                 </span>
               </div>
             </div>
@@ -230,7 +233,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
               <span className="text-lg font-bold font-mono text-amber-500">₹{user.expectedDailyEarnings || 1500}</span>
             </div>
             <div>
-              <span className="text-[9px] uppercase font-bold text-muted-foreground block tracking-wider">{i18nT("Hyperlocal Radius")}</span>
+              <span className="text-[9px] uppercase font-bold text-muted-foreground block tracking-wider">{i18nT("worker.hyperlocalRadius")}</span>
               <span className="text-lg font-bold font-mono text-foreground">{user.workRadius || 10}{i18nT("Km")}</span>
             </div>
           </div>
@@ -244,7 +247,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             className="bg-card hover:bg-muted border border-border/30 rounded-xl text-xs py-3 font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-sm">
             
             <Filter className="w-4 h-4 text-amber-500" />
-            <span>{i18nT("Find Jobs")}</span>
+            <span>{i18nT("worker.findJobs")}</span>
           </Button>
 
           <Button
@@ -266,7 +269,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             className="bg-card hover:bg-muted border border-border/30 rounded-xl text-xs py-3 font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-sm">
             
             <Wallet className="w-4 h-4 text-amber-500" />
-            <span>{i18nT("Open Wallet")}</span>
+            <span>{i18nT("worker.openWallet")}</span>
           </Button>
 
           <Button
@@ -284,7 +287,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             className="bg-card hover:bg-muted border border-border/30 rounded-xl text-xs py-3 font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-sm col-span-2 sm:col-span-1">
             
             <User className="w-4 h-4 text-amber-500" />
-            <span>{i18nT("My Profile")}</span>
+            <span>{i18nT("worker.myProfile")}</span>
           </Button>
         </div>
 
@@ -298,13 +301,13 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             <Card className="glass-panel border-border shadow-luxury overflow-hidden">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-base font-bold gold-gradient-text">{i18nT("Live Neighborhood Gig Map")}</CardTitle>
-                  <CardDescription className="text-xs">{i18nT("Real-time match opportunities around your current GPS coordinates.")}
+                  <CardTitle className="text-base font-bold gold-gradient-text">{i18nT("worker.liveNeighborhoodGigMap")}</CardTitle>
+                  <CardDescription className="text-xs">{i18nT("worker.realtimeMatchOpportunitiesAroundYourCurrentGpsCoordinates")}
 
                   </CardDescription>
                 </div>
                 <Badge variant="primary" className="text-[10px] font-bold">
-                  {filteredJobs.length}{i18nT("Gigs Mapped")}
+                  {filteredJobs.length}{i18nT("worker.gigsMapped")}
                 </Badge>
               </CardHeader>
               <CardContent className="p-0">
@@ -317,7 +320,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <div className="flex items-center gap-2">
                   <Typography variant="h3" className="font-bold flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-amber-500" />{i18nT("Hyperlocal Opportunity Feed")}
+                    <Sparkles className="w-5 h-5 text-amber-500" />{i18nT("worker.hyperlocalOpportunityFeed")}
 
                   </Typography>
                 </div>
@@ -330,7 +333,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                     selectedFilter === "all" ?
                     "bg-amber-600/20 text-amber-300 border-amber-500" :
                     "border-border/40 hover:bg-muted text-muted-foreground"}`
-                    }>{i18nT("All Jobs")}
+                    }>{i18nT("worker.allJobs")}
 
 
                   </button>
@@ -340,7 +343,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                     selectedFilter === "recommended" ?
                     "bg-amber-600/20 text-amber-300 border-amber-500" :
                     "border-border/40 hover:bg-muted text-muted-foreground"}`
-                    }>{i18nT("AI Suggested")}
+                    }>{i18nT("worker.aiSuggested")}
 
 
                   </button>
@@ -383,15 +386,15 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                     <AlertCircle className="w-6 h-6" />
                   </div>
                   <div>
-                    <Typography variant="h4" className="font-bold text-sm">{i18nT("No Nearby Gigs Match Filters")}</Typography>
-                    <Typography variant="muted" className="text-xs max-w-sm mx-auto mt-1 leading-normal">{i18nT("Update your skills directory or expand your hyperlocal work radius in settings to find more customer gigs.")}
+                    <Typography variant="h4" className="font-bold text-sm">{i18nT("worker.noNearbyGigsMatchFilters")}</Typography>
+                    <Typography variant="muted" className="text-xs max-w-sm mx-auto mt-1 leading-normal">{i18nT("worker.updateYourSkillsDirectoryOrExpandYourHyperlocal")}
 
                   </Typography>
                   </div>
                   <Button
                   variant="ghost"
                   onClick={() => {setSelectedFilter("all");}}
-                  className="border border-border/40 text-xs mt-1 cursor-pointer">{i18nT("Reset Filter")}
+                  className="border border-border/40 text-xs mt-1 cursor-pointer">{i18nT("worker.resetFilter")}
 
 
                 </Button>
@@ -423,13 +426,13 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                               <span className="font-semibold text-foreground">{job.rating}</span>
                             </span>
                             <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                            <span>{job.distance}{i18nT("Km away")}</span>
+                            <span>{job.distance}{i18nT("worker.kmAway")}</span>
                           </div>
                         </div>
 
                         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1">
                           <span className="text-lg font-black text-amber-500 font-mono">₹{job.salary}</span>
-                          <span className="text-[10px] text-muted-foreground">{i18nT("Fixed Hyperlocal SLA")}</span>
+                          <span className="text-[10px] text-muted-foreground">{i18nT("worker.fixedHyperlocalSla")}</span>
                         </div>
                       </div>
 
@@ -450,7 +453,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                           <button
                         onClick={() => handleToggleSave(job.id)}
                         className="p-2 rounded-lg border border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-                        aria-label={i18nT("Save this gig for later reference")}>
+                        aria-label={i18nT("worker.saveThisGigForLaterReference")}>
                         
                             <Bookmark className={`w-4 h-4 ${job.saved ? "fill-amber-500 text-amber-500" : ""}`} />
                           </button>
@@ -491,18 +494,18 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             <Card className="glass-panel border-border shadow-luxury">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-base font-bold gold-gradient-text">{i18nT("My Wallet Vault")}</CardTitle>
-                  <CardDescription className="text-xs">{i18nT("Hyperlocal double-entry currency ledgers.")}</CardDescription>
+                  <CardTitle className="text-base font-bold gold-gradient-text">{i18nT("worker.myWalletVault")}</CardTitle>
+                  <CardDescription className="text-xs">{i18nT("worker.hyperlocalDoubleentryCurrencyLedgers")}</CardDescription>
                 </div>
                 <Wallet className="w-5 h-5 text-amber-500" />
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="bg-black/25 rounded-2xl border border-border/40 p-4 text-center">
-                  <span className="text-[10px] text-muted-foreground block uppercase font-bold tracking-wider">{i18nT("Active Credentials Balance")}</span>
+                  <span className="text-[10px] text-muted-foreground block uppercase font-bold tracking-wider">{i18nT("worker.activeCredentialsBalance")}</span>
                   <span className="text-2xl font-black text-amber-500 font-mono">₹{user.walletBalance}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs border-t border-border/10 pt-3">
-                  <span className="text-muted-foreground">{i18nT("Expected payout rate:")}</span>
+                  <span className="text-muted-foreground">{i18nT("worker.expectedPayoutRate")}</span>
                   <span className="font-bold text-foreground">₹{user.expectedDailyEarnings || 1200}{i18nT("/day")}</span>
                 </div>
                 <Button
@@ -510,7 +513,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                   onClick={() => router.push("/wallet")}
                   className="w-full border border-border/40 text-xs py-2 flex items-center justify-center gap-1.5 cursor-pointer mt-1">
                   
-                  <span>{i18nT("Deposit / Settlement Payouts")}</span>
+                  <span>{i18nT("worker.depositSettlementPayouts")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               </CardContent>
@@ -520,8 +523,8 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             <Card className="glass-panel border-border shadow-luxury">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-base font-bold gold-gradient-text">{i18nT("Trust Score Registry")}</CardTitle>
-                  <CardDescription className="text-xs">{i18nT("Dynamic credentials status.")}</CardDescription>
+                  <CardTitle className="text-base font-bold gold-gradient-text">{i18nT("worker.trustScoreRegistry")}</CardTitle>
+                  <CardDescription className="text-xs">{i18nT("worker.dynamicCredentialsStatus")}</CardDescription>
                 </div>
                 <Shield className="w-5 h-5 text-amber-500" />
               </CardHeader>
@@ -529,7 +532,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-lg font-bold text-foreground font-mono">96%</span>
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider">{i18nT("Hyperlocal Score")}</span>
+                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider">{i18nT("worker.hyperlocalScore")}</span>
                   </div>
                   <Badge variant={user.kycStatus === "verified" ? "success" : "warning"} className="text-[10px]">
                     {user.kycStatus === "verified" ? "KYC Approved" : "Verification Pending"}
@@ -539,12 +542,12 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                 {user.kycStatus === "verified" ?
                 <p className="text-[11px] text-emerald-400 bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-2.5 leading-normal flex items-start gap-1.5">
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                    <span>{i18nT("Your Aadhaar card has been cryptographically validated on the trust ledger. Verification badge is active.")}</span>
+                    <span>{i18nT("worker.yourAadhaarCardHasBeenCryptographicallyValidatedOn")}</span>
                   </p> :
 
                 <p className="text-[11px] text-amber-400 bg-amber-950/20 border border-amber-500/20 rounded-xl p-2.5 leading-normal flex items-start gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                    <span>{i18nT("Aadhaar validation pending. Please ensure your ID upload matches your profile name exactly to unlock verification badges.")}</span>
+                    <span>{i18nT("worker.aadhaarValidationPendingPleaseEnsureYourIdUpload")}</span>
                   </p>
                 }
               </CardContent>
@@ -554,19 +557,19 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             <Card className="glass-panel border-border shadow-luxury">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-amber-500" />{i18nT("Active Applications")}
+                  <CheckSquare className="w-4 h-4 text-amber-500" />{i18nT("worker.activeApplications")}
 
                 </CardTitle>
-                <CardDescription className="text-xs">{i18nT("Jobs you applied for in the Guntur area.")}</CardDescription>
+                <CardDescription className="text-xs">{i18nT("worker.jobsYouAppliedForInTheGunturArea")}</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
                 {activeApplications.length === 0 ? (
                 /* Applications Empty State */
                 <div className="text-center py-4 border border-dashed border-border/40 rounded-xl bg-black/5">
-                    <span className="text-xs text-muted-foreground block">{i18nT("No active applications")}</span>
+                    <span className="text-xs text-muted-foreground block">{i18nT("worker.noActiveApplications")}</span>
                     <button
                     onClick={() => handleApply("job-1")}
-                    className="text-[10px] text-amber-500 font-bold mt-1.5 hover:underline cursor-pointer">{i18nT("Quick Apply to Suresh K. (Carpenter)")}
+                    className="text-[10px] text-amber-500 font-bold mt-1.5 hover:underline cursor-pointer">{i18nT("worker.quickApplyToSureshKCarpenter")}
 
 
                   </button>
@@ -576,7 +579,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                 <div key={app.id} className="border border-border/40 rounded-xl p-3 bg-black/15 flex flex-col gap-2">
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-semibold text-foreground">{app.title}</span>
-                        <Badge variant="secondary" className="text-[8px] font-bold">{i18nT("In Review")}</Badge>
+                        <Badge variant="secondary" className="text-[8px] font-bold">{i18nT("worker.inReview")}</Badge>
                       </div>
                       <div className="flex justify-between items-center text-[10px] text-muted-foreground border-t border-border/10 pt-2 mt-1">
                         <span>{i18nT("Payer:")}{app.employer.split(" ")[0]}</span>
@@ -592,10 +595,10 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
             <Card className="glass-panel border-border shadow-luxury">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-amber-500" />{i18nT("Hyperlocal Chat Logs")}
+                  <MessageSquare className="w-4 h-4 text-amber-500" />{i18nT("worker.hyperlocalChatLogs")}
 
                 </CardTitle>
-                <CardDescription className="text-xs">{i18nT("Direct messages on Guntur active threads.")}</CardDescription>
+                <CardDescription className="text-xs">{i18nT("worker.directMessagesOnGunturActiveThreads")}</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
                 <div
@@ -603,8 +606,8 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                   className="border border-border/40 hover:border-amber-500/30 rounded-xl p-3 bg-black/15 cursor-pointer flex flex-col gap-1 transition-all">
                   
                   <div className="flex justify-between items-center text-xs font-semibold">
-                    <span className="text-amber-500">{i18nT("Suresh K.")}</span>
-                    <span className="text-[8px] text-muted-foreground">{i18nT("Just now")}</span>
+                    <span className="text-amber-500">{i18nT("worker.sureshK")}</span>
+                    <span className="text-[8px] text-muted-foreground">{i18nT("worker.justNow")}</span>
                   </div>
                   <p className="text-[11px] text-muted-foreground truncate">{i18nT("\"Please send your location coordinates, I'm waiting near the main gate.\"")}</p>
                 </div>
@@ -614,8 +617,8 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                   className="border border-border/40 hover:border-amber-500/30 rounded-xl p-3 bg-black/15 cursor-pointer flex flex-col gap-1 transition-all opacity-80">
                   
                   <div className="flex justify-between items-center text-xs font-semibold">
-                    <span className="text-foreground">{i18nT("Guntur Coop Farms")}</span>
-                    <span className="text-[8px] text-muted-foreground">{i18nT("1 hr ago")}</span>
+                    <span className="text-foreground">{i18nT("worker.gunturCoopFarms")}</span>
+                    <span className="text-[8px] text-muted-foreground">{i18nT("worker.1HrAgo")}</span>
                   </div>
                   <p className="text-[11px] text-muted-foreground truncate">{i18nT("\"Awesome. We've verified your agricultural credentials.\"")}</p>
                 </div>

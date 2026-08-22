@@ -320,7 +320,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {tab === "overview" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>{i18nT("Platform Health")}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>{i18nT("app.platformHealth")}</h2>
               <Button onClick={analytics.fetchDashboard} disabled={analytics.loading} style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                 {analytics.loading ? "Loading..." : `🔄 ${t.loadData}`}
               </Button>
@@ -366,7 +366,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
                       <span style={{ fontSize: 13, fontWeight: 700, color: g.trend === "up" ? "#10b981" : g.trend === "down" ? "#ef4444" : "#94a3b8" }}>
                         {g.trend === "up" ? "↑" : g.trend === "down" ? "↓" : "→"} {Math.abs(g.changePercent).toFixed(1)}%
                       </span>
-                      <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{i18nT("vs last period")}</p>
+                      <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{i18nT("app.vsLastPeriod")}</p>
                     </div>
                   </div>
               )}
@@ -378,7 +378,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {/* ══════════════════════════════════════════ ANALYTICS */}
         {tab === "analytics" &&
           <div>
-            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("Business Analytics")}</h2>
+            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("app.businessAnalytics")}</h2>
             {!analytics.dashboard && <Button onClick={analytics.fetchDashboard} style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", border: "none", color: "#fff", borderRadius: 8, marginBottom: 20 }}>{t.loadData}</Button>}
 
             {analytics.dashboard &&
@@ -468,7 +468,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {tab === "moderation" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("Content Moderation Queue")}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("app.contentModerationQueue")}</h2>
               <Button onClick={moderation.fetchQueue} disabled={moderation.loading} style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                 {moderation.loading ? "Loading..." : `🔄 ${t.loadData}`}
               </Button>
@@ -504,7 +504,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
                         <Badge style={{ background: "rgba(255,255,255,0.05)", color: item.status === "in_review" ? "#06b6d4" : "#f59e0b", fontSize: 10 }}>{item.status}</Badge>
                       </div>
                       <p style={{ margin: 0, fontSize: 13, color: "#e2e8f0", fontWeight: 600 }}>{item.reason || "No reason provided"}</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{i18nT("Content ID:")}{item.contentId} · {new Date(item.createdAt).toLocaleString()}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{i18nT("app.contentId")}{item.contentId} · {new Date(item.createdAt).toLocaleString()}</p>
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
@@ -521,7 +521,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
                 </div>
               )}
               {moderation.items.length === 0 && !moderation.loading &&
-              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("No items in queue. Click Load Data to fetch.")}</p>
+              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("app.noItemsInQueueClickLoadDataTo")}</p>
               }
             </div>
           </div>
@@ -531,7 +531,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {tab === "support" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("Customer Support")}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("app.customerSupport")}</h2>
               <Button onClick={support.fetchTickets} disabled={support.loading} style={{ background: "linear-gradient(135deg,#06b6d4,#0891b2)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                 {support.loading ? "Loading..." : `🔄 ${t.loadData}`}
               </Button>
@@ -565,9 +565,9 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
                         <Badge style={{ background: `${priorityColor(ticket.priority)}20`, color: priorityColor(ticket.priority), fontSize: 10, textTransform: "uppercase" }}>{ticket.priority}</Badge>
                         <Badge style={{ background: `${statusColor(ticket.status)}20`, color: statusColor(ticket.status), fontSize: 10 }}>{ticket.status}</Badge>
                         <Badge style={{ background: "rgba(255,255,255,0.05)", color: "#94a3b8", fontSize: 10 }}>{ticket.category}</Badge>
-                        {ticket.slaBreached && <Badge style={{ background: "rgba(239,68,68,0.2)", color: "#fca5a5", fontSize: 10 }}>{i18nT("⚠️ SLA BREACHED")}</Badge>}
+                        {ticket.slaBreached && <Badge style={{ background: "rgba(239,68,68,0.2)", color: "#fca5a5", fontSize: 10 }}>{i18nT("app.slaBreached")}</Badge>}
                         {!ticket.slaBreached && ticket.slaRemainingMinutes !== null && ticket.slaRemainingMinutes < 60 &&
-                      <Badge style={{ background: "rgba(245,158,11,0.2)", color: "#fcd34d", fontSize: 10 }}>⏰ {ticket.slaRemainingMinutes}{i18nT("m remaining")}</Badge>
+                      <Badge style={{ background: "rgba(245,158,11,0.2)", color: "#fcd34d", fontSize: 10 }}>⏰ {ticket.slaRemainingMinutes}{i18nT("app.mRemaining")}</Badge>
                       }
                       </div>
                       <p style={{ margin: 0, fontSize: 14, color: "#e2e8f0", fontWeight: 600 }}>{ticket.subject}</p>
@@ -585,7 +585,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
                 </div>
               )}
               {support.tickets.length === 0 && !support.loading &&
-              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("No tickets loaded. Click Load Data to fetch.")}</p>
+              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("app.noTicketsLoadedClickLoadDataToFetch")}</p>
               }
             </div>
           </div>
@@ -594,7 +594,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {/* ══════════════════════════════════════════════ REVENUE */}
         {tab === "revenue" &&
           <div>
-            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("Revenue & Financial Monitoring")}</h2>
+            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("app.revenueFinancialMonitoring")}</h2>
             {!analytics.dashboard && <Button onClick={analytics.fetchDashboard} style={{ background: "linear-gradient(135deg,#10b981,#059669)", border: "none", color: "#fff", borderRadius: 8, marginBottom: 20 }}>{t.loadData}</Button>}
 
             {analytics.dashboard &&
@@ -618,7 +618,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
 
                 {/* Revenue sparkline */}
                 <Card style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: 14, marginBottom: 16 }}>
-                  <CardHeader><CardTitle style={{ color: "#6ee7b7" }}>{i18nT("30-Day Revenue Trend")}</CardTitle></CardHeader>
+                  <CardHeader><CardTitle style={{ color: "#6ee7b7" }}>{i18nT("app.30dayRevenueTrend")}</CardTitle></CardHeader>
                   <CardContent>
                     <svg viewBox={`0 0 600 80`} style={{ width: "100%", height: 80 }}>
                       {analytics.dashboard.revenueSeriesDaily.map((p, i) => {
@@ -654,7 +654,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {/* ════════════════════════════════════════════════ FRAUD */}
         {tab === "fraud" &&
           <div>
-            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("Fraud Operations Center")}</h2>
+            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("app.fraudOperationsCenter")}</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {FRAUD_CASES.map((fc) =>
               <div key={fc.id} style={{ padding: 18, background: "rgba(255,255,255,0.03)", borderRadius: 14, border: `1px solid ${severityColor(fc.severity)}44` }}>
@@ -670,11 +670,11 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
                       </div>
                       <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#fecaca" }}>{fc.title}</p>
                       <p style={{ margin: "4px 0 0", fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{i18nT("Suspect:")}
-                      {fc.suspect}{i18nT("· Opened")}{new Date(fc.created_at).toLocaleString()}
+                      {fc.suspect}{i18nT("app.opened")}{new Date(fc.created_at).toLocaleString()}
                       </p>
                     </div>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <Button style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", borderRadius: 6, fontSize: 12, padding: "6px 12px" }}>{i18nT("🔍 Investigate")}
+                      <Button style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", borderRadius: 6, fontSize: 12, padding: "6px 12px" }}>{i18nT("app.investigate")}
 
                     </Button>
                       <Button style={{ background: "rgba(148,163,184,0.1)", border: "1px solid rgba(148,163,184,0.3)", color: "#94a3b8", borderRadius: 6, fontSize: 12, padding: "6px 12px" }}>{i18nT("Dismiss")}
@@ -692,7 +692,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {tab === "config" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("System Configuration")}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("app.systemConfiguration")}</h2>
               <Button onClick={config.fetchConfig} disabled={config.loading} style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
                 {config.loading ? "Loading..." : `🔄 ${t.loadData}`}
               </Button>
@@ -704,7 +704,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
                 <Card style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)", borderRadius: 14 }}>
                   <CardHeader>
                     <CardTitle style={{ color: "#fcd34d" }}>🚩 {t.featureFlags}</CardTitle>
-                    <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Live platform feature toggles")}</CardDescription>
+                    <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.livePlatformFeatureToggles")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {Object.entries(config.config.flags).map(([key, enabled]) =>
@@ -735,7 +735,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
                 <Card style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 14 }}>
                   <CardHeader>
                     <CardTitle style={{ color: "#a5b4fc" }}>⚙️ {t.systemSettings}</CardTitle>
-                    <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Core platform parameters")}</CardDescription>
+                    <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.corePlatformParameters")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {config.config.settings.map((s) =>
@@ -759,13 +759,13 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {tab === "audit" &&
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("Audit Center")}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{i18nT("app.auditCenter")}</h2>
               <div style={{ display: "flex", gap: 8 }}>
                 <input
                   id="audit-search"
                   value={auditFilter}
                   onChange={(e) => setAuditFilter(e.target.value)}
-                  placeholder={i18nT("Search actions...")}
+                  placeholder={i18nT("app.searchActions")}
                   style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: 13 }} />
                 
                 <Button onClick={() => fetchAudit(auditFilter)} disabled={auditLoading} style={{ background: "linear-gradient(135deg,#7c3aed,#6d28d9)", border: "none", color: "#fff", borderRadius: 8, fontSize: 13 }}>
@@ -799,7 +799,7 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
 
               })}
               {auditEntries.length === 0 && !auditLoading &&
-              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("Loading audit log...")}</p>
+              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: 40 }}>{i18nT("app.loadingAuditLog")}</p>
               }
             </div>
           </div>
@@ -808,14 +808,14 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
         {/* ═══════════════════════════════════════════════ REPORTS */}
         {tab === "reports" &&
           <div>
-            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("Report Generation Center")}</h2>
+            <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700 }}>{i18nT("app.reportGenerationCenter")}</h2>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
               {/* Generate */}
               <Card style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: 14 }}>
                 <CardHeader>
                   <CardTitle style={{ color: "#6ee7b7" }}>📊 {t.generateReport}</CardTitle>
-                  <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Queue a new export")}</CardDescription>
+                  <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.queueANewExport")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -851,8 +851,8 @@ export default function AdminDashboard() {const { t: i18nT } = useI18n();
               {/* Available Reports */}
               <Card style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 14 }}>
                 <CardHeader>
-                  <CardTitle style={{ color: "#a5b4fc" }}>{i18nT("📁 Available Reports")}</CardTitle>
-                  <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("One-click generation")}</CardDescription>
+                  <CardTitle style={{ color: "#a5b4fc" }}>{i18nT("app.availableReports")}</CardTitle>
+                  <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.oneclickGeneration")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {REPORT_TYPES.map((r) =>

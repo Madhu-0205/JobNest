@@ -77,6 +77,9 @@ export class ModerationService {
         updatedAt: row.updated_at,
       }));
     } catch {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("Configuration Error: Database unavailable for ModerationService. Mock simulation is prohibited in production.");
+      }
       logger.warn("[ModerationService] DB unavailable. Returning simulated queue.");
       return SIMULATED_QUEUE.filter((i) => ["pending", "in_review"].includes(i.status)).slice(0, limit);
     }

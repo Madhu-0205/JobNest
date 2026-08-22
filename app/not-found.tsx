@@ -12,22 +12,22 @@ export default function NotFound() {const { t: i18nT } = useI18n();
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-background px-6 py-24 text-center">
       <div className="max-w-md w-full glass-card p-8 rounded-md border border-border">
-        <Typography variant="muted" className="text-sm font-semibold tracking-wider uppercase text-primary mb-2">{i18nT("404 Error")}
+        <Typography variant="muted" className="text-sm font-semibold tracking-wider uppercase text-primary mb-2">{i18nT("app.404Error")}
 
         </Typography>
-        <Typography variant="h1" className="text-5xl font-extrabold tracking-tight mb-4">{i18nT("Page Not Found")}
+        <Typography variant="h1" className="text-5xl font-extrabold tracking-tight mb-4">{i18nT("app.pageNotFound")}
 
         </Typography>
-        <Typography variant="muted" className="text-base text-muted-foreground/80 mb-8">{i18nT("The page you are looking for does not exist or has been moved.")}
+        <Typography variant="muted" className="text-base text-muted-foreground/80 mb-8">{i18nT("app.thePageYouAreLookingForDoesNot")}
 
         </Typography>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/" passHref className="inline-flex">
-            <Button variant="primary" className="w-full sm:w-auto">{i18nT("Return Home")}
+            <Button variant="primary" className="w-full sm:w-auto">{i18nT("app.returnHome")}
 
             </Button>
           </Link>
-          <Button variant="outline" onClick={() => window.history.back()} className="w-full sm:w-auto">{i18nT("Go Back")}
+          <Button variant="outline" onClick={() => window.history.back()} className="w-full sm:w-auto">{i18nT("app.goBack")}
 
           </Button>
         </div>

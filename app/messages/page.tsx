@@ -69,8 +69,8 @@ export default function MessagesPage() {const { t: i18nT } = useI18n();
     <ProductShell>
       <div className="flex flex-col gap-6 h-[calc(100vh-12rem)] md:h-[calc(100vh-10rem)]">
         <div>
-          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("Realtime Telemetry Chat")}</Typography>
-          <Typography variant="muted" className="text-xs">{i18nT("Direct secure communication with escrow-locked counterparties.")}
+          <Typography variant="h2" className="font-bold gold-gradient-text">{i18nT("app.realtimeTelemetryChat")}</Typography>
+          <Typography variant="muted" className="text-xs">{i18nT("app.directSecureCommunicationWithEscrowlockedCounterparties")}
 
           </Typography>
         </div>
@@ -80,7 +80,7 @@ export default function MessagesPage() {const { t: i18nT } = useI18n();
           <div className="w-full md:w-80 border-r border-border/40 flex flex-col shrink-0">
             <div className="p-4 border-b border-border/20 flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-primary animate-pulse" />
-              <span className="text-xs font-bold text-foreground">{i18nT("Recent Active Channels")}</span>
+              <span className="text-xs font-bold text-foreground">{i18nT("app.recentActiveChannels")}</span>
             </div>
             <div className="flex-1 overflow-y-auto p-2 flex flex-col gap-1">
               {chatRooms.map((room) =>
@@ -117,7 +117,7 @@ export default function MessagesPage() {const { t: i18nT } = useI18n();
                 </div>
                 <div>
                   <span className="text-xs font-bold text-foreground block leading-tight">{activeRoom.name}</span>
-                  <span className="text-[9px] text-emerald-400 block font-mono">{i18nT("Sync active")}</span>
+                  <span className="text-[9px] text-emerald-400 block font-mono">{i18nT("app.syncActive")}</span>
                 </div>
               </div>
 
@@ -161,7 +161,7 @@ export default function MessagesPage() {const { t: i18nT } = useI18n();
               {isTyping &&
               <div className="self-start flex items-center gap-2 text-[10px] text-muted-foreground bg-card/65 px-3 py-2 rounded-xl border border-border/40">
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                  <span>{i18nT("Suresh is typing work parameters...")}</span>
+                  <span>{i18nT("app.sureshIsTypingWorkParameters")}</span>
                 </div>
               }
             </div>
@@ -170,7 +170,7 @@ export default function MessagesPage() {const { t: i18nT } = useI18n();
             <form onSubmit={handleSendChatMessage} className="p-3 border-t border-border/20 flex gap-2 items-center bg-card/25 shrink-0">
               <input
                 type="text"
-                placeholder={i18nT("Type your message details here...")}
+                placeholder={i18nT("app.typeYourMessageDetailsHere")}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 className="w-full bg-muted border border-border text-foreground px-3 py-2 rounded-xl text-xs placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50 transition-colors" />

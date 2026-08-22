@@ -322,7 +322,7 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
           <Card style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#c4b5fd" }}>🔍 {t.semanticSearch}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("pgvector + PostGIS hybrid")}</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.pgvectorPostgisHybrid")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
@@ -355,7 +355,7 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
                   </div>
                 )}
                 {semanticSearch.results.length === 0 && !semanticSearch.loading &&
-                <p style={{ color: "rgba(255,255,255,0.3)", textAlign: "center", fontSize: 13, padding: 20 }}>{i18nT("Enter a natural language query to search opportunities...")}
+                <p style={{ color: "rgba(255,255,255,0.3)", textAlign: "center", fontSize: 13, padding: 20 }}>{i18nT("app.enterANaturalLanguageQueryToSearchOpportunities")}
 
                 </p>
                 }
@@ -367,7 +367,7 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
           <Card style={{ background: "rgba(6,182,212,0.08)", border: "1px solid rgba(6,182,212,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#67e8f9" }}>⚡ {t.recommendations}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Composite weighted ranking")}</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.compositeWeightedRanking")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
@@ -403,7 +403,7 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
                   </div>
                 )}
                 {!recommendations.recommendation && !recommendations.loading &&
-                <p style={{ color: "rgba(255,255,255,0.3)", textAlign: "center", fontSize: 13, padding: 20 }}>{i18nT("Click Generate to compute ranked recommendations...")}
+                <p style={{ color: "rgba(255,255,255,0.3)", textAlign: "center", fontSize: 13, padding: 20 }}>{i18nT("app.clickGenerateToComputeRankedRecommendations")}
 
                 </p>
                 }
@@ -419,13 +419,13 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
           <Card style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#6ee7b7" }}>✨ {t.profileEnhancer}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Ollama-powered profile optimization")}</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.ollamapoweredProfileOptimization")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}>
-                <Input id="enhance-name" value={enhanceName} onChange={(e) => setEnhanceName(e.target.value)} placeholder={i18nT("Full Name")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
-                <Input id="enhance-desc" value={enhanceDesc} onChange={(e) => setEnhanceDesc(e.target.value)} placeholder={i18nT("Current Description")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
-                <Input id="enhance-skills" value={enhanceSkills} onChange={(e) => setEnhanceSkills(e.target.value)} placeholder={i18nT("Skills (comma separated)")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
+                <Input id="enhance-name" value={enhanceName} onChange={(e) => setEnhanceName(e.target.value)} placeholder={i18nT("app.fullName")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
+                <Input id="enhance-desc" value={enhanceDesc} onChange={(e) => setEnhanceDesc(e.target.value)} placeholder={i18nT("app.currentDescription")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
+                <Input id="enhance-skills" value={enhanceSkills} onChange={(e) => setEnhanceSkills(e.target.value)} placeholder={i18nT("app.skillsCommaSeparated")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(16,185,129,0.3)", color: "#fff" }} />
                 <Button onClick={handleEnhance} disabled={profileAi.loading} style={{ background: "linear-gradient(135deg, #059669, #10b981)", border: "none", color: "#fff", borderRadius: 8 }}>
                   {profileAi.loading ? "Enhancing..." : `${t.enhance} Profile`}
                 </Button>
@@ -449,7 +449,7 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
           <Card style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#fcd34d" }}>🌐 {t.translation}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("11 Indian languages")}</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.11IndianLanguages")}</CardDescription>
             </CardHeader>
             <CardContent>
               <textarea
@@ -494,7 +494,7 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
           <Card style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#a5b4fc" }}>💰 {t.salaryIntel}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Regional wage bands (INR/day)")}</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.regionalWageBandsInrday")}</CardDescription>
             </CardHeader>
             <CardContent>
               {SALARY_DATA.map((s) =>
@@ -527,7 +527,7 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
           <Card style={{ background: "rgba(236,72,153,0.08)", border: "1px solid rgba(236,72,153,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#f9a8d4" }}>🎯 {t.skillGap}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Profile vs. Opportunity")}</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.profileVsOpportunity")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ textAlign: "center", marginBottom: 16 }}>
@@ -564,7 +564,7 @@ export default function AIDashboard() {const { t: i18nT } = useI18n();
           <Card style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 16 }}>
             <CardHeader>
               <CardTitle style={{ color: "#fca5a5" }}>🛡️ {t.fraudMonitor}</CardTitle>
-              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("Real-time threat detection")}</CardDescription>
+              <CardDescription style={{ color: "rgba(255,255,255,0.4)" }}>{i18nT("app.realtimeThreatDetection")}</CardDescription>
             </CardHeader>
             <CardContent>
               {FRAUD_ALERTS.map((f) =>

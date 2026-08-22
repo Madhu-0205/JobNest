@@ -298,18 +298,18 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
           {/* Geocoding & Addresses */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader>
-              <CardTitle className="text-lg gold-gradient-text">{i18nT("Address Geocoding")}</CardTitle>
-              <CardDescription>{i18nT("Search coordinates, translate formats, and normalize Indian administrative levels.")}
+              <CardTitle className="text-lg gold-gradient-text">{i18nT("app.addressGeocoding")}</CardTitle>
+              <CardDescription>{i18nT("app.searchCoordinatesTranslateFormatsAndNormalizeIndianAdministrative")}
 
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <div className="flex items-end gap-2">
                 <Input
-                  label={i18nT("Search Address")}
+                  label={i18nT("app.searchAddress")}
                   value={addressQuery}
                   onChange={(e) => setAddressQuery(e.target.value)}
-                  placeholder={i18nT("Enter street, village, pincode...")}
+                  placeholder={i18nT("app.enterStreetVillagePincode")}
                   id="search-address-input" />
                 
                 <Button
@@ -341,7 +341,7 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
                     <span className="font-mono text-primary">{normalizedAddress.geohash}</span>
                   </div>
                   <div className="flex justify-between border-b border-border/50 pb-1">
-                    <span className="text-muted-foreground">{i18nT("Plus Code:")}</span>
+                    <span className="text-muted-foreground">{i18nT("app.plusCode")}</span>
                     <span className="font-mono text-foreground">{normalizedAddress.plusCode}</span>
                   </div>
                   <div className="flex justify-between border-b border-border/50 pb-1">
@@ -363,17 +363,17 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
 
                   <div className="flex gap-2 pt-2 border-t border-border mt-1">
                     <Input
-                    label={i18nT("Bookmark Preset Label")}
+                    label={i18nT("app.bookmarkPresetLabel")}
                     value={newPresetLabel}
                     onChange={(e) => setNewPresetLabel(e.target.value)}
-                    placeholder={i18nT("e.g. My Farm")}
+                    placeholder={i18nT("app.egMyFarm")}
                     id="bookmark-label-input" />
                   
                     <Button
                     variant="outline"
                     size="sm"
                     onClick={handleSavePreset}
-                    className="self-end whitespace-nowrap">{i18nT("Save Preset")}
+                    className="self-end whitespace-nowrap">{i18nT("app.savePreset")}
 
 
                   </Button>
@@ -386,8 +386,8 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
           {/* Routing Options */}
           <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
             <CardHeader>
-              <CardTitle className="text-lg gold-gradient-text">{i18nT("Routing & ETA Engine")}</CardTitle>
-              <CardDescription>{i18nT("Calculate short vs fast paths, dynamic congestion ETAs, and maneuvers.")}
+              <CardTitle className="text-lg gold-gradient-text">{i18nT("app.routingEtaEngine")}</CardTitle>
+              <CardDescription>{i18nT("app.calculateShortVsFastPathsDynamicCongestionEtas")}
 
               </CardDescription>
             </CardHeader>
@@ -416,13 +416,13 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
               </div>
 
               <div>
-                <label className="text-xs font-semibold block mb-1 text-muted-foreground">{i18nT("Criteria / Travel Mode")}</label>
+                <label className="text-xs font-semibold block mb-1 text-muted-foreground">{i18nT("app.criteriaTravelMode")}</label>
                 <div className="grid grid-cols-3 gap-1 bg-muted p-1 rounded-lg border border-border text-xs mb-2">
                   <button
                     onClick={() => setTravelMode("driving-car")}
                     className={`py-1 rounded font-semibold transition-all ${
                     travelMode === "driving-car" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`
-                    }>{i18nT("🚗 Drive")}
+                    }>{i18nT("app.drive")}
 
 
                   </button>
@@ -430,7 +430,7 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
                     onClick={() => setTravelMode("foot-walking")}
                     className={`py-1 rounded font-semibold transition-all ${
                     travelMode === "foot-walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`
-                    }>{i18nT("🚶 Walk")}
+                    }>{i18nT("app.walk")}
 
 
                   </button>
@@ -438,7 +438,7 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
                     onClick={() => setTravelMode("cycling-regular")}
                     className={`py-1 rounded font-semibold transition-all ${
                     travelMode === "cycling-regular" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`
-                    }>{i18nT("🚲 Cycle")}
+                    }>{i18nT("app.cycle")}
 
 
                   </button>
@@ -472,7 +472,7 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
                 </div>
               </div>
 
-              <Button variant="primary" onClick={handleCalculateRoute} isLoading={routeLoading}>{i18nT("Calculate Routing Directions")}
+              <Button variant="primary" onClick={handleCalculateRoute} isLoading={routeLoading}>{i18nT("app.calculateRoutingDirections")}
 
               </Button>
 
@@ -485,13 +485,13 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
                   </span>
                   </div>
                   <div className="flex justify-between border-b border-border/50 pb-1">
-                    <span className="text-muted-foreground">{i18nT("Estimated Duration:")}</span>
+                    <span className="text-muted-foreground">{i18nT("app.estimatedDuration")}</span>
                     <span className="font-semibold text-foreground">
                       {Math.round(routeData.durationSeconds / 60)}{i18nT("minutes")}
                   </span>
                   </div>
                   <div className="flex justify-between pb-1">
-                    <span className="text-muted-foreground">{i18nT("Traffic factor:")}</span>
+                    <span className="text-muted-foreground">{i18nT("app.trafficFactor")}</span>
                     <span className="font-semibold text-primary">
                       {travelMode === "driving-car" ? "1.45x peak congestion" : "1.00x constant"}
                     </span>
@@ -508,15 +508,15 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
           {/* Map display */}
           <div className="flex flex-col gap-3">
             <div className="flex justify-between items-center">
-              <Typography variant="h4" className="text-base font-bold">{i18nT("Map Viewport Visualization")}
+              <Typography variant="h4" className="text-base font-bold">{i18nT("app.mapViewportVisualization")}
 
               </Typography>
               <div className="flex gap-2">
                 {activeFences.length > 0 &&
-                <Badge variant="success">{i18nT("📍 Inside Geofence Area")}</Badge>
+                <Badge variant="success">{i18nT("app.insideGeofenceArea")}</Badge>
                 }
                 {spoofCheckResult?.isSpoofed &&
-                <Badge variant="danger">{i18nT("⚠️ Speed Spoof Warning")}</Badge>
+                <Badge variant="danger">{i18nT("app.speedSpoofWarning")}</Badge>
                 }
               </div>
             </div>
@@ -536,28 +536,28 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
             {/* GPS Spoofing Sandbox */}
             <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
               <CardHeader>
-                <CardTitle className="text-lg gold-gradient-text">{i18nT("GPS Spoofing Validator")}</CardTitle>
-                <CardDescription>{i18nT("Evaluates coordinate velocity to prevent impossible speed location jumps.")}
+                <CardTitle className="text-lg gold-gradient-text">{i18nT("app.gpsSpoofingValidator")}</CardTitle>
+                <CardDescription>{i18nT("app.evaluatesCoordinateVelocityToPreventImpossibleSpeedLocation")}
 
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" size="sm" onClick={() => simulateGpsPing("normal")}>{i18nT("Simulate Normal Step")}
+                  <Button variant="outline" size="sm" onClick={() => simulateGpsPing("normal")}>{i18nT("app.simulateNormalStep")}
 
                   </Button>
-                  <Button variant="primary" className="bg-rose-500 hover:bg-rose-600 text-white border-none" size="sm" onClick={() => simulateGpsPing("spoof")}>{i18nT("Simulate Spoof Jump")}
+                  <Button variant="primary" className="bg-rose-500 hover:bg-rose-600 text-white border-none" size="sm" onClick={() => simulateGpsPing("spoof")}>{i18nT("app.simulateSpoofJump")}
 
                   </Button>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <Typography variant="muted" className="text-xs font-semibold">{i18nT("Anti-Spoof logs activity:")}
+                  <Typography variant="muted" className="text-xs font-semibold">{i18nT("app.antispoofLogsActivity")}
 
                   </Typography>
                   <div className="bg-black/40 p-2.5 rounded-lg border border-border font-mono text-[10px] h-[110px] overflow-y-auto flex flex-col gap-1 text-muted-foreground">
                     {spoofLogs.length === 0 ?
-                    <span className="italic text-muted-foreground/55">{i18nT("No logs recorded yet. Run simulations.")}</span> :
+                    <span className="italic text-muted-foreground/55">{i18nT("app.noLogsRecordedYetRunSimulations")}</span> :
 
                     spoofLogs.map((log, i) =>
                     <div key={i} className="border-b border-border/10 pb-0.5">
@@ -582,7 +582,7 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
               <Card className="glass-panel border-border shadow-(--shadow-luxury) backdrop-blur-md">
                 <CardContent className="pt-6 flex flex-col gap-3">
                   <div className="flex justify-between items-center">
-                    <Typography variant="h4" className="text-base font-bold">{i18nT("Regional Navigation Voice")}
+                    <Typography variant="h4" className="text-base font-bold">{i18nT("app.regionalNavigationVoice")}
 
                     </Typography>
                     <button
@@ -597,7 +597,7 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
                   <div className="flex flex-col gap-2">
                       <div className="bg-muted/40 p-3 rounded-lg border border-border flex items-center justify-between">
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{i18nT("Current maneuver prompt (")}
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{i18nT("app.currentManeuverPrompt")}
                           {locale.toUpperCase()}):
                           </span>
                           <span className="text-xs font-semibold text-foreground mt-0.5">
@@ -609,7 +609,7 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
                         size="icon"
                         onClick={voiceNav.announceCurrent}
                         className="h-8 w-8 hover:bg-muted"
-                        aria-label={i18nT("Speak current directions prompt")}>
+                        aria-label={i18nT("app.speakCurrentDirectionsPrompt")}>
                         
                           🔊
                         </Button>
@@ -631,14 +631,14 @@ export default function GeospatialDashboard() {const { t: i18nT } = useI18n();
                         variant="outline"
                         size="sm"
                         onClick={voiceNav.nextStep}
-                        disabled={voiceNav.isLastStep}>{i18nT("Next step")}
+                        disabled={voiceNav.isLastStep}>{i18nT("app.nextStep")}
 
 
                       </Button>
                       </div>
                     </div> :
 
-                  <div className="text-xs italic text-muted-foreground/70 text-center py-4 bg-muted/10 rounded-lg border border-dashed border-border">{i18nT("Calculate directions first to activate voice navigation prompts.")}
+                  <div className="text-xs italic text-muted-foreground/70 text-center py-4 bg-muted/10 rounded-lg border border-dashed border-border">{i18nT("app.calculateDirectionsFirstToActivateVoiceNavigationPrompts")}
 
                   </div>
                   }

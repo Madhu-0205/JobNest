@@ -275,7 +275,7 @@ export function MaplibreMap({
       <div ref={mapContainer} className="w-full h-full" />
       {isOffline &&
       <div className="absolute bottom-4 left-4 bg-destructive/90 text-destructive-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 animate-pulse z-10">
-          <span>⚠️</span>{i18nT("Offline Mode • Map Cached")}
+          <span>⚠️</span>{i18nT("common.offlineModeMapCached")}
       </div>
       }
     </div>);

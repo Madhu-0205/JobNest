@@ -40,7 +40,7 @@ export function WorkerMarker({ jobTitle, experienceYears, isSelected = false, on
 
       {/* Hover tooltip detailing category */}
       <div className="absolute bottom-full mb-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-card/95 border border-primary/20 backdrop-blur-sm text-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-md whitespace-nowrap pointer-events-none">
-        {jobTitle} ({experienceYears}{i18nT("yrs exp)")}
+        {jobTitle} ({experienceYears}{i18nT("common.yrsExp")}
       </div>
 
       {/* Pointer Pin arrow */}

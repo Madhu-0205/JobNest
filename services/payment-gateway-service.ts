@@ -44,9 +44,9 @@ export class RazorpayAdapter implements PaymentGatewayAdapter {
     const keyId = process.env["RAZORPAY_KEY_ID"];
     const keySecret = process.env["RAZORPAY_KEY_SECRET"];
 
-    if (!keyId || !keySecret) {
+    if (!keyId || !keySecret || (process.env.NODE_ENV === "production" && (keyId === "mock-key-id" || keySecret === "mock-key-secret"))) {
       throw new Error(
-        "RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set to use the Razorpay adapter."
+        "Configuration Error: RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set to valid production keys to use the Razorpay adapter. Financial operations must fail closed."
       );
     }
 
@@ -139,6 +139,9 @@ export class RazorpayAdapter implements PaymentGatewayAdapter {
  */
 export class StripeAdapter implements PaymentGatewayAdapter {
   async createOrder(amount: number, currency = "USD"): Promise<GatewayOrderDetails> {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Configuration Error: Stripe keys not provisioned for production. Financial operations must fail closed.");
+    }
     // TODO: Replace with stripe.paymentIntents.create() when Stripe is provisioned.
     const fakeOrderId = `pi_${Math.random().toString(36).substring(2, 15)}`;
     logger.info(`[Stripe] Created PaymentIntent ${fakeOrderId} for amount: ${amount} ${currency}`);
@@ -180,6 +183,9 @@ export class StripeAdapter implements PaymentGatewayAdapter {
     amount: number,
     reason: string
   ): Promise<{ success: boolean; gatewayRefundId: string }> {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Configuration Error: Stripe keys not provisioned for production. Financial operations must fail closed.");
+    }
     // TODO: Replace with stripe.refunds.create() when Stripe is provisioned.
     const fakeRefundId = `re_${Math.random().toString(36).substring(2, 15)}`;
     logger.info(`[Stripe] Refunded charge ${paymentId} for amount ${amount}. Reason: ${reason}`);

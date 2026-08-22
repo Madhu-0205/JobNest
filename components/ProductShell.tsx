@@ -66,7 +66,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center bg-background gap-3">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <span className="text-sm text-muted-foreground">{i18nT("Verifying secure session registry...")}</span>
+        <span className="text-sm text-muted-foreground">{i18nT("common.verifyingSecureSessionRegistry")}</span>
       </div>);
 
   }
@@ -180,8 +180,8 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
 
           </span>
           <div>
-            <Typography variant="h3" className="font-bold text-base leading-tight">{i18nT("JobNest Pro")}</Typography>
-            <Typography variant="muted" className="text-[10px] uppercase font-mono tracking-wider text-primary">{i18nT("Enterprise V2")}</Typography>
+            <Typography variant="h3" className="font-bold text-base leading-tight">{i18nT("common.jobnestPro")}</Typography>
+            <Typography variant="muted" className="text-[10px] uppercase font-mono tracking-wider text-primary">{i18nT("common.enterpriseV2")}</Typography>
           </div>
         </div>
 
@@ -230,7 +230,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
             className="w-full justify-start text-xs font-semibold gap-2 border-border/40 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20">
             
             <LogOut className="w-4 h-4 text-muted-foreground group-hover:text-rose-400" />
-            <span>{i18nT("Sign Out")}</span>
+            <span>{i18nT("common.signOut")}</span>
           </Button>
         </div>
       </aside>
@@ -249,7 +249,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-1.5 rounded-lg border border-border hover:bg-secondary/40 text-foreground"
-              aria-label={i18nT("Toggle mobile navigation menu")}>
+              aria-label={i18nT("common.toggleMobileNavigationMenu")}>
               
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -286,7 +286,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
               <Search className="w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder={i18nT("Ask AI Assistant or search gigs globally...")}
+                placeholder={i18nT("common.askAiAssistantOrSearchGigsGlobally")}
                 value={searchVal}
                 onChange={(e) => setSearchVal(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
@@ -306,7 +306,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                 if (val) router.push(`/ai?q=${encodeURIComponent(val)}`);
               }}
               className="lg:hidden p-2 rounded-xl hover:bg-secondary/40 border border-transparent hover:border-border/30 text-muted-foreground hover:text-foreground"
-              aria-label={i18nT("Trigger global search query dialog")}>
+              aria-label={i18nT("common.triggerGlobalSearchQueryDialog")}>
               
               <Search className="w-4 h-4" />
             </button>
@@ -317,7 +317,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                 value={locale}
                 onChange={(e) => setLocale(e.target.value as LocaleCode)}
                 className="bg-muted/40 hover:bg-muted text-foreground text-[10px] font-bold px-2 py-1.5 rounded-xl border border-border/40 outline-none cursor-pointer"
-                aria-label={i18nT("Toggle user system language translation")}>
+                aria-label={i18nT("common.toggleUserSystemLanguageTranslation")}>
                 
                 <option value="en">{i18nT("EN")}</option>
                 <option value="hi">{i18nT("HI")}</option>
@@ -337,7 +337,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl border border-border/40 hover:bg-secondary/40 text-muted-foreground hover:text-foreground transition-all cursor-pointer"
-              aria-label={i18nT("Switch interface brightness theme")}>
+              aria-label={i18nT("common.switchInterfaceBrightnessTheme")}>
               
               {theme === "dark" ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-400" />}
             </button>
@@ -352,7 +352,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                 className={`p-2 rounded-xl border border-border/40 hover:bg-secondary/40 text-muted-foreground hover:text-foreground transition-all cursor-pointer relative ${
                 showNotifications ? "bg-secondary/50" : ""}`
                 }
-                aria-label={i18nT("Show notification logs center")}>
+                aria-label={i18nT("common.showNotificationLogsCenter")}>
                 
                 <Bell className="w-4 h-4" />
                 <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary animate-ping" />
@@ -371,8 +371,8 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                     className="absolute right-0 mt-2 w-72 bg-card border border-border shadow-luxury rounded-2xl p-4 z-50 flex flex-col gap-3">
                     
                       <div className="flex justify-between items-center border-b border-border/30 pb-2">
-                        <span className="text-xs font-bold">{i18nT("Activity Notifications")}</span>
-                        <span className="text-[10px] text-primary cursor-pointer hover:underline">{i18nT("Mark all read")}</span>
+                        <span className="text-xs font-bold">{i18nT("common.activityNotifications")}</span>
+                        <span className="text-[10px] text-primary cursor-pointer hover:underline">{i18nT("common.markAllRead")}</span>
                       </div>
                       <div className="flex flex-col gap-2.5 max-h-60 overflow-y-auto">
                         {mockNotifications.map((notif) =>
@@ -401,7 +401,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                   setShowNotifications(false);
                 }}
                 className="flex items-center gap-2 cursor-pointer"
-                aria-label={i18nT("Open user system settings profile card")}>
+                aria-label={i18nT("common.openUserSystemSettingsProfileCard")}>
                 
                 <Avatar className="w-8 h-8 border border-primary/30">
                   <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
@@ -435,7 +435,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                       className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs hover:bg-secondary/40 text-muted-foreground hover:text-foreground cursor-pointer">
                       
                         <User className="w-4 h-4 text-muted-foreground" />
-                        <span>{i18nT("My Profile")}</span>
+                        <span>{i18nT("common.myProfile")}</span>
                       </Link>
 
                       <Link
@@ -444,7 +444,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                       className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs hover:bg-secondary/40 text-muted-foreground hover:text-foreground cursor-pointer">
                       
                         <Settings className="w-4 h-4 text-muted-foreground" />
-                        <span>{i18nT("Account Settings")}</span>
+                        <span>{i18nT("common.accountSettings")}</span>
                       </Link>
 
                       <div className="border-t border-border/25 my-1" />
@@ -457,7 +457,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                       className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs hover:bg-rose-500/10 text-rose-400 cursor-pointer text-left">
                       
                         <LogOut className="w-4 h-4" />
-                        <span>{i18nT("Log Out")}</span>
+                        <span>{i18nT("common.logOut")}</span>
                       </button>
                     </motion.div>
                   </>
@@ -488,7 +488,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                     <span className="w-8 h-8 rounded-lg bg-linear-to-r from-primary to-amber-600 flex items-center justify-center text-background font-extrabold text-base shadow-luxury">{i18nT("J")}
 
                   </span>
-                    <Typography variant="h3" className="font-bold text-sm">{i18nT("JobNest Mobile")}</Typography>
+                    <Typography variant="h3" className="font-bold text-sm">{i18nT("common.jobnestMobile")}</Typography>
                   </div>
                   <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg border border-border text-foreground hover:bg-secondary/40">
                     <X className="w-4 h-4" />
@@ -531,7 +531,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                   </div>
                   <Button variant="outline" size="sm" onClick={logout} className="w-full text-xs gap-2">
                     <LogOut className="w-4 h-4" />
-                    <span>{i18nT("Sign Out")}</span>
+                    <span>{i18nT("common.signOut")}</span>
                   </Button>
                 </div>
               </motion.aside>
@@ -577,7 +577,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
             }>
             
             <Sparkles className="w-4 h-4" />
-            <span className="text-[9px] mt-1">{i18nT("AI Search")}</span>
+            <span className="text-[9px] mt-1">{i18nT("common.aiSearch")}</span>
           </Link>
 
           <Link
@@ -612,7 +612,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
               setSosActive(true);
             }}
             className="w-12 h-12 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow-luxury cursor-pointer"
-            aria-label={i18nT("Send emergency distress SOS signal")}>
+            aria-label={i18nT("common.sendEmergencyDistressSosSignal")}>
             
               <PhoneCall className="w-5 h-5 animate-bounce" />
             </button> :
@@ -622,7 +622,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
               router.push(user.role === "employer" ? "/employer#post-opportunity" : "/resident#book-services");
             }}
             className="w-12 h-12 rounded-full bg-primary hover:bg-primary-hover text-background flex items-center justify-center shadow-luxury cursor-pointer"
-            aria-label={i18nT("Create new hyperlocal gig opportunity")}>
+            aria-label={i18nT("common.createNewHyperlocalGigOpportunity")}>
             
               <Plus className="w-6 h-6" />
             </button>
@@ -637,15 +637,15 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                 <PhoneCall className="w-8 h-8" />
               </div>
               <div className="flex flex-col gap-1">
-                <Typography variant="h3" className="font-black text-rose-500 text-lg tracking-tight">{i18nT("🚨 Emergency SOS Active")}</Typography>
-                <span className="text-[11px] text-muted-foreground leading-relaxed mt-1">{i18nT("Live telemetry coordinates & Aadhaar KYC identity packet broadcasted to local emergency dispatchers.")}
+                <Typography variant="h3" className="font-black text-rose-500 text-lg tracking-tight">{i18nT("common.emergencySosActive")}</Typography>
+                <span className="text-[11px] text-muted-foreground leading-relaxed mt-1">{i18nT("common.liveTelemetryCoordinatesAadhaarKycIdentityPacketBroadcasted")}
 
               </span>
               </div>
               <Button
               variant="outline"
               onClick={() => setSosActive(false)}
-              className="border-rose-500/30 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 w-full rounded-xl text-xs py-2 h-9 font-bold">{i18nT("Deactivate SOS Signal")}
+              className="border-rose-500/30 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 w-full rounded-xl text-xs py-2 h-9 font-bold">{i18nT("common.deactivateSosSignal")}
 
 
             </Button>

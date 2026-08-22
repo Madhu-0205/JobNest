@@ -94,6 +94,30 @@ const envSchema = z.object({
     .string()
     .optional()
     .transform((v) => v !== "false"), // default on
+}).superRefine((data, ctx) => {
+  if (data.NODE_ENV === "production") {
+    if (data.NEXT_PUBLIC_SUPABASE_URL === "https://mock.supabase.co") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Mock Supabase URL is not allowed in production",
+        path: ["NEXT_PUBLIC_SUPABASE_URL"],
+      });
+    }
+    if (data.NEXT_PUBLIC_SUPABASE_ANON_KEY === "mock-anon-key") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Mock Supabase Anon Key is not allowed in production",
+        path: ["NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+      });
+    }
+    if (!data.RAZORPAY_KEY_ID || data.RAZORPAY_KEY_ID === "mock-key-id") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "RAZORPAY_KEY_ID is required and cannot be a mock value in production",
+        path: ["RAZORPAY_KEY_ID"],
+      });
+    }
+  }
 });
 
 // ─── Validation ────────────────────────────────────────────────────────────────

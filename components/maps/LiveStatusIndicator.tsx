@@ -11,7 +11,7 @@ export function LiveStatusIndicator() {const { t: i18nT } = useI18n();
     return (
       <Badge variant="danger" className="flex items-center gap-1 font-mono text-[10px] bg-red-950/80 text-red-300 border-red-800">
         <WifiOff className="w-3 h-3 animate-pulse" />
-        <span>{i18nT("OFFLINE CACHE")}</span>
+        <span>{i18nT("common.offlineCache")}</span>
       </Badge>);
 
   }
@@ -20,7 +20,7 @@ export function LiveStatusIndicator() {const { t: i18nT } = useI18n();
     return (
       <Badge variant="danger" className="flex items-center gap-1 font-mono text-[10px] bg-red-950/80 text-red-300 border-red-800 animate-bounce">
         <ShieldAlert className="w-3 h-3" />
-        <span>{i18nT("GPS BLOCKED: SPOOFING DETECTED")}</span>
+        <span>{i18nT("common.gpsBlockedSpoofingDetected")}</span>
       </Badge>);
 
   }
