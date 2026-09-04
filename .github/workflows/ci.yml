@@ -48,14 +48,6 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: 1
 
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: nextjs-build-${{ github.sha }}
-          path: .next/
-          retention-days: 3
-
   # ─────────────────────────────────────────────────────────────────
   # Job 2: Security Audit
   # ─────────────────────────────────────────────────────────────────
@@ -126,28 +118,29 @@ jobs:
       - name: Install Dependencies
         run: npm ci --prefer-offline
 
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nextjs-build-${{ github.sha }}
-          path: .next/
-
       - name: Run Smoke Tests
         run: |
-          npx next start -p 3000 &
+          npx next dev -p 3000 > server.log 2>&1 &
           SERVER_PID=$!
+          READY=0
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:3000 > /dev/null 2>&1; then
+            if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
               echo "Server is ready on port 3000"
+              READY=1
               break
             fi
             echo "Waiting for server to be ready..."
             sleep 2
           done
+          if [ $READY -ne 1 ]; then
+            echo "Server failed to start in time. Logs:"
+            cat server.log
+            kill $SERVER_PID || true
+            exit 1
+          fi
           npm run test:smoke
           kill $SERVER_PID || true
         env:
-          NODE_ENV: test
           PORT: 3000
 
   # ─────────────────────────────────────────────────────────────────
