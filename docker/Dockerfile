@@ -1,7 +1,7 @@
 # ────────────────────────────────────────────────────────────────────
 # Stage 1: Dependency Installation
 # ────────────────────────────────────────────────────────────────────
-FROM node:20.19-alpine3.21 AS deps
+FROM node:22-alpine AS deps
 
 # Security: install only what's needed for native addons
 RUN apk add --no-cache libc6-compat
@@ -15,7 +15,7 @@ RUN npm ci --prefer-offline && npm cache clean --force
 # ────────────────────────────────────────────────────────────────────
 # Stage 2: Build
 # ────────────────────────────────────────────────────────────────────
-FROM node:20.19-alpine3.21 AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ RUN npm run build
 # ────────────────────────────────────────────────────────────────────
 # Stage 3: Production Runner
 # ────────────────────────────────────────────────────────────────────
-FROM node:20.19-alpine3.21 AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 

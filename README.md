@@ -30,7 +30,7 @@ Refer to [docs/ARCHITECTURE.md](file:///Users/madhu/Desktop/JobNest-dev/docs/ARC
 
 ### Prerequisites
 
-*   Node.js (v20+)
+*   Node.js (v22+ LTS)
 *   NPM (v10+)
 *   Docker (Optional, for containerized verification)
 
