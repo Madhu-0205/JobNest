@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Typography } from "@/components/ui/Typography";
 import { Button } from "@/components/ui/Button";
 import { logger } from "@/services/logger";
@@ -15,6 +16,8 @@ interface ErrorProps {
  * Catches client-side errors and logs them to the central logger.
  */
 export default function Error({ error, reset }: ErrorProps) {
+  const router = useRouter();
+
   useEffect(() => {
     logger.error("Root error boundary caught render exception", error);
   }, [error]);
@@ -42,7 +45,7 @@ export default function Error({ error, reset }: ErrorProps) {
           <Button variant="primary" onClick={reset} className="w-full sm:w-auto">
             Try Again
           </Button>
-          <Button variant="outline" onClick={() => window.location.href = "/"} className="w-full sm:w-auto">
+          <Button variant="outline" onClick={() => router.push("/")} className="w-full sm:w-auto">
             Go Home
           </Button>
         </div>

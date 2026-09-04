@@ -47,7 +47,6 @@ jobs:
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
-          NODE_ENV: production
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
