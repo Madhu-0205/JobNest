@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/services/logger";
 import { AnalyticsEngine } from "@/services/analytics-engine";
 import { AuthorizationGuard } from "@/lib/authorization/guard";
@@ -7,7 +7,7 @@ import { PERMISSIONS } from "@/lib/authorization/permissions";
 /**
  * GET /api/admin/analytics — Secure full analytics dashboard payload.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     // 1. Enforce strict permissions authorization check
     try {
@@ -16,8 +16,9 @@ export async function GET() {
       return NextResponse.json({ success: false, error: "Access denied. Insufficient permissions." }, { status: 403 });
     }
 
-    const dashboard = await AnalyticsEngine.getDashboard();
-    logger.info("[API:Admin:Analytics] Dashboard payload fetched.");
+    const timeWindow = req.nextUrl.searchParams.get("timeWindow") as "today" | "7d" | "30d" | "all" || "all";
+    const dashboard = await AnalyticsEngine.getDashboard(timeWindow);
+    logger.info(`[API:Admin:Analytics] Dashboard payload fetched for window: ${timeWindow}`);
     return NextResponse.json({ success: true, data: dashboard });
   } catch (err) {
     logger.error("[API:Admin:Analytics] Dashboard load failed:", err as Record<string, unknown>);

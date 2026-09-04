@@ -9,31 +9,9 @@ export const getSupabaseClient = () => {
   const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey || url === "https://mock.supabase.co" || anonKey === "mock-anon-key") {
-    // In production, force correct environment configuration.
-    if (env.NODE_ENV === "production") {
-      throw new Error(
-        "Supabase credentials are not configured. Please define NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
-      );
-    }
-    
-    // Graceful mock logger for development
-    return {
-      auth: {
-        signUp: async () => { throw new Error("Supabase Auth is not implemented yet in Phase 1."); },
-        signInWithPassword: async () => { throw new Error("Supabase Auth is not implemented yet in Phase 1."); },
-      },
-      from: (_table: string) => ({
-        select: () => { throw new Error("Supabase DB operations are not implemented yet in Phase 1."); },
-      }),
-      storage: {
-        from: (bucket: string) => ({
-          upload: async (path: string, file: File) => {
-            console.warn(`Mock upload of ${file.name} to ${bucket}/${path}`);
-            return { data: { path }, error: null };
-          },
-        }),
-      },
-    };
+    throw new Error(
+      "Supabase credentials are not configured. Please define NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
   }
 
   // Future phase integration placeholder:

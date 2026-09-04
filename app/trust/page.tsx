@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";import { useI18n } from "@/lib/i18n/context";
+import { useState } from "react";import { useI18n } from "@/lib/i18n/context";
 import { ProductShell } from "@/components/ProductShell";
 import { useVerification } from "@/hooks/useVerification";
 import { useSafetySOS } from "@/hooks/useSafetySOS";
 import { useDisputes } from "@/hooks/useDisputes";
+import { useTrustScore } from "@/hooks/useTrustScore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -313,7 +314,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     documentType: "ଦଲିଲ ପ୍ରକାର",
     documentNumber: "ଦଲିଲ ନମ୍ବର",
     gstNumber: "GST ନମ୍ବର (29XXX)",
-    gstCheck: "GST ଯାଞ୍ಚ କରନ୍ତୁ",
+    gstCheck: "GST ଯାଞ୍ଚ କରନ୍ତୁ",
     submitDoc: "ଯାଞ୍ଚ ପାଇଁ ପଠାନ୍ତୁ",
     activeBadges: "ଯାଞ୍ଚ ବ୍ୟାଜ୍ ସମୂହ",
     sosTrigger: "SOS ସଙ୍କେତ ଦିଅନ୍ତୁ",
@@ -323,7 +324,7 @@ const TRANSLATIONS: Record<string, TranslationDict> = {
     contactPhone: "ଫୋନ ନମ୍ବର",
     timeline: "ଘଟଣା ରେକର୍ଡ ସମୟ ସୀମା",
     disputeChat: "ମଧ୍ୟସ୍ଥି ଆଲୋଚନା ସମୟରେଖା",
-    postMessage: "ମନ୍ତବ୍ୟ ଦିଅନ୍ତು",
+    postMessage: "ମନ୍ତବ୍ୟ ଦିଅନ୍ତୁ",
     scoreExplain: "ପୁନଃଗଣନା ସ୍କୋର"
   }
 };
@@ -332,7 +333,6 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
   const [lang, setLang] = useState("en");
   const t = TRANSLATIONS[lang] || TRANSLATIONS["en"];
 
-  // Profile Context (Simulated Arun the worker)
   const currentUserId = "worker-profile-id";
 
   // Realtime safety SOS hook
@@ -341,35 +341,27 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
   // Verification request hook
   const verify = useVerification();
 
-
-
   // Disputes timeline hook
   const dispute = useDisputes();
 
-  // State factors for Trust Score recalculator simulator
-  const [scoreIdentityVerified, setScoreIdentityVerified] = useState(false);
-  const [scoreBusinessVerified, setScoreBusinessVerified] = useState(false);
-  const [scoreProfileComplete, setScoreProfileComplete] = useState(true);
-  const [scoreRatingAvg, setScoreRatingAvg] = useState(5.0);
-  const [scoreDisputesCount, setScoreDisputesCount] = useState(0);
+  // Trust Score Engine
+  const { trustScore, refresh: refreshScore } = useTrustScore(currentUserId);
 
-  // Recalculated score value based on weights
-  const [computedScore, setComputedScore] = useState(80);
-
-  // Recalculate score on simulator updates
-  useEffect(() => {
-    let score = 0;
-    score += scoreIdentityVerified ? 30 : 0;
-    score += scoreBusinessVerified ? 20 : 0;
-    score += scoreProfileComplete ? 15 : 0;
-    score += scoreRatingAvg * 4; // 5 * 4 = 20 max
-    score -= scoreDisputesCount * 15;
-
-    // Member age bonus simulation
-    score += 15; // default 10 months
-
-    setComputedScore(Math.max(0, Math.min(100, Math.round(score))));
-  }, [scoreIdentityVerified, scoreBusinessVerified, scoreProfileComplete, scoreRatingAvg, scoreDisputesCount]);
+  const computedScore = trustScore?.score ?? 0;
+  const factors = trustScore?.factors ?? {
+    identity_verified: false,
+    business_verified: false,
+    profile_complete: false,
+    rating_average: 0,
+    disputes_count: 0,
+    reports_count: 0,
+    account_age_months: 0,
+  };
+  const scoreIdentityVerified = factors.identity_verified;
+  const scoreBusinessVerified = factors.business_verified;
+  const scoreProfileComplete = factors.profile_complete;
+  const scoreRatingAvg = factors.rating_average;
+  const scoreDisputesCount = factors.disputes_count;
 
   // Form Fields
   const [kycDocType, setKycDocType] = useState("aadhaar");
@@ -430,8 +422,8 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
       "https://storage.googleapis.com/jobnest-kyc/docs/doc_aadhaar_scan.jpg"
     );
     if (res.success) {
-      setScoreIdentityVerified(true);
       setKycDocNum("");
+      refreshScore();
     }
   };
 
@@ -445,11 +437,11 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
       businessCategory: gstCategory
     });
     if (res.success) {
-      setScoreBusinessVerified(true);
       setGstNumInput("");
       setGstCompanyName("");
       setGstAddress("");
       setGstCategory("");
+      refreshScore();
     }
   };
 
@@ -560,64 +552,37 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
                   <span className="text-muted-foreground">{i18nT("app.identityVerified30")}</span>
-                  <input
-                    type="checkbox"
-                    checked={scoreIdentityVerified}
-                    onChange={(e) => setScoreIdentityVerified(e.target.checked)}
-                    className="cursor-pointer accent-amber-500"
-                    aria-label={i18nT("app.toggleIdentityVerificationStatusForScoreSimulation")} />
-                  
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center text-xs" style={{ backgroundColor: scoreIdentityVerified ? '#10b981' : '#3f3f46' }}>
+                    {scoreIdentityVerified && <span className="text-white">✓</span>}
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
                   <span className="text-muted-foreground">{i18nT("app.businessGstVerified20")}</span>
-                  <input
-                    type="checkbox"
-                    checked={scoreBusinessVerified}
-                    onChange={(e) => setScoreBusinessVerified(e.target.checked)}
-                    className="cursor-pointer accent-amber-500"
-                    aria-label={i18nT("app.toggleBusinessGstVerificationStatusForScoreSimulation")} />
-                  
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center text-xs" style={{ backgroundColor: scoreBusinessVerified ? '#10b981' : '#3f3f46' }}>
+                    {scoreBusinessVerified && <span className="text-white">✓</span>}
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1 border-b border-border/10">
                   <span className="text-muted-foreground">{i18nT("app.profileComplete15")}</span>
-                  <input
-                    type="checkbox"
-                    checked={scoreProfileComplete}
-                    onChange={(e) => setScoreProfileComplete(e.target.checked)}
-                    className="cursor-pointer accent-amber-500"
-                    aria-label={i18nT("app.toggleProfileCompletenessStatusForScoreSimulation")} />
-                  
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center text-xs" style={{ backgroundColor: scoreProfileComplete ? '#10b981' : '#3f3f46' }}>
+                    {scoreProfileComplete && <span className="text-white">✓</span>}
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-1 text-xs py-1 border-b border-border/10">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{i18nT("app.averageRating")}{scoreRatingAvg.toFixed(1)}{i18nT("stars")}</span>
                   </div>
-                  <input
-                    type="range"
-                    min="1.0"
-                    max="5.0"
-                    step="0.1"
-                    value={scoreRatingAvg}
-                    onChange={(e) => setScoreRatingAvg(parseFloat(e.target.value))}
-                    className="w-full accent-amber-500 cursor-pointer"
-                    aria-label={i18nT("app.adjustAverageRatingForScoreSimulation")} />
-                  
+                  <div className="w-full bg-muted h-1 rounded-full overflow-hidden mt-1">
+                    <div className="bg-amber-500 h-full" style={{ width: `${(scoreRatingAvg / 5) * 100}%` }} />
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between text-xs py-1">
                   <span className="text-muted-foreground">{i18nT("app.activeDisputes15PtsEach")}</span>
-                  <input
-                    type="number"
-                    min="0"
-                    max="3"
-                    value={scoreDisputesCount}
-                    onChange={(e) => setScoreDisputesCount(parseInt(e.target.value) || 0)}
-                    className="w-12 bg-muted text-foreground text-center border border-border rounded py-0.5 text-xs font-bold outline-none"
-                    aria-label={i18nT("app.setActiveDisputesCountForScoreSimulation")} />
-                  
+                  <span className="font-bold text-rose-500">{scoreDisputesCount}</span>
                 </div>
               </div>
             </CardContent>
@@ -845,7 +810,12 @@ export default function TrustDashboard() {const { t: i18nT } = useI18n();
                     
                       <div className="flex flex-col">
                         <span className="font-semibold">{contact.contact_name}</span>
-                        <span className="text-[10px] font-mono text-muted-foreground">{contact.contact_phone}</span>
+                        <a
+                          href={`tel:${contact.contact_phone.replace(/\s+/g, "")}`}
+                          className="text-[10px] font-mono text-primary hover:underline"
+                        >
+                          {contact.contact_phone}
+                        </a>
                       </div>
                       <Button
                       size="sm"

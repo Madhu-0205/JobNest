@@ -12,13 +12,23 @@ import {
   Loader2,
   Award,
   CheckCircle,
-  Clock } from
+  Clock,
+  Star,
+  AlertTriangle } from
 "lucide-react";
+import { ReviewModal } from "@/components/trust/ReviewModal";
+import { DisputeModal } from "@/components/trust/DisputeModal";
+import { useToast } from "@/hooks/useToast";
 
-export default function ProfilePage() {const { t: i18nT } = useI18n();
+export default function ProfilePage() {
+  const { t: i18nT } = useI18n();
   const { user, updateKycStatus } = useAuth();
+  const { success: toastSuccess } = useToast();
   const [kycLoading, setKycLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
 
   if (!user) return null;
 
@@ -28,7 +38,9 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
     setTimeout(() => {
       setKycLoading(false);
       updateKycStatus("verified");
-      setSuccessMsg("Aadhaar Verification documents uploaded and verified instantly on trust ledger!");
+      const msg = "Aadhaar verification documents uploaded and verified instantly on trust ledger!";
+      setSuccessMsg(msg);
+      toastSuccess("Profile updated successfully.", msg);
       setTimeout(() => setSuccessMsg(null), 4000);
     }, 1500);
   };
@@ -71,7 +83,12 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
             <div className="flex flex-col gap-1 w-full text-xs text-muted-foreground border-t border-border/20 pt-4 mt-2">
               <div className="flex justify-between">
                 <span>{i18nT("Email:")}</span>
-                <span className="text-foreground truncate max-w-[150px]">{user.email}</span>
+                <a
+                  href={`mailto:${user.email}`}
+                  className="text-foreground truncate max-w-37.5 hover:underline hover:text-primary transition-colors"
+                >
+                  {user.email}
+                </a>
               </div>
               <div className="flex justify-between">
                 <span>{i18nT("Rating:")}</span>
@@ -81,6 +98,22 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
                 <span>{i18nT("Location:")}</span>
                 <span className="text-foreground">{i18nT("app.gunturAndhraPradesh")}</span>
               </div>
+            </div>
+
+            {/* Demo buttons for Trust/Reputation UX */}
+            <div className="w-full border-t border-border/20 pt-4 mt-2 flex flex-col gap-2">
+              <button 
+                onClick={() => setIsReviewModalOpen(true)}
+                className="w-full flex items-center justify-center gap-2 bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-500/30 rounded-lg py-2 text-xs font-bold transition-colors"
+              >
+                <Star className="w-4 h-4" /> Leave a Review
+              </button>
+              <button 
+                onClick={() => setIsDisputeModalOpen(true)}
+                className="w-full flex items-center justify-center gap-2 bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 border border-rose-500/30 rounded-lg py-2 text-xs font-bold transition-colors"
+              >
+                <AlertTriangle className="w-4 h-4" /> Report / Dispute
+              </button>
             </div>
           </Card>
 
@@ -160,6 +193,28 @@ export default function ProfilePage() {const { t: i18nT } = useI18n();
         </div>
 
       </div>
+
+      <ReviewModal 
+        isOpen={isReviewModalOpen} 
+        onClose={() => setIsReviewModalOpen(false)} 
+        revieweeId={"demo-user-id"} 
+        ratingType="local"
+        onSuccess={() => {
+          setSuccessMsg("Review submitted successfully!");
+          setTimeout(() => setSuccessMsg(null), 4000);
+        }}
+      />
+      
+      <DisputeModal 
+        isOpen={isDisputeModalOpen} 
+        onClose={() => setIsDisputeModalOpen(false)} 
+        respondentId={"demo-user-id"}
+        opportunityId="demo-opp-id"
+        onSuccess={() => {
+          setSuccessMsg("Dispute submitted successfully!");
+          setTimeout(() => setSuccessMsg(null), 4000);
+        }}
+      />
     </ProductShell>);
 
 }

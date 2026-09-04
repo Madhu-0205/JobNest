@@ -1,1 +1,39 @@
 @import "../styles/globals.css";
+
+@layer base {
+  :root {
+    --background: var(--light-bg);
+    --foreground: var(--light-fg);
+    
+    --card: var(--light-card);
+    --card-foreground: var(--light-fg);
+    
+    --popover: var(--light-card);
+    --popover-foreground: var(--light-fg);
+    
+    --primary: var(--light-primary);
+    --primary-foreground: oklch(0.98 0 0);
+    
+    --secondary: var(--light-secondary);
+    --secondary-foreground: var(--light-fg);
+    
+    --muted: var(--light-muted);
+    --muted-foreground: var(--light-muted-fg);
+    
+    --accent: var(--light-secondary);
+    --accent-foreground: var(--light-fg);
+    
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.98 0 0);
+    
+    --border: var(--light-border);
+    --input: var(--light-border);
+    --ring: var(--light-primary);
+    
+    --radius: 0.75rem;
+  }
+  
+  html, body {
+    overflow-x: hidden;
+  }
+}

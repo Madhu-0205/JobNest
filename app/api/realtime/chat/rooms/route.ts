@@ -6,7 +6,12 @@ export async function GET() {
   if (result.success) {
     return NextResponse.json({ success: true, data: result.data });
   }
-  return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+  const msg = result.error?.message?.toLowerCase() || "";
+  const code = result.error?.code?.toLowerCase() || "";
+  const isAuthRequired = code.includes("authorization") || msg.includes("authentication required") || code === "unauthorized";
+  const isDenied = msg.includes("access denied") || code === "forbidden" || msg.includes("not a participant");
+  const status = isAuthRequired ? 401 : isDenied ? 403 : 400;
+  return NextResponse.json({ success: false, error: result.error }, { status });
 }
 
 export async function POST(req: NextRequest) {
@@ -17,7 +22,12 @@ export async function POST(req: NextRequest) {
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data });
     }
-    return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+    const msg = result.error?.message?.toLowerCase() || "";
+    const code = result.error?.code?.toLowerCase() || "";
+    const isAuthRequired = code.includes("authorization") || msg.includes("authentication required") || code === "unauthorized";
+    const isDenied = msg.includes("access denied") || code === "forbidden" || msg.includes("not a participant");
+    const status = isAuthRequired ? 401 : isDenied ? 403 : 400;
+    return NextResponse.json({ success: false, error: result.error }, { status });
   } catch (err) {
     return NextResponse.json({
       success: false,

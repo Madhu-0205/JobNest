@@ -28,8 +28,9 @@ export function LanguageSwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <Globe className="w-4 h-4 text-primary" />
-        <span>{LANGUAGE_NAMES[locale]}</span>
+        <Globe className="w-4 h-4 text-primary shrink-0" />
+        <span className="hidden sm:inline">{LANGUAGE_NAMES[locale]}</span>
+        <span className="sm:hidden text-xs uppercase font-mono font-bold">{locale}</span>
       </button>
 
       {isOpen && (

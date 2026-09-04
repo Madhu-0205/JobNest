@@ -58,17 +58,7 @@ export function useVerification() {
       }
       return { success: false, error: data.error?.message || "Submit failed." };
     } catch {
-      // Return simulated success
-      const fakeId = crypto.randomUUID();
-      const newReq: VerificationRequest = {
-        id: fakeId,
-        request_type: requestType,
-        status: "submitted",
-        notes: "Uploaded doc successfully.",
-        created_at: new Date().toISOString(),
-      };
-      setRequests((prev) => [newReq, ...prev]);
-      return { success: true, requestId: fakeId };
+      return { success: false, error: "Network error occurred." };
     }
   };
 
@@ -116,16 +106,7 @@ export function useVerification() {
       }
       return { success: false, error: data.error?.message || "GST submit failed." };
     } catch {
-      const fakeId = crypto.randomUUID();
-      const newReq: VerificationRequest = {
-        id: fakeId,
-        request_type: "business",
-        status: "pending",
-        notes: "Business GST document validation pending.",
-        created_at: new Date().toISOString(),
-      };
-      setRequests((prev) => [newReq, ...prev]);
-      return { success: true, businessId: fakeId };
+      return { success: false, error: "Network error occurred." };
     }
   };
 

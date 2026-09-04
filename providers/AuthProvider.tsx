@@ -14,13 +14,13 @@ export interface Transaction {
 }
 
 export interface UserProfile {
+  id: string;
   name: string;
   email: string;
   role: UserRole;
   avatar: string;
   kycStatus: "unverified" | "pending" | "verified";
-  walletBalance: number;
-  transactions: Transaction[];
+
   onboardingCompleted?: boolean;
   phoneNumber?: string;
   skills?: string[];
@@ -56,8 +56,7 @@ interface AuthContextType {
   signup: (email: string, role: UserRole, displayName: string) => Promise<boolean>;
   logout: () => void;
   updateKycStatus: (status: "unverified" | "pending" | "verified") => void;
-  updateWalletBalance: (amount: number) => void;
-  addTransaction: (tx: Transaction) => void;
+
   updateProfile: (profile: Partial<UserProfile>) => void;
 }
 
@@ -76,13 +75,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         setIsAuthenticated(true);
         setUser({
+          id: session.user.id,
           name: session.user.user_metadata?.['display_name'] || session.user.email?.split("@")[0] || "User",
           email: session.user.email || "",
           role: (session.user.user_metadata?.['role'] as UserRole) || "worker",
           avatar: "US",
           kycStatus: "unverified",
-          walletBalance: 2500,
-          transactions: []
+
         });
       }
       setIsInitialized(true);
@@ -92,13 +91,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (event === "SIGNED_IN" && session) {
         setIsAuthenticated(true);
         setUser({
+          id: session.user.id,
           name: session.user.user_metadata?.['display_name'] || session.user.email?.split("@")[0] || "User",
           email: session.user.email || "",
           role: (session.user.user_metadata?.['role'] as UserRole) || "worker",
           avatar: "US",
           kycStatus: "unverified",
-          walletBalance: 2500,
-          transactions: []
+
         });
       } else if (event === "SIGNED_OUT") {
         setIsAuthenticated(false);
@@ -129,15 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser({ ...user, kycStatus: status });
   };
 
-  const updateWalletBalance = (amount: number) => {
-    if (!user) return;
-    setUser({ ...user, walletBalance: user.walletBalance + amount });
-  };
 
-  const addTransaction = (tx: Transaction) => {
-    if (!user) return;
-    setUser({ ...user, transactions: [tx, ...user.transactions] });
-  };
 
   const updateProfile = (profile: Partial<UserProfile>) => {
     if (!user) return;
@@ -157,8 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signup,
         logout,
         updateKycStatus,
-        updateWalletBalance,
-        addTransaction,
+
         updateProfile
       }}
     >

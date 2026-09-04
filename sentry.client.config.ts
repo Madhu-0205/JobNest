@@ -38,5 +38,14 @@ if (SENTRY_DSN) {
 
     // Don't send PII
     sendDefaultPii: false,
+
+    // Drop client navigation and fast refresh request aborts
+    beforeSend(event, hint) {
+      const error = hint?.originalException;
+      if (error instanceof Error && (error.name === "AbortError" || error.message?.includes("AbortError"))) {
+        return null;
+      }
+      return event;
+    },
   });
 }

@@ -160,6 +160,12 @@ describe("GeminiAdapter", () => {
     setEnv({ GEMINI_API_KEY: undefined });
     await expect(AIProviderService.embed("test")).rejects.toThrow(AIProviderError);
   });
+
+  it("aborts immediate retries and throws AIProviderError on 429 rate limit", async () => {
+    mockGeminiComplete.mockRejectedValueOnce(new Error("[429 Too Many Requests] RESOURCE_EXHAUSTED"));
+    await expect(AIProviderService.complete("Hello")).rejects.toThrow("Rate limit exceeded (429)");
+    expect(mockGeminiComplete).toHaveBeenCalledTimes(1); // Verified: aborts immediately, preventing retry storm!
+  });
 });
 
 // ─── OpenAI Adapter ───────────────────────────────────────────────────────────

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, UserRole } from "@/providers/AuthProvider";
 import { useTheme } from "@/providers/ThemeProvider";
+import { useMode } from "@/features/mode/ModeProvider";
 import { useI18n } from "@/lib/i18n/context";
 import { LocaleCode } from "@/lib/i18n/translations";
 import { Typography } from "@/components/ui/Typography";
@@ -35,14 +36,24 @@ import {
   Moon,
   PhoneCall } from
 "lucide-react";
+import { VoiceAssistant } from "@/components/voice/VoiceAssistant";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface ProductShellProps {
   children: React.ReactNode;
 }
 
-export function ProductShell({ children }: ProductShellProps) {const { t: i18nT } = useI18n();
+const mockNotifications = [
+  { id: 1, title: "Aadhaar Verified", desc: "Your KYC trust badge is now active on ledger.", unread: true, time: "2m ago" },
+  { id: 2, title: "New Job Nearby", desc: "Agriculture harvest helper needed within 2 km.", unread: true, time: "1h ago" },
+  { id: 3, title: "Escrow Deposit Locked", desc: "₹1,500 locked by employer Arun for joint leak fixing.", unread: false, time: "1d ago" }
+];
+
+export function ProductShell({ children }: ProductShellProps) {
+  const { t: i18nT } = useI18n();
   const { isAuthenticated, user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { mode, toggleMode } = useMode();
   const { locale, setLocale } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
@@ -54,6 +65,24 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [sosActive, setSosActive] = useState(false);
+  const [notifications, setNotifications] = useState(mockNotifications);
+
+  const hasUnread = notifications.some((n) => n.unread);
+
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+K or Ctrl+K for search
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Guard routing logic
   useEffect(() => {
@@ -61,6 +90,25 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
       router.push("/");
     }
   }, [isAuthenticated, router]);
+
+  // Lock body scroll and listen for Escape when mobile menu is open
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
 
   if (!isAuthenticated || !user) {
     return (
@@ -70,13 +118,6 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
       </div>);
 
   }
-
-  // Notifications State Mock
-  const mockNotifications = [
-  { id: 1, title: "Aadhaar Verified", desc: "Your KYC trust badge is now active on ledger.", unread: true, time: "2m ago" },
-  { id: 2, title: "New Job Nearby", desc: "Agriculture harvest helper needed within 2 km.", unread: true, time: "1h ago" },
-  { id: 3, title: "Escrow Deposit Locked", desc: "₹1,500 locked by employer Arun for joint leak fixing.", unread: false, time: "1d ago" }];
-
 
   // Global Navigation Links configuration
   const navItems = [
@@ -176,12 +217,28 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
            ───────────────────────────────────────────────────────── */}
       <aside className="hidden md:flex flex-col w-64 bg-card/40 border-r border-border/40 backdrop-blur-xl shrink-0 h-screen sticky top-0 z-50 p-4">
         <div className="flex items-center gap-3 px-2 py-4 border-b border-border/20 mb-6">
-          <span className="w-9 h-9 rounded-xl bg-linear-to-r from-primary to-amber-600 flex items-center justify-center text-background font-extrabold text-xl shadow-luxury">{i18nT("J")}
+          <span className={`w-9 h-9 rounded-xl flex items-center justify-center text-background font-extrabold text-xl shadow-luxury ${mode === 'PRO' ? 'bg-linear-to-r from-primary to-amber-600' : 'bg-linear-to-r from-emerald-500 to-teal-500'}`}>{i18nT("J")}
 
           </span>
           <div>
-            <Typography variant="h3" className="font-bold text-base leading-tight">{i18nT("common.jobnestPro")}</Typography>
-            <Typography variant="muted" className="text-[10px] uppercase font-mono tracking-wider text-primary">{i18nT("common.enterpriseV2")}</Typography>
+            <Typography variant="h3" className="font-bold text-base leading-tight">{mode === 'PRO' ? i18nT("common.jobnestPro") : "JobNest Local"}</Typography>
+            <Typography variant="muted" className={`text-[10px] uppercase font-mono tracking-wider ${mode === 'PRO' ? 'text-primary' : 'text-emerald-500'}`}>{i18nT("common.enterpriseV2")}</Typography>
+          </div>
+        </div>
+
+        {/* Mode Toggle */}
+        <div className="px-2 mb-4">
+          <div className="flex bg-muted/40 p-1 rounded-lg border border-border/40">
+            <button 
+              onClick={() => mode !== "LOCAL" && toggleMode()}
+              className={`flex-1 text-[11px] font-bold py-1.5 rounded-md transition-all ${mode === "LOCAL" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+              Local
+            </button>
+            <button 
+              onClick={() => mode !== "PRO" && toggleMode()}
+              className={`flex-1 text-[11px] font-bold py-1.5 rounded-md transition-all ${mode === "PRO" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+              Pro
+            </button>
           </div>
         </div>
 
@@ -248,15 +305,16 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 rounded-lg border border-border hover:bg-secondary/40 text-foreground"
-              aria-label={i18nT("common.toggleMobileNavigationMenu")}>
-              
+              className="md:hidden p-2 rounded-xl border border-border/60 hover:bg-secondary/40 text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              aria-label={i18nT("common.toggleMobileNavigationMenu")}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-drawer">
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
             {/* Logo on Mobile */}
             <div className="md:hidden flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-linear-to-r from-primary to-amber-600 flex items-center justify-center text-background font-extrabold text-base">{i18nT("J")}
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-background font-extrabold text-base ${mode === 'PRO' ? 'bg-linear-to-r from-primary to-amber-600' : 'bg-linear-to-r from-emerald-500 to-teal-500'}`}>{i18nT("J")}
 
               </span>
             </div>
@@ -285,6 +343,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
             }>
               <Search className="w-4 h-4 text-muted-foreground" />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder={i18nT("common.askAiAssistantOrSearchGigsGlobally")}
                 value={searchVal}
@@ -292,7 +351,9 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
                 className="w-full bg-transparent border-none text-xs placeholder:text-muted-foreground/60 focus:outline-none" />
-              
+              <div className="hidden lg:flex items-center justify-center px-1.5 py-0.5 rounded border border-border/50 bg-background/50 text-[10px] text-muted-foreground font-mono">
+                ⌘K
+              </div>
             </div>
           </form>
 
@@ -355,41 +416,62 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                 aria-label={i18nT("common.showNotificationLogsCenter")}>
                 
                 <Bell className="w-4 h-4" />
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary animate-ping" />
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
+                {hasUnread && (
+                  <>
+                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary animate-ping" />
+                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
+                  </>
+                )}
               </button>
 
               {/* Notifications Dropdown Panel */}
               <AnimatePresence>
-                {showNotifications &&
-                <>
+                {showNotifications && (
+                  <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
                     <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-2 w-72 bg-card border border-border shadow-luxury rounded-2xl p-4 z-50 flex flex-col gap-3">
-                    
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-2 w-72 bg-card border border-border shadow-luxury rounded-2xl p-4 z-50 flex flex-col gap-3"
+                    >
                       <div className="flex justify-between items-center border-b border-border/30 pb-2">
                         <span className="text-xs font-bold">{i18nT("common.activityNotifications")}</span>
-                        <span className="text-[10px] text-primary cursor-pointer hover:underline">{i18nT("common.markAllRead")}</span>
+                        <button
+                          onClick={() => setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))}
+                          className="text-[10px] text-primary cursor-pointer hover:underline bg-transparent border-none p-0 font-medium"
+                        >
+                          {i18nT("common.markAllRead")}
+                        </button>
                       </div>
                       <div className="flex flex-col gap-2.5 max-h-60 overflow-y-auto">
-                        {mockNotifications.map((notif) =>
-                      <div key={notif.id} className={`p-2 rounded-lg text-xs flex flex-col gap-0.5 border ${
-                      notif.unread ? "bg-primary/5 border-primary/10" : "bg-transparent border-transparent"}`
-                      }>
-                            <div className="flex justify-between items-center">
-                              <span className="font-bold text-foreground">{notif.title}</span>
-                              <span className="text-[9px] text-muted">{notif.time}</span>
+                        {notifications.length === 0 ? (
+                          <EmptyState
+                            icon={<Bell className="w-6 h-6 text-muted-foreground" />}
+                            title="No Notifications"
+                            description="You're all caught up! Platform alerts and milestones will appear here."
+                            className="py-4 border-none bg-transparent text-xs"
+                          />
+                        ) : (
+                          notifications.map((notif) => (
+                            <div
+                              key={notif.id}
+                              className={`p-2 rounded-lg text-xs flex flex-col gap-0.5 border ${
+                                notif.unread ? "bg-primary/5 border-primary/10" : "bg-transparent border-transparent"
+                              }`}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="font-bold text-foreground">{notif.title}</span>
+                                <span className="text-[9px] text-muted">{notif.time}</span>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground leading-normal">{notif.desc}</p>
                             </div>
-                            <p className="text-[10px] text-muted-foreground leading-normal">{notif.desc}</p>
-                          </div>
-                      )}
+                          ))
+                        )}
                       </div>
                     </motion.div>
                   </>
-                }
+                )}
               </AnimatePresence>
             </div>
 
@@ -423,8 +505,8 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
                     
                       <div className="px-2 py-1.5 border-b border-border/30 mb-1">
                         <span className="text-xs font-bold text-foreground block truncate">{user.name}</span>
-                        <span className="text-[10px] text-muted-foreground block truncate">{user.email}</span>
-                        <Badge variant="primary" className="mt-1.5 text-[9px] uppercase px-1.5 py-0 capitalize bg-primary/20 border-none text-primary">
+                        <a href={`mailto:${user.email}`} className="text-[10px] text-muted-foreground block truncate hover:underline hover:text-foreground">{user.email}</a>
+                        <Badge variant="primary" className="mt-1.5 text-[9px] uppercase px-1.5 py-0 bg-primary/20 border-none text-primary">
                           {user.role}{i18nT("Dashboard")}
                       </Badge>
                       </div>
@@ -475,24 +557,50 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
           {mobileMenuOpen &&
           <>
               {/* Backdrop */}
-              <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 md:hidden" onClick={() => setMobileMenuOpen(false)} />
+              <div
+                className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 md:hidden"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-hidden="true"
+              />
               <motion.aside
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border/50 z-50 p-4 md:hidden flex flex-col">
+                id="mobile-navigation-drawer"
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Mobile navigation"
+                className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-card border-r border-border/50 z-[60] p-4 md:hidden flex flex-col shadow-2xl">
               
                 <div className="flex items-center justify-between border-b border-border/20 pb-4 mb-4">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-8 h-8 rounded-lg bg-linear-to-r from-primary to-amber-600 flex items-center justify-center text-background font-extrabold text-base shadow-luxury">{i18nT("J")}
-
-                  </span>
-                    <Typography variant="h3" className="font-bold text-sm">{i18nT("common.jobnestMobile")}</Typography>
+                    <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-background font-extrabold text-base shadow-luxury ${mode === 'PRO' ? 'bg-linear-to-r from-primary to-amber-600' : 'bg-linear-to-r from-emerald-500 to-teal-500'}`}>{i18nT("J")}</span>
+                    <Typography variant="h3" className="font-bold text-sm">{mode === 'PRO' ? i18nT("common.jobnestPro") : "JobNest Local"}</Typography>
                   </div>
-                  <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg border border-border text-foreground hover:bg-secondary/40">
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    aria-label="Close navigation menu"
+                    className="p-2 rounded-lg border border-border text-foreground hover:bg-secondary/40 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+                  >
                     <X className="w-4 h-4" />
                   </button>
+                </div>
+
+                {/* Mobile Mode Toggle */}
+                <div className="px-1 mb-4">
+                  <div className="flex bg-muted/40 p-1 rounded-lg border border-border/40">
+                    <button 
+                      onClick={() => mode !== "LOCAL" && toggleMode()}
+                      className={`flex-1 text-[11px] font-bold py-1.5 rounded-md transition-all ${mode === "LOCAL" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                      Local
+                    </button>
+                    <button 
+                      onClick={() => mode !== "PRO" && toggleMode()}
+                      className={`flex-1 text-[11px] font-bold py-1.5 rounded-md transition-all ${mode === "PRO" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                      Pro
+                    </button>
+                  </div>
                 </div>
 
                 <nav className="flex-1 flex flex-col gap-1 overflow-y-auto">
@@ -542,7 +650,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
         {/* ─────────────────────────────────────────────────────────
              4. MAIN CONTAINER LAYOUT WITH SCROLL PADDING FOR MOBILE
              ───────────────────────────────────────────────────────── */}
-        <main className="flex-1 p-4 md:p-6 pb-24 md:pb-6 max-w-7xl w-full mx-auto animate-fade-in">
+        <main id="main-content" className="flex-1 p-4 md:p-6 pb-24 md:pb-6 max-w-7xl w-full mx-auto animate-fade-in">
           {children}
         </main>
 
@@ -631,7 +739,7 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
 
         {/* ── EMERGENCY SOS MODAL ───────────────────────────────────── */}
         {sosActive &&
-        <div className="fixed inset-0 bg-rose-950/80 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+        <div className="fixed inset-0 bg-rose-950/80 backdrop-blur-xs flex items-center justify-center z-9999 p-4">
             <Card className="glass-panel border-rose-500/40 max-w-sm w-full p-6 flex flex-col gap-4 text-center shadow-luxury animate-in fade-in zoom-in-95 duration-200">
               <div className="w-16 h-16 rounded-full bg-rose-500/20 border border-rose-500/35 flex items-center justify-center mx-auto text-rose-500 animate-pulse">
                 <PhoneCall className="w-8 h-8" />
@@ -652,6 +760,9 @@ export function ProductShell({ children }: ProductShellProps) {const { t: i18nT 
             </Card>
           </div>
         }
+
+        {/* ── GLOBAL VOICE ASSISTANT ────────────────────────────────── */}
+        <VoiceAssistant />
 
       </div>
     </div>);

@@ -53,7 +53,7 @@ export class TrustScoreEngine {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, avatar_url, phone, created_at")
+        .select("display_name, avatar_url, phone, created_at")
         .eq("id", userId)
         .single();
 
@@ -77,7 +77,7 @@ export class TrustScoreEngine {
       // 2. Compute Scoring Factors
       const isIdentityVerified = !!request;
       const isBusinessVerified = !!business;
-      const isProfileComplete = !!(profile?.full_name && profile?.phone);
+      const isProfileComplete = !!(profile?.display_name && profile?.phone);
       
       const ratings = ratingsData || [];
       const ratingAvg = ratings.length > 0 

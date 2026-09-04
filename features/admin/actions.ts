@@ -74,6 +74,13 @@ export async function takeModerationActionAction(formData: FormData): Promise<Ac
   });
 }
 
+export async function handleModerationAction(itemId: string, action: "approve" | "reject" | "escalate" | "resolve" | "dismiss", note?: string) {
+  return executeAction("handleModerationAction", async () => {
+    const actorId = await AuthorizationGuard.assertPermission(PERMISSIONS.MODERATION_ACTION);
+    return ModerationService.takeAction(itemId, action, actorId, note);
+  });
+}
+
 export async function bulkModerationActionAction(formData: FormData): Promise<ActionResult<{ processed: number; failed: number }>> {
   return executeAction("bulkModerationActionAction", async () => {
     const userId = await AuthorizationGuard.assertPermission(PERMISSIONS.MODERATION_ACTION);

@@ -21,7 +21,7 @@ export const adminReportSchema = z.object({
 
 export const adminModerationSchema = z.object({
   itemId: z.string().min(1, "itemId is required."),
-  action: z.enum(["approved", "rejected", "escalated"]),
+  action: z.enum(["approve", "reject", "escalate", "resolve", "dismiss"]),
   note: z.string().optional(),
 });
 

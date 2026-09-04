@@ -1,53 +1,39 @@
-import React from "react";
+import { FileSearch } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { Typography } from "./Typography";
-import { Button } from "./Button";
+import { Typography } from "@/components/ui/Typography";
 
-interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface EmptyStateProps {
+  icon?: React.ReactNode;
   title: string;
   description: string;
-  icon?: React.ReactNode;
-  actionLabel?: string;
-  onAction?: () => void;
+  action?: React.ReactNode;
+  className?: string;
 }
 
-/**
- * Enterprise Empty State Component.
- * Implements a clean, centered interface with a call to action.
- */
 export function EmptyState({
+  icon,
   title,
   description,
-  icon,
-  actionLabel,
-  onAction,
+  action,
   className,
-  ...props
 }: EmptyStateProps) {
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center p-8 rounded-lg glass-card border border-dashed border-border max-w-lg mx-auto my-8 animate-fade-in",
+        "flex flex-col items-center justify-center text-center p-8 rounded-2xl border border-dashed border-border bg-card/20 animate-fade-in",
         className
       )}
-      {...props}
     >
-      {icon && (
-        <div className="mb-4 text-primary w-12 h-12 flex items-center justify-center bg-primary/10 rounded-full border border-primary/20">
-          {icon}
-        </div>
-      )}
-      <Typography variant="h3" className="text-lg font-semibold mb-2">
+      <div className="bg-secondary/30 p-4 rounded-full mb-4 text-muted-foreground">
+        {icon || <FileSearch className="w-8 h-8" />}
+      </div>
+      <Typography variant="h4" className="mb-2">
         {title}
       </Typography>
-      <Typography variant="muted" className="mb-6 max-w-sm">
+      <Typography variant="muted" className="mb-6 max-w-sm text-balance">
         {description}
       </Typography>
-      {actionLabel && onAction && (
-        <Button variant="primary" onClick={onAction}>
-          {actionLabel}
-        </Button>
-      )}
+      {action && <div>{action}</div>}
     </div>
   );
 }

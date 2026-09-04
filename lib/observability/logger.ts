@@ -170,15 +170,47 @@ export class ObservabilityLogger {
   }
 
   warn(message: string, context?: Record<string, unknown>) {
+    if (message.includes("AbortError")) {
+      this.debug(message, context);
+      return;
+    }
     this.write("warn", message, context);
   }
 
   error(message: string, error?: Error | unknown, context?: Record<string, unknown>) {
-    const errorDetails =
-      error instanceof Error
-        ? { name: error.name, errorMessage: error.message, stack: error.stack }
-        : { rawError: error };
-    this.write("error", message, { ...context, ...errorDetails });
+    // Treat AbortError as an expected cancellation, not an application failure
+    const isAbort =
+      (error instanceof Error && (error.name === "AbortError" || error.message?.includes("AbortError"))) ||
+      (typeof error === "object" && error !== null && (error as { name?: string }).name === "AbortError") ||
+      message.includes("AbortError");
+
+    if (isAbort) {
+      this.debug(`[Cancelled] ${message}`, { ...context, reason: "AbortError" });
+      return;
+    }
+
+    let errorDetails: Record<string, unknown> = {};
+    if (error instanceof Error) {
+      errorDetails = { name: error.name, errorMessage: error.message, stack: error.stack };
+    } else if (error && typeof error === "object") {
+      const errObj = error as Record<string, unknown>;
+      errorDetails = { 
+        name: errObj['name'] || errObj['code'] || "Error", 
+        errorMessage: errObj['message'] || errObj['details'] || String(error), 
+        stack: errObj['stack'] 
+      };
+      // Keep any other enumerable properties from the raw error (e.g., Supabase specific fields)
+      Object.assign(errorDetails, errObj);
+    } else if (error !== undefined) {
+      errorDetails = { rawError: String(error) };
+    }
+    
+    // Remove undefined properties to avoid cluttering JSON logs
+    const cleanedDetails = Object.fromEntries(
+      Object.entries(errorDetails).filter(([_, v]) => v !== undefined)
+    );
+
+    this.write("error", message, { ...context, ...cleanedDetails });
   }
 
   /**

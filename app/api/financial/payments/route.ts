@@ -9,7 +9,8 @@ export async function POST(req: NextRequest) {
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data });
     }
-    return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+    const isAuth = result.error?.code === "AuthorizationError" || result.error?.code === "UNAUTHORIZED";
+    return NextResponse.json({ success: false, error: result.error }, { status: isAuth ? 401 : 400 });
   } catch (err) {
     return NextResponse.json({
       success: false,

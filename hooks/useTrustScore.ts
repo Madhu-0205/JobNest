@@ -14,6 +14,12 @@ interface TrustScoreData {
     reports_count: number;
     account_age_months: number;
   };
+  badges?: Array<{
+    code: string;
+    name: string;
+    icon_url: string | null;
+    description: string | null;
+  }>;
 }
 
 /**
@@ -27,44 +33,18 @@ export function useTrustScore(userId: string) {
   const fetchScore = useCallback(async () => {
     try {
       setLoading(true);
-      // Simulating dynamic fetch queries
-      const res = await fetch(`/api/user/profile?userId=${userId}`);
-      if (!res.ok) throw new Error("Profile query failed.");
-      // If profile is config, fetch trust score
-      const scoreRes = await fetch(`/api/trust/verify`);
-      const scoreData = await scoreRes.json();
-
+      const res = await fetch(`/api/trust/score?userId=${userId}`);
+      if (!res.ok) throw new Error("Failed to fetch trust score");
+      
+      const scoreData = await res.json();
       if (scoreData.success && scoreData.data) {
-        // Find matching score
-        setTrustScore({
-          score: 85,
-          factors: {
-            identity_verified: true,
-            business_verified: false,
-            profile_complete: true,
-            rating_average: 4.8,
-            disputes_count: 0,
-            reports_count: 0,
-            account_age_months: 3,
-          }
-        });
+        setTrustScore(scoreData.data);
       } else {
-        throw new Error("No data returned.");
+        throw new Error(scoreData.error || "No data returned.");
       }
-    } catch {
-      logger.info("[useTrustScore] Loading simulation defaults for score engine.");
-      setTrustScore({
-        score: 80,
-        factors: {
-          identity_verified: false,
-          business_verified: false,
-          profile_complete: true,
-          rating_average: 5.0,
-          disputes_count: 0,
-          reports_count: 0,
-          account_age_months: 2,
-        }
-      });
+    } catch (err) {
+      logger.error(`[useTrustScore] Failed to load trust score: ${err}`);
+      setTrustScore(null);
     } finally {
       setLoading(false);
     }

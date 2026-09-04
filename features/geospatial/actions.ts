@@ -41,11 +41,13 @@ async function executeAction<T>(
           };
         }
 
+        const isPostgrestError = error && typeof error === "object" && "code" in error && "message" in error;
+        
         return {
           success: false,
           error: {
-            code: error instanceof Error ? error.name : "UNKNOWN_ERROR",
-            message: error instanceof Error ? error.message : "An unexpected failure occurred.",
+            code: error instanceof Error ? error.name : (isPostgrestError ? String((error as Record<string, unknown>)["code"]) : "UNKNOWN_ERROR"),
+            message: error instanceof Error ? error.message : (isPostgrestError ? String((error as Record<string, unknown>)["message"]) : "An unexpected failure occurred."),
           },
         };
       }
@@ -289,7 +291,10 @@ export async function logGeofenceEventAction(formData: unknown): Promise<ActionR
       }
 
       return { eventId: data.id };
-    } catch {
+    } catch (error) {
+      if (process.env["NEXT_PUBLIC_ENABLE_MOCK_DATA"] !== "true") {
+        throw error;
+      }
       logger.info("Geofencing logging bypassed. Returning simulated event record.");
       return { eventId: crypto.randomUUID() };
     }
@@ -353,7 +358,10 @@ export async function saveLocationPresetAction(formData: unknown): Promise<Actio
 
       if (savedErr || !savedLoc) throw new Error(savedErr?.message || "Saved Location registry link failed.");
       return { presetId: savedLoc.id };
-    } catch {
+    } catch (error) {
+      if (process.env["NEXT_PUBLIC_ENABLE_MOCK_DATA"] !== "true") {
+        throw error;
+      }
       logger.info("Saved preset registration bypassed. Returning simulated preset id.");
       return { presetId: crypto.randomUUID() };
     }
@@ -395,7 +403,10 @@ export async function getSavedLocationsAction(): Promise<ActionResult<{ label: s
           displayName: `${row.label} Location`,
         };
       });
-    } catch {
+    } catch (error) {
+      if (process.env["NEXT_PUBLIC_ENABLE_MOCK_DATA"] !== "true") {
+        throw error;
+      }
       // Mock saved location values
       return [
         { label: "Home", latitude: 12.9716, longitude: 77.5946, displayName: "Bangalore HQ (Saved Preset)" },
@@ -442,7 +453,11 @@ export async function spatialSearchAction(
       }
 
       return [];
-    } catch {
+    } catch (error) {
+      if (process.env["NEXT_PUBLIC_ENABLE_MOCK_DATA"] !== "true") {
+        throw error;
+      }
+      
       // Fallback spatial search response: dynamically geocode center coordinates
       let resolvedDistrict = "Local District";
       try {

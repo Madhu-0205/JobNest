@@ -19,7 +19,6 @@ import MapSearch from "./MapSearch";
 import RadiusSelector from "./RadiusSelector";
 import MapBottomSheet from "./MapBottomSheet";
 import WorkerMarker from "./WorkerMarker";
-import OpportunityMarker from "./OpportunityMarker";
 import RoutePolyline from "./RoutePolyline";
 import ETAWidget from "./ETAWidget";
 import LiveStatusIndicator from "./LiveStatusIndicator";
@@ -222,6 +221,176 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
 
     const newPortals: React.ReactPortal[] = [];
 
+    // Native Clustering for Jobs/Workers via GeoJSON
+    const geoJsonFeatures: GeoJSON.Feature<GeoJSON.Point>[] = [];
+
+    if (mode === "worker" || mode === "landing" || mode === "search") {
+      jobs.forEach((job) => {
+        geoJsonFeatures.push({
+          type: "Feature",
+          properties: {
+            id: job.id,
+            title: job.title,
+            type: "job",
+            salaryMax: job.salaryMax
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [job.longitude, job.latitude]
+          }
+        });
+      });
+    }
+
+    if (mode === "employer" || mode === "resident") {
+      workers.forEach((worker) => {
+        geoJsonFeatures.push({
+          type: "Feature",
+          properties: {
+            id: worker.userId,
+            title: worker.jobTitle,
+            type: "worker",
+            experience: worker.experienceYears
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [worker.longitude, worker.latitude]
+          }
+        });
+      });
+    }
+
+    const geoJsonData: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+      type: "FeatureCollection",
+      features: geoJsonFeatures
+    };
+
+    if (map.getSource("markers-source")) {
+      (map.getSource("markers-source") as maplibregl.GeoJSONSource).setData(geoJsonData);
+    } else {
+      map.addSource("markers-source", {
+        type: "geojson",
+        data: geoJsonData,
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 50
+      });
+
+      map.addLayer({
+        id: "clusters",
+        type: "circle",
+        source: "markers-source",
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": [
+            "step",
+            ["get", "point_count"],
+            "#51bbd6",
+            10,
+            "#f1f075",
+            50,
+            "#f28cb1"
+          ],
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            20,
+            10,
+            30,
+            50,
+            40
+          ],
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#ffffff"
+        }
+      });
+
+      map.addLayer({
+        id: "cluster-count",
+        type: "symbol",
+        source: "markers-source",
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": "{point_count_abbreviated}",
+          "text-size": 12
+        },
+        paint: {
+          "text-color": "#000000"
+        }
+      });
+
+      map.addLayer({
+        id: "unclustered-job",
+        type: "circle",
+        source: "markers-source",
+        filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "type"], "job"]],
+        paint: {
+          "circle-color": "#10b981", // Emerald for jobs
+          "circle-radius": 8,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#fff"
+        }
+      });
+
+      map.addLayer({
+        id: "unclustered-worker",
+        type: "circle",
+        source: "markers-source",
+        filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "type"], "worker"]],
+        paint: {
+          "circle-color": "#c5a880", // Amber/Gold for workers
+          "circle-radius": 8,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#fff"
+        }
+      });
+
+      // Handle interactions
+      const layers = ['unclustered-job', 'unclustered-worker'];
+      
+      layers.forEach(layerId => {
+        map.on('click', layerId, (e) => {
+          const features = e.features;
+          if (!features || !features[0]) return;
+          const id = features[0].properties?.['id'];
+          if (id) {
+            setSelectedItemId(id);
+            if (onSelectEntity) onSelectEntity(id);
+          }
+        });
+
+        map.on('mouseenter', layerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', layerId, () => {
+          map.getCanvas().style.cursor = '';
+        });
+      });
+
+      map.on('mouseenter', 'clusters', () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', 'clusters', () => {
+        map.getCanvas().style.cursor = '';
+      });
+
+      map.on('click', 'clusters', (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['clusters']
+        });
+        if (!features[0]) return;
+        const clusterId = features[0].properties?.['cluster_id'];
+        const source = map.getSource('markers-source') as maplibregl.GeoJSONSource;
+        
+        source.getClusterExpansionZoom(clusterId).then((zoom) => {
+          map.easeTo({
+            center: (features[0].geometry as GeoJSON.Point).coordinates as [number, number],
+            zoom: zoom
+          });
+        }).catch(() => {});
+      });
+    }
+
     // 1. Render Current User Location Marker with Pulse animation in all modes
     if (activeLat !== null && activeLng !== null) {
       const elCurrent = document.createElement("div");
@@ -259,63 +428,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
       }
     }
 
-    // 2. Render Opportunity Markers
-    if (mode === "worker" || mode === "landing" || mode === "search") {
-      jobs.forEach((job) => {
-        const el = document.createElement("div");
-        map.getContainer().appendChild(el);
-        markerContainersRef.current.push(el);
-
-        new maplibregl.Marker({ element: el }).
-        setLngLat([job.longitude, job.latitude]).
-        addTo(map);
-
-        newPortals.push(
-          createPortal(
-            <OpportunityMarker
-              title={job.title}
-              salaryMax={job.salaryMax}
-              isSelected={selectedItemId === job.id}
-              onClick={() => {
-                setSelectedItemId(job.id);
-                if (onSelectEntity) onSelectEntity(job.id);
-              }} />,
-
-            el
-          )
-        );
-      });
-    }
-
-    // 3. Render Worker Markers
-    if (mode === "employer" || mode === "resident") {
-      workers.forEach((worker) => {
-        const el = document.createElement("div");
-        map.getContainer().appendChild(el);
-        markerContainersRef.current.push(el);
-
-        new maplibregl.Marker({ element: el }).
-        setLngLat([worker.longitude, worker.latitude]).
-        addTo(map);
-
-        newPortals.push(
-          createPortal(
-            <WorkerMarker
-              jobTitle={worker.jobTitle}
-              experienceYears={worker.experienceYears}
-              isSelected={selectedItemId === worker.userId}
-              onClick={() => {
-                setSelectedItemId(worker.userId);
-                if (onSelectEntity) onSelectEntity(worker.userId);
-              }} />,
-
-            el
-          )
-        );
-      });
-    }
-
-    // 4. Render active target tracking marker
+    // 2. Render active target tracking marker (Singleton, keep as DOM portal for pulse effect)
     if (mode === "tracking" && trackingTarget) {
       const el = document.createElement("div");
       map.getContainer().appendChild(el);
@@ -472,13 +585,7 @@ export function MapView({ mode, onSelectEntity, jobs: propJobs, workers: propWor
     if (mode === "employer" || mode === "resident") {
       const worker = workers.find((w) => w.userId === selectedItemId);
       if (worker) {
-        // Resolve a friendly display name based on userId or fallback
-        const nameMap: Record<string, string> = {
-          "worker-1": "Arun Kumar",
-          "worker-2": "Suresh Prasad",
-          "worker-3": "Kiran Rao"
-        };
-        const displayName = nameMap[worker.userId] || "Local Professional";
+        const displayName = "Local Professional";
 
         return (
           <div className="flex flex-col gap-4 text-foreground">

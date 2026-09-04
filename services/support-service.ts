@@ -44,50 +44,7 @@ export interface TicketStats {
 // Simulated Tickets
 // ─────────────────────────────────────────────────────────────────
 
-const nowMs = Date.now();
-
-const SIMULATED_TICKETS: SupportTicket[] = [
-  {
-    id: "tkt-001", requesterId: "user-a1", assignedTo: "support-agent-1",
-    subject: "Payment not received after job completion", category: "payments",
-    priority: "high", status: "in_progress",
-    slaDeadlineAt: new Date(nowMs + 3600000).toISOString(), resolvedAt: null,
-    createdAt: new Date(nowMs - 7200000).toISOString(), updatedAt: new Date(nowMs - 3600000).toISOString(),
-    slaBreached: false, slaRemainingMinutes: 60,
-  },
-  {
-    id: "tkt-002", requesterId: "user-b2", assignedTo: null,
-    subject: "Cannot upload Aadhaar card for KYC", category: "kyc",
-    priority: "urgent", status: "open",
-    slaDeadlineAt: new Date(nowMs + 900000).toISOString(), resolvedAt: null,
-    createdAt: new Date(nowMs - 14400000).toISOString(), updatedAt: new Date(nowMs - 14400000).toISOString(),
-    slaBreached: false, slaRemainingMinutes: 15,
-  },
-  {
-    id: "tkt-003", requesterId: "user-c3", assignedTo: "support-agent-2",
-    subject: "Employer posted misleading job requirements", category: "fraud",
-    priority: "high", status: "escalated",
-    slaDeadlineAt: new Date(nowMs - 1800000).toISOString(), resolvedAt: null,
-    createdAt: new Date(nowMs - 28800000).toISOString(), updatedAt: new Date(nowMs - 7200000).toISOString(),
-    slaBreached: true, slaRemainingMinutes: null,
-  },
-  {
-    id: "tkt-004", requesterId: "user-d4", assignedTo: "support-agent-1",
-    subject: "App crashes when viewing map on Android 12", category: "technical",
-    priority: "medium", status: "waiting_on_user",
-    slaDeadlineAt: new Date(nowMs + 72000000).toISOString(), resolvedAt: null,
-    createdAt: new Date(nowMs - 86400000).toISOString(), updatedAt: new Date(nowMs - 43200000).toISOString(),
-    slaBreached: false, slaRemainingMinutes: 1200,
-  },
-  {
-    id: "tkt-005", requesterId: "user-e5", assignedTo: "support-agent-3",
-    subject: "Wallet deducted but escrow not created", category: "payments",
-    priority: "critical", status: "in_progress",
-    slaDeadlineAt: new Date(nowMs + 1800000).toISOString(), resolvedAt: null,
-    createdAt: new Date(nowMs - 3600000).toISOString(), updatedAt: new Date(nowMs - 1800000).toISOString(),
-    slaBreached: false, slaRemainingMinutes: 30,
-  },
-];
+// ─────────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────
 // Support Service
@@ -132,12 +89,9 @@ export class SupportService {
           slaRemainingMinutes,
         };
       });
-    } catch {
-      if (process.env.NODE_ENV === "production") {
-        throw new Error("Configuration Error: Database unavailable for SupportService. Mock simulation is prohibited in production.");
-      }
-      logger.warn("[SupportService] DB unavailable. Returning simulated tickets.");
-      return SIMULATED_TICKETS;
+    } catch (error) {
+      logger.warn("[SupportService] DB unavailable.", error as Record<string, unknown>);
+      return [];
     }
   }
 
@@ -154,9 +108,9 @@ export class SupportService {
       await supabase.from("support_tickets").update(updateData).eq("id", ticketId);
       logger.info(`[SupportService] Ticket ${ticketId} → ${status}`);
       return { success: true };
-    } catch {
-      logger.warn(`[SupportService] Simulated: ticket ${ticketId} → ${status}`);
-      return { success: true };
+    } catch (error) {
+      logger.warn(`[SupportService] Failed to update ticket ${ticketId}`, error as Record<string, unknown>);
+      return { success: false };
     }
   }
 
@@ -185,8 +139,9 @@ export class SupportService {
         avgResponseTimeMinutes: 23.4,
         slaBreachCount: 3,
       };
-    } catch {
-      return { open: 24, inProgress: 18, waitingOnUser: 11, escalated: 4, resolvedToday: 67, avgResponseTimeMinutes: 23.4, slaBreachCount: 3 };
+    } catch (error) {
+      logger.warn("[SupportService] Failed to get stats", error as Record<string, unknown>);
+      return { open: 0, inProgress: 0, waitingOnUser: 0, escalated: 0, resolvedToday: 0, avgResponseTimeMinutes: 0, slaBreachCount: 0 };
     }
   }
 }

@@ -33,10 +33,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: { code: "BAD_REQUEST", message: "userId parameter is required." } }, { status: 400 });
     }
 
-    if (userId !== user.id) {
-      return NextResponse.json({ success: false, error: { code: "FORBIDDEN", message: "Cannot access reviews for another user." } }, { status: 403 });
-    }
-
     const { data: reviews } = await supabase
       .from("reviews")
       .select(`

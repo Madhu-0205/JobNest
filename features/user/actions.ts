@@ -99,10 +99,39 @@ export async function saveEmployerProfileAction(formData: unknown): Promise<Acti
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Unauthorized.");
 
+    const orgSlug = (validated.companyName || "organization").toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + user.id.substring(0, 6);
+
+    const { data: org, error: orgError } = await supabase
+      .from("organizations")
+      .upsert({
+        name: validated.companyName,
+        slug: orgSlug,
+        industry: validated.industry,
+        description: validated.bio,
+        website: validated.companyWebsite,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "slug" })
+      .select("id")
+      .single();
+
+    if (orgError) throw new Error(orgError.message);
+
+    const { error: memberError } = await supabase
+      .from("organization_members")
+      .upsert({
+        organization_id: org.id,
+        user_id: user.id,
+        role: "OWNER",
+        updated_at: new Date().toISOString(),
+      });
+
+    if (memberError) throw new Error(memberError.message);
+
     const { error } = await supabase
       .from("employer_profiles")
       .upsert({
         user_id: user.id,
+        organization_id: org.id,
         company_name: validated.companyName,
         company_website: validated.companyWebsite,
         industry: validated.industry,
@@ -381,11 +410,43 @@ export async function saveEmployerOnboardingAction(formData: unknown): Promise<A
     // 2. Format Point geography
     const pointString = `POINT(${validated.longitude} ${validated.latitude})`;
 
-    // 3. Upsert employer profile details
+    const orgSlug = validated.companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + user.id.substring(0, 6);
+
+    const { data: org, error: orgError } = await supabase
+      .from("organizations")
+      .upsert({
+        name: validated.companyName,
+        slug: orgSlug,
+        industry: validated.industry,
+        description: validated.bio,
+        gst_number: validated.gstNumber,
+        location: pointString,
+        categories: validated.categories,
+        verification_status: "pending",
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "slug" })
+      .select("id")
+      .single();
+
+    if (orgError) throw new Error(orgError.message);
+
+    const { error: memberError } = await supabase
+      .from("organization_members")
+      .upsert({
+        organization_id: org.id,
+        user_id: user.id,
+        role: "OWNER",
+        updated_at: new Date().toISOString(),
+      });
+
+    if (memberError) throw new Error(memberError.message);
+
+    // 3. Upsert employer profile details (backward compat)
     const { error: employerError } = await supabase
       .from("employer_profiles")
       .upsert({
         user_id: user.id,
+        organization_id: org.id,
         company_name: validated.companyName,
         industry: validated.industry,
         bio: validated.bio,

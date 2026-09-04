@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { EmptyState } from "@/components/ui/EmptyState";
 import {
   Sparkles,
   MapPin,
@@ -364,8 +365,26 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
               </CardHeader>
               
               <CardContent className="p-0 pt-4 flex flex-col gap-3">
-                {activeJobs.map((job) =>
-                <div
+                {activeJobs.length === 0 ? (
+                  <EmptyState
+                    icon={<Building className="w-8 h-8 text-amber-500/60" />}
+                    title="No Active Job Postings"
+                    description="Create your first job listing to start receiving applications from verified workers."
+                    action={
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => setCreatorActive(true)}
+                        className="text-xs bg-amber-600 hover:bg-amber-700 text-background font-bold"
+                      >
+                        <Plus className="w-4 h-4 mr-1.5" /> Post a Job
+                      </Button>
+                    }
+                    className="py-8 border-none bg-transparent"
+                  />
+                ) : (
+                  activeJobs.map((job) =>
+                  <div
                   key={job.id}
                   onClick={() => router.push(`/employer/jobs/${job.id}`)}
                   className="p-3.5 bg-black/15 hover:bg-black/25 border border-border/40 hover:border-amber-500/30 rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-3 transition-all cursor-pointer">
@@ -386,7 +405,7 @@ export default function EmployerDashboardPage() {const { t: i18nT } = useI18n();
                       <ArrowRight className="w-4 h-4 text-muted-foreground" />
                     </div>
                   </div>
-                )}
+                ))}
               </CardContent>
             </Card>
 

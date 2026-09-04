@@ -12,8 +12,8 @@ export async function updateSession(request: NextRequest, response: NextResponse
   const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey || url === "https://mock.supabase.co" || anonKey === "mock-anon-key") {
-    // Gracefully bypass if mock configurations are active (e.g. in basic testing)
-    return response;
+    // Gracefully bypass if mock configurations are active
+    throw new Error("Supabase public credentials are not configured. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
   }
 
   let supabaseResponse = response;

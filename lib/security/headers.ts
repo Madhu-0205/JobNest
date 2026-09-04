@@ -94,7 +94,7 @@ export const SECURITY_HEADERS: SecurityHeader[] = [
     key: "Permissions-Policy",
     value: [
       "camera=()",
-      "microphone=()",
+      "microphone=(self)", // JobNest uses voice assistant with user consent
       "geolocation=(self)", // JobNest uses geolocation with user consent
       "interest-cohort=()",
       "payment=(self)",

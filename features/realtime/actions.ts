@@ -14,6 +14,7 @@ import { z } from "zod";
 import { runWithRequestContext } from "@/lib/observability/request-context-helper";
 import { logRequestLifecycle } from "@/lib/observability/request-logger";
 import { ActionResult } from "@/features/auth/actions";
+import { logger } from "@/services/logger";
 
 async function executeAction<T>(
   actionName: string,
@@ -37,11 +38,14 @@ async function executeAction<T>(
           };
         }
 
+        const message = error instanceof Error ? error.message : "An unexpected failure occurred.";
+        logger.error(`[Realtime:${actionName}] ${message}`, { error, actionName });
+        
         return {
           success: false,
           error: {
             code: error instanceof Error ? error.name : "UNKNOWN_ERROR",
-            message: error instanceof Error ? error.message : "An unexpected failure occurred.",
+            message,
           },
         };
       }

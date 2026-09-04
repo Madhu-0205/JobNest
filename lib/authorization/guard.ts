@@ -36,8 +36,9 @@ export class AuthorizationGuard {
       .map((ur) => ur.roles?.name as RoleName)
       .filter((name): name is RoleName => !!name);
 
-    // Fallback: check JWT metadata roles (e.g. app_metadata or user_metadata) if DB table is unpopulated
-    const metadataRole = (user.app_metadata?.["role"] || user.user_metadata?.["role"]) as RoleName | undefined;
+    // Fallback: check server-controlled app_metadata role if DB table is unpopulated.
+    // Client-writable user_metadata MUST NEVER be trusted for authorization.
+    const metadataRole = (user.app_metadata?.["role"]) as RoleName | undefined;
     if (metadataRole && !roles.includes(metadataRole)) {
       roles.push(metadataRole);
     }
@@ -77,7 +78,9 @@ export class AuthorizationGuard {
       .map((ur) => ur.roles?.name as RoleName)
       .filter((name): name is RoleName => !!name);
 
-    const metadataRole = (user.app_metadata?.["role"] || user.user_metadata?.["role"]) as RoleName | undefined;
+    // Fallback: check server-controlled app_metadata role if DB table is unpopulated.
+    // Client-writable user_metadata MUST NEVER be trusted for authorization.
+    const metadataRole = (user.app_metadata?.["role"]) as RoleName | undefined;
     if (metadataRole && !roles.includes(metadataRole)) {
       roles.push(metadataRole);
     }

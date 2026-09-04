@@ -1,4 +1,3 @@
-import "server-only";
 import { z } from "zod";
 
 const envSchema = z.object({
@@ -14,6 +13,7 @@ const envSchema = z.object({
   RAZORPAY_KEY_SECRET: z.string().min(1).optional(),
   OLLAMA_API_URL: z.string().url().optional(),
   NEXTAUTH_SECRET: z.string().min(8).optional(),
+  NEXT_PUBLIC_ENABLE_MOCK_DATA: z.string().optional().default("false"),
 });
 
 type Env = z.infer<typeof envSchema>;
@@ -27,11 +27,12 @@ try {
     DATABASE_URL: process.env["DATABASE_URL"],
     NEXT_PUBLIC_SUPABASE_URL: process.env["NEXT_PUBLIC_SUPABASE_URL"],
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"],
-    SUPABASE_SERVICE_ROLE_KEY: process.env["SUPABASE_SERVICE_ROLE_KEY"],
+    SUPABASE_SERVICE_ROLE_KEY: process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_SECRET_KEY"],
     RAZORPAY_KEY_ID: process.env["RAZORPAY_KEY_ID"],
     RAZORPAY_KEY_SECRET: process.env["RAZORPAY_KEY_SECRET"],
     OLLAMA_API_URL: process.env["OLLAMA_API_URL"],
     NEXTAUTH_SECRET: process.env["NEXTAUTH_SECRET"],
+    NEXT_PUBLIC_ENABLE_MOCK_DATA: process.env["NEXT_PUBLIC_ENABLE_MOCK_DATA"],
   });
 } catch (error) {
   if (error instanceof z.ZodError) {

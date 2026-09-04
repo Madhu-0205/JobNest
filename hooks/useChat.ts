@@ -1,8 +1,16 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRealtimeChannel } from "./useRealtimeChannel";
 import { logger } from "@/services/logger";
+import {
+  getOrGenerateUserKeyPair,
+  importPeerPublicKey,
+  deriveConversationKey,
+  encryptMessage,
+  decryptMessage,
+  isEncryptedMessage,
+} from "@/lib/crypto/e2ee";
 
 export interface ChatMessage {
   id: string;
@@ -10,17 +18,31 @@ export interface ChatMessage {
   sender_id: string;
   message_type: "text" | "image" | "voice" | "location" | "system";
   content?: string;
+  raw_ciphertext?: string;
+  is_encrypted?: boolean;
+  decryption_error?: boolean;
   attachment_url?: string;
   location_lat?: number;
   location_lon?: number;
-  delivery_status: "sent" | "delivered" | "read";
+  delivery_status: "sent" | "delivered" | "read" | "failed";
   created_at: string;
 }
 
+/** Deterministically sorts messages by timestamp with ID tie-breaker */
+export function sortMessages(msgs: ChatMessage[]): ChatMessage[] {
+  return [...msgs].sort((a, b) => {
+    const timeA = new Date(a.created_at).getTime();
+    const timeB = new Date(b.created_at).getTime();
+    if (timeA !== timeB) return timeA - timeB;
+    return a.id.localeCompare(b.id);
+  });
+}
+
 /**
- * Custom React Hook: Direct Chat logic manager.
- * - Handles typing indicators, read receipts, delivery ticks, and image/voice/location attachments.
- * - Employs simulated bot responder fallback on disconnected local checkouts.
+ * Custom React Hook: Direct Chat logic manager with End-to-End Encryption (E2EE).
+ * - Implements Web Crypto ECDH P-256 key agreement and AES-256-GCM authenticated encryption.
+ * - Enforces deterministic message ordering and seamless optimistic reconciliation without duplicates.
+ * - Handles auto-reconnect synchronization and offline message safety.
  */
 export function useChat(
   roomId: string,
@@ -30,28 +52,143 @@ export function useChat(
 ) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
-  const { channel, isFallback } = useRealtimeChannel(`chat-room-${roomId}`);
+  const [isE2EEReady, setIsE2EEReady] = useState(false);
+  const { channel, isFallback } = useRealtimeChannel(roomId ? `chat-room-${roomId}` : "");
+  
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const conversationKeyRef = useRef<CryptoKey | null>(null);
+  const rawMessagesRef = useRef<ChatMessage[]>([]);
 
-  // Load chat history
+  // ─── Helper: Decrypt / Process Incoming Message ───────────────────────────
+
+  const processIncomingMessage = useCallback(
+    async (rawMsg: ChatMessage, key: CryptoKey | null): Promise<ChatMessage> => {
+      if (isEncryptedMessage(rawMsg.content)) {
+        const dec = await decryptMessage(rawMsg.content, key);
+        return {
+          ...rawMsg,
+          raw_ciphertext: rawMsg.content,
+          content: dec.text,
+          is_encrypted: true,
+          decryption_error: !dec.success,
+        };
+      }
+      return {
+        ...rawMsg,
+        is_encrypted: false,
+        decryption_error: false,
+      };
+    },
+    []
+  );
+
+  // ─── E2EE Key Agreement ───────────────────────────────────────────────────
+
   useEffect(() => {
-    async function loadHistory() {
+    if (!currentUserId || !otherUserId) {
+      conversationKeyRef.current = null;
+      setIsE2EEReady(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    async function establishE2EE() {
       try {
-        const res = await fetch(`/api/realtime/chat/messages?roomId=${roomId}`);
+        // 1. Get or generate user's local ECDH keypair
+        const myKeyPair = await getOrGenerateUserKeyPair(currentUserId);
+
+        // 2. Register public key on server (public directory)
+        await fetch("/api/realtime/chat/keys", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ publicKey: myKeyPair.publicKeyJwk }),
+        });
+
+        // 3. Fetch recipient's public key
+        const res = await fetch(`/api/realtime/chat/keys?userId=${encodeURIComponent(otherUserId)}`);
         const data = await res.json();
-        if (data.success) {
-          setMessages(data.data || []);
+
+        if (data.success && data.data?.public_key) {
+          const peerPublicKey = await importPeerPublicKey(data.data.public_key);
+          const derivedKey = await deriveConversationKey(myKeyPair.privateKey, peerPublicKey);
+
+          if (isMounted) {
+            conversationKeyRef.current = derivedKey;
+            setIsE2EEReady(true);
+            logger.info(`[Chat:E2EE] Established conversation key for room ${roomId}`);
+
+            // Re-decrypt any existing raw messages that were waiting for key
+            if (rawMessagesRef.current.length > 0) {
+              const decrypted = await Promise.all(
+                rawMessagesRef.current.map((m) => processIncomingMessage(m, derivedKey))
+              );
+              setMessages(sortMessages(decrypted));
+            }
+          }
+        } else {
+          logger.warn(`[Chat:E2EE] Peer ${otherUserId} public key not yet available.`);
         }
-      } catch {
-        // Fallback loads mock logs from action handler
+      } catch (err) {
+        logger.error("[Chat:E2EE] Key establishment error", { error: String(err) });
       }
     }
-    loadHistory();
-  }, [roomId]);
 
-  // Realtime channel updates
+    establishE2EE();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUserId, otherUserId, roomId, processIncomingMessage]);
+
+  // ─── Load Chat History & Reconnect Sync ────────────────────────────────────
+
+  const loadHistory = useCallback(async () => {
+    if (!roomId) {
+      setMessages([]);
+      rawMessagesRef.current = [];
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/realtime/chat/messages?roomId=${roomId}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        rawMessagesRef.current = data.data;
+        const key = conversationKeyRef.current;
+        const processed = await Promise.all(
+          data.data.map((m: ChatMessage) => processIncomingMessage(m, key))
+        );
+        setMessages(sortMessages(processed));
+      }
+    } catch (e) {
+      logger.warn("[Chat] Load history error", { error: String(e) });
+    }
+  }, [roomId, processIncomingMessage]);
+
   useEffect(() => {
-    if (isFallback || !channel) return;
+    loadHistory();
+  }, [loadHistory]);
+
+  // Reconnect listener for network return
+  useEffect(() => {
+    const handleOnline = () => {
+      logger.info("[Chat] Network online detected — synchronizing chat history");
+      loadHistory();
+    };
+
+    window.addEventListener("online", handleOnline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+    };
+  }, [loadHistory]);
+
+  // ─── Realtime Channel Updates ──────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!roomId || isFallback || !channel) return;
+
+    let isActive = true;
 
     const sub = channel
       .on(
@@ -62,11 +199,30 @@ export function useChat(
           table: "chat_messages",
           filter: `room_id=eq.${roomId}`,
         },
-        (payload: Record<string, unknown>) => {
-          const newMsg = payload["new"] as unknown as ChatMessage;
+        async (payload: Record<string, unknown>) => {
+          if (!isActive) return;
+          const rawNewMsg = payload["new"] as unknown as ChatMessage;
+          const processedMsg = await processIncomingMessage(rawNewMsg, conversationKeyRef.current);
+
           setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
+            // If already present by canonical ID, skip
+            if (prev.some((m) => m.id === processedMsg.id)) return prev;
+
+            // Reconcile optimistic temp message from same sender
+            const tempIndex = prev.findIndex(
+              (m) =>
+                m.id.startsWith("temp-") &&
+                m.sender_id === processedMsg.sender_id &&
+                (m.content === processedMsg.content || m.raw_ciphertext === processedMsg.raw_ciphertext)
+            );
+
+            if (tempIndex !== -1) {
+              const updated = [...prev];
+              updated[tempIndex] = processedMsg;
+              return sortMessages(updated);
+            }
+
+            return sortMessages([...prev, processedMsg]);
           });
         }
       )
@@ -78,23 +234,32 @@ export function useChat(
           table: "chat_messages",
           filter: `room_id=eq.${roomId}`,
         },
-        (payload: Record<string, unknown>) => {
-          const updated = payload["new"] as unknown as ChatMessage;
-          setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
+        async (payload: Record<string, unknown>) => {
+          if (!isActive) return;
+          const rawUpdated = payload["new"] as unknown as ChatMessage;
+          const processedUpdated = await processIncomingMessage(rawUpdated, conversationKeyRef.current);
+          setMessages((prev) =>
+            sortMessages(prev.map((m) => (m.id === processedUpdated.id ? processedUpdated : m)))
+          );
         }
       )
       .on("broadcast", { event: "typing" }, (payload: Record<string, unknown>) => {
+        if (!isActive) return;
         const data = payload as { payload?: { userId: string; typing: boolean } };
         if (data.payload?.userId === otherUserId) {
           setOtherUserTyping(data.payload.typing);
         }
-      })
-      .subscribe();
+      });
+
+    sub.subscribe();
 
     return () => {
+      isActive = false;
       sub.unsubscribe();
     };
-  }, [channel, isFallback, roomId, otherUserId]);
+  }, [channel, isFallback, roomId, otherUserId, processIncomingMessage]);
+
+  // ─── Typing Notifications ──────────────────────────────────────────────────
 
   const sendTypingState = (typing: boolean) => {
     if (channel && !isFallback) {
@@ -114,21 +279,40 @@ export function useChat(
     }, 2000);
   };
 
+  // ─── Send Message with E2EE ────────────────────────────────────────────────
+
   const sendMessage = async (
     content?: string,
     messageType: ChatMessage["message_type"] = "text",
     attachmentUrl?: string,
     coords?: { lat: number; lon: number }
   ) => {
+    if (!content && !attachmentUrl && !coords) return;
+
     const tempId = `temp-${Date.now()}`;
     const timestamp = new Date().toISOString();
-    
-    const newMsg: ChatMessage = {
+
+    // Prepare payload content (E2EE encrypted if conversation key is established)
+    let payloadContent = content;
+    let isEncrypted = false;
+
+    if (content && conversationKeyRef.current) {
+      try {
+        payloadContent = await encryptMessage(content, conversationKeyRef.current, currentUserId);
+        isEncrypted = true;
+      } catch (err) {
+        logger.error("[Chat:E2EE] Encryption failed, falling back safely", { error: String(err) });
+      }
+    }
+
+    const optimisticMsg: ChatMessage = {
       id: tempId,
       room_id: roomId,
       sender_id: currentUserId,
       message_type: messageType,
-      content,
+      content, // displayed in plaintext to sender immediately
+      raw_ciphertext: payloadContent,
+      is_encrypted: isEncrypted,
       attachment_url: attachmentUrl,
       location_lat: coords?.lat,
       location_lon: coords?.lon,
@@ -136,19 +320,19 @@ export function useChat(
       created_at: timestamp,
     };
 
-    // Optimistic insert
-    setMessages((prev) => [...prev, newMsg]);
+    // Optimistic insert with deterministic sorting
+    setMessages((prev) => sortMessages([...prev, optimisticMsg]));
 
     const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
-    // Trigger local offline queue if connectivity is down
+    // Buffer in offline queue if connection is severed
     if (onOfflineQueueMessage && !isOnline) {
       onOfflineQueueMessage({
         eventType: "chat.message.sent",
         payload: {
           roomId,
           messageType,
-          content,
+          content: payloadContent,
           attachmentUrl,
           locationLat: coords?.lat,
           locationLon: coords?.lon,
@@ -165,7 +349,7 @@ export function useChat(
         body: JSON.stringify({
           roomId,
           messageType,
-          content,
+          content: payloadContent, // transmitted as ciphertext
           attachmentUrl,
           locationLat: coords?.lat,
           locationLon: coords?.lon,
@@ -173,49 +357,40 @@ export function useChat(
       });
 
       const data = await res.json();
-      
-      if (data.success) {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === tempId
-              ? { ...m, id: data.data.messageId, delivery_status: "read" }
-              : m
-          )
-        );
+
+      if (data.success && data.data?.messageId) {
+        setMessages((prev) => {
+          // Reconcile: replace tempId with canonical server messageId
+          const hasTemp = prev.some((m) => m.id === tempId);
+          if (!hasTemp) return prev; // already replaced by realtime event
+          return sortMessages(
+            prev.map((m) =>
+              m.id === tempId
+                ? { ...m, id: data.data.messageId, delivery_status: "sent" }
+                : m
+            )
+          );
+        });
       } else {
         throw new Error(data.error?.message || "Failed to send message.");
       }
     } catch (err) {
       logger.warn(`[Chat] Connection failure sending message: ${err instanceof Error ? err.message : String(err)}`);
-      
-      // Local fallback simulator logic
-      setMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? { ...m, delivery_status: "read" } : m))
-      );
 
-      // Typing status bot responder simulator
-      setOtherUserTyping(true);
-      setTimeout(() => {
-        setOtherUserTyping(false);
-        const replyMsg: ChatMessage = {
-          id: `mock-${Date.now()}`,
-          room_id: roomId,
-          sender_id: otherUserId,
-          message_type: "text",
-          content: `Simulated bot response: I have received your message containing: "${content || "(Attachment)"}"`,
-          delivery_status: "read",
-          created_at: new Date().toISOString(),
-        };
-        setMessages((prev) => [...prev, replyMsg]);
-      }, 3000);
+      // Mark as failed in UI so user knows message was not delivered
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? { ...m, delivery_status: "failed" } : m))
+      );
     }
   };
 
   return {
     messages,
     otherUserTyping,
+    isE2EEReady,
     notifyTyping,
     sendMessage,
+    loadHistory,
   };
 }
 

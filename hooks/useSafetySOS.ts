@@ -35,11 +35,9 @@ export function useSafetySOS(userId: string) {
         { id: "c1", contact_name: "Ramesh Kumar (Brother)", contact_phone: "+91 98765 43210", is_emergency_sos: true },
         { id: "c2", contact_name: "Jyothi Gowda (Spouse)", contact_phone: "+91 99887 76655", is_emergency_sos: true },
       ]);
-    } catch {
-      setContacts([
-        { id: "c1", contact_name: "Ramesh Kumar (Brother)", contact_phone: "+91 98765 43210", is_emergency_sos: true },
-        { id: "c2", contact_name: "Jyothi Gowda (Spouse)", contact_phone: "+91 99887 76655", is_emergency_sos: true },
-      ]);
+    } catch (err) {
+      logger.warn("[useSafetySOS] Failed to fetch contacts", err as Record<string, unknown>);
+      setContacts([]);
     } finally {
       setLoading(false);
     }
@@ -98,22 +96,7 @@ export function useSafetySOS(userId: string) {
       }
       throw new Error(data.error?.message || "SOS dispatch rejected.");
     } catch {
-      logger.info("[useSafetySOS] Loading emergency alert sandbox mock timeline.");
-      const fakeId = crypto.randomUUID();
-      setActiveIncidentId(fakeId);
-      setIncidentTimeline([
-        {
-          timestamp: new Date().toISOString(),
-          event: "sos_triggered",
-          details: `Emergency SOS triggered at coordinates: ${coords.latitude || "12.9716"}, ${coords.longitude || "77.5946"}.`,
-        },
-        {
-          timestamp: new Date().toISOString(),
-          event: "contacts_notified",
-          details: `SMS and Email alerts dispatched to ${contacts.length} registered contacts.`,
-        }
-      ]);
-      return { success: true, incidentId: fakeId };
+      return { success: false, error: "Network error occurred." };
     }
   };
 

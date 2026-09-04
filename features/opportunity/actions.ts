@@ -14,6 +14,7 @@ import { rateLimiter } from "@/lib/security/rate-limiter";
 import { runWithRequestContext } from "@/lib/observability/request-context-helper";
 import { logRequestLifecycle } from "@/lib/observability/request-logger";
 import { ActionResult } from "@/features/auth/actions";
+import { logger } from "@/services/logger";
 
 async function executeAction<T>(
   actionName: string,
@@ -485,7 +486,6 @@ export async function getEmployerOpportunitiesAction(): Promise<ActionResult<Rec
  */
 export async function getOpportunityApplicationsAction(opportunityId: string): Promise<ActionResult<Record<string, unknown>[]>> {
   return executeAction("getOpportunityApplicationsAction", async () => {
-    try {
       const supabase = await createServerClient();
       const { data, error } = await supabase
         .from("applications")
@@ -502,39 +502,6 @@ export async function getOpportunityApplicationsAction(opportunityId: string): P
 
       if (error) throw error;
       return (data || []) as Record<string, unknown>[];
-    } catch (err) {
-      console.warn("getOpportunityApplicationsAction: DB fetch failed. Returning mock pipeline.", err);
-      return [
-        {
-          id: "app-1",
-          opportunity_id: opportunityId,
-          status: "applied",
-          cover_letter: "I am a skilled carpenter with 5 years experience.",
-          expected_salary: 3200,
-          created_at: new Date().toISOString(),
-          profiles: {
-            display_name: "Arun Kumar",
-            avatar_url: null,
-            email: "arun@test.com",
-            phone: "9876543210"
-          }
-        },
-        {
-          id: "app-2",
-          opportunity_id: opportunityId,
-          status: "applied",
-          cover_letter: "I specialize in furniture structural repairs and joinery.",
-          expected_salary: 3800,
-          created_at: new Date().toISOString(),
-          profiles: {
-            display_name: "Rajesh Reddy",
-            avatar_url: null,
-            email: "rajesh@test.com",
-            phone: "9876543211"
-          }
-        }
-      ];
-    }
   });
 }
 
@@ -546,7 +513,6 @@ export async function updateApplicationStatusAction(
   newStatus: "applied" | "under_review" | "shortlisted" | "accepted" | "rejected"
 ): Promise<ActionResult<void>> {
   return executeAction("updateApplicationStatusAction", async () => {
-    try {
       const supabase = await createServerClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Unauthorized.");
@@ -583,10 +549,6 @@ export async function updateApplicationStatusAction(
         status: newStatus,
         comment: `Application status updated to ${newStatus}.`,
       });
-    } catch (err: unknown) {
-      console.warn("updateApplicationStatusAction: Offline or mock environment fallback.", err);
-      // Fallback: no-op for mock datasets
-    }
   });
 }
 
@@ -826,7 +788,7 @@ export async function hireCandidateTransactionAction(
 
       return { offerId: offer.id, roomId };
     } catch (txnErr) {
-      console.error("[Transaction Flow] Error encountered. Initiating Rollback...", txnErr);
+      logger.error(`[Transaction Flow] Error encountered. Initiating Rollback... ${txnErr instanceof Error ? txnErr.message : "Unknown error"}`);
 
       if (walletLockedAmount > 0) {
         await supabase.rpc("adjust_wallet_balance", {

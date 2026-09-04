@@ -62,12 +62,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (!template) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn(`[i18n] Missing translation key: "${key}" for locale: "${locale}"`);
-        template = TRANSLATIONS["en"][key] || key; // English fallback in dev
-      } else {
-        template = key; // Raw key in production
-      }
+      template = TRANSLATIONS["en"]?.[key] || key;
     }
 
     if (params) {

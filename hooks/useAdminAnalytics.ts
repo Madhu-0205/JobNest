@@ -8,11 +8,11 @@ export function useAdminAnalytics() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDashboard = useCallback(async () => {
+  const fetchDashboard = useCallback(async (timeWindow: string = "all") => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/admin/analytics");
+      const res = await fetch(`/api/admin/analytics?timeWindow=${timeWindow}`);
       const data = await res.json();
       if (data.success) {
         setDashboard(data.data);

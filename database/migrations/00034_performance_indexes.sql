@@ -16,17 +16,17 @@ CREATE INDEX IF NOT EXISTS idx_applications_worker
 
 -- ── 2. Financial Ledger & Payments ─────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_payments_order 
-  ON public.payments (order_id);
+  ON public.payments (gateway_order_id);
 
 CREATE INDEX IF NOT EXISTS idx_payments_user 
   ON public.payments (user_id);
 
 CREATE INDEX IF NOT EXISTS idx_escrow_opportunity 
-  ON public.escrow_holdings (opportunity_id);
+  ON public.escrows (opportunity_id);
 
 -- ── 3. Realtime Messaging & Presence ──────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_chat_messages_room_created 
   ON public.chat_messages (room_id, created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_presence_user 
-  ON public.presence_heartbeats (user_id, last_seen DESC);
+  ON public.live_tracking (user_id, last_seen DESC);

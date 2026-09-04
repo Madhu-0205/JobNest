@@ -52,6 +52,7 @@ export interface AIProviderAdapter {
   readonly name: string;
   embed(text: string): Promise<AIEmbeddingResult>;
   complete(prompt: string, systemPrompt?: string): Promise<AICompletionResult>;
+  transcribe?(audioBuffer: Buffer, mimeType: string): Promise<string>;
 }
 
 export type ProviderName = "gemini" | "openai" | "ollama" | "sandbox";
@@ -75,7 +76,20 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs = DEFAULT_TIMEOUT_M
   }
 }
 
-/** Retries fn up to MAX_RETRIES times with exponential back-off. */
+/** Detects rate limit / 429 / quota exceeded errors from AI providers. */
+export function isRateLimitError(err: unknown): boolean {
+  if (!err) return false;
+  const msg = err instanceof Error ? err.message : String(err);
+  return (
+    msg.includes("429") ||
+    msg.includes("RESOURCE_EXHAUSTED") ||
+    msg.includes("Quota exceeded") ||
+    msg.includes("rate limit") ||
+    (typeof err === "object" && err !== null && "status" in err && (err as { status?: number }).status === 429)
+  );
+}
+
+/** Retries fn up to MAX_RETRIES times with exponential back-off (except for rate limits to prevent retry storms). */
 async function withRetry<T>(
   fn: () => Promise<T>,
   provider: string,
@@ -87,6 +101,18 @@ async function withRetry<T>(
       return await fn();
     } catch (err) {
       lastErr = err;
+      if (isRateLimitError(err)) {
+        logger.warn(
+          `[AIProvider:${provider}] ${operation} received rate limit (429). Halting immediate retries to prevent retry storm.`,
+          { error: err instanceof Error ? err.message : String(err) }
+        );
+        throw new AIProviderError(
+          provider,
+          operation as "embed" | "complete",
+          "Rate limit exceeded (429). Please wait before retrying.",
+          err
+        );
+      }
       if (attempt < MAX_RETRIES) {
         const delayMs = 200 * Math.pow(2, attempt - 1); // 200 → 400 → 800
         logger.warn(
@@ -108,8 +134,8 @@ class GeminiAdapter implements AIProviderAdapter {
   private readonly embedModel: string;
 
   constructor() {
-    this.chatModel = process.env["GEMINI_CHAT_MODEL"] ?? "gemini-1.5-flash";
-    this.embedModel = process.env["GEMINI_EMBED_MODEL"] ?? "text-embedding-004";
+    this.chatModel = process.env["GEMINI_CHAT_MODEL"] ?? "gemini-3.6-flash";
+    this.embedModel = process.env["GEMINI_EMBED_MODEL"] ?? "gemini-embedding-001";
   }
 
   private async getClient() {
@@ -171,6 +197,28 @@ class GeminiAdapter implements AIProviderAdapter {
     });
 
     return { text, model: this.chatModel, inputTokens, outputTokens, latencyMs };
+  }
+
+  async transcribe(audioBuffer: Buffer, mimeType: string): Promise<string> {
+    const start = Date.now();
+    const genAI = await this.getClient();
+    const model = genAI.getGenerativeModel({ model: this.chatModel });
+    
+    const result = await model.generateContent([
+      "Please transcribe this audio exactly as spoken, in the original language. Do not translate it, just output the exact raw transcription without any conversational filler.",
+      {
+        inlineData: {
+          data: audioBuffer.toString("base64"),
+          mimeType: mimeType
+        }
+      }
+    ]);
+    
+    const latencyMs = Date.now() - start;
+    const text = result.response.text().trim();
+    
+    logger.info(`[AIProvider:Gemini] Audio transcribed in ${latencyMs}ms. Transcript length: ${text.length}`);
+    return text;
   }
 }
 
@@ -500,6 +548,31 @@ export class AIProviderService {
       });
     } catch {
       logger.warn(`[AIProvider] DB log write failed — provider: ${provider}, task: ${task}`);
+    }
+  }
+
+  /**
+   * Transcribe an audio buffer using the configured provider.
+   */
+  static async transcribe(
+    audioBuffer: Buffer,
+    mimeType: string,
+    provider?: ProviderName
+  ): Promise<string> {
+    const adapter = getAdapter(provider ?? resolveDefaultProvider());
+    if (!adapter.transcribe) {
+      throw new AIProviderError(adapter.name, "complete", "Transcription is not supported by this provider yet.");
+    }
+    try {
+      const result = await withRetry(
+        () => withTimeout(adapter.transcribe!(audioBuffer, mimeType)),
+        adapter.name,
+        "transcribe"
+      );
+      return result;
+    } catch (err) {
+      if (err instanceof AIProviderError) throw err;
+      throw new AIProviderError(adapter.name, "complete", err instanceof Error ? err.message : String(err), err);
     }
   }
 }

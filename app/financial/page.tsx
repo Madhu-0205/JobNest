@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";import { useI18n } from "@/lib/i18n/context";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useI18n } from "@/lib/i18n/context";
 import { ProductShell } from "@/components/ProductShell";
 import { useWallet } from "@/hooks/useWallet";
 import { useEscrow } from "@/hooks/useEscrow";
@@ -12,6 +14,7 @@ import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { Typography } from "@/components/ui/Typography";
 import { logger } from "@/services/logger";
+import { Wallet } from "lucide-react";
 
 interface LedgerLine {
   id: string;
@@ -22,7 +25,9 @@ interface LedgerLine {
   time: string;
 }
 
-export default function FinancialDashboard() {const { t: i18nT } = useI18n();
+export default function FinancialDashboard() {
+  const router = useRouter();
+  const { t: i18nT } = useI18n();
   // Client hooks
   const wallet = useWallet();
   const escrow = useEscrow();
@@ -115,9 +120,32 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
     }
   };
 
+  if (wallet.isUnauthorized) {
+    return (
+      <ProductShell>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center gap-4">
+          <Wallet className="w-12 h-12 text-muted-foreground opacity-50" />
+          <Typography variant="h3" className="font-bold">Sign in to view your wallet.</Typography>
+          <Typography variant="muted" className="text-sm max-w-md">
+            You need to be authenticated to access your financial dashboard, view balances, and manage escrow transactions.
+          </Typography>
+          <Button variant="primary" onClick={() => router.push("/")} className="mt-2">
+            Sign In
+          </Button>
+        </div>
+      </ProductShell>
+    );
+  }
+
   return (
     <ProductShell>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="flex flex-col gap-6">
+        {wallet.error && (
+          <div className="bg-rose-950/80 border border-rose-500/30 text-rose-300 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg text-xs font-semibold">
+            Failed to load wallet data: {wallet.error.message}. The system is experiencing degradation. Please try again later.
+          </div>
+        )}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left column: Wallet board & ledger audit */}
         <div className="lg:col-span-1 flex flex-col gap-6">
@@ -135,15 +163,15 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="border border-border/40 rounded-xl p-2 bg-black/15">
                   <span className="text-[10px] text-muted-foreground block">{i18nT("Active")}</span>
-                  <span className="text-lg font-bold font-mono text-amber-500">₹{wallet.balance}</span>
+                  <span className="text-lg font-bold font-mono text-amber-500">₹{wallet.balance !== null ? wallet.balance : "--"}</span>
                 </div>
                 <div className="border border-border/40 rounded-xl p-2 bg-black/15">
                   <span className="text-[10px] text-muted-foreground block">{i18nT("Pending")}</span>
-                  <span className="text-lg font-bold font-mono text-muted-foreground">₹{wallet.pendingBalance}</span>
+                  <span className="text-lg font-bold font-mono text-muted-foreground">₹{wallet.pendingBalance !== null ? wallet.pendingBalance : "--"}</span>
                 </div>
                 <div className="border border-border/40 rounded-xl p-2 bg-black/15">
                   <span className="text-[10px] text-muted-foreground block">{i18nT("Locked")}</span>
-                  <span className="text-lg font-bold font-mono text-amber-600">₹{wallet.lockedBalance}</span>
+                  <span className="text-lg font-bold font-mono text-amber-600">₹{wallet.lockedBalance !== null ? wallet.lockedBalance : "--"}</span>
                 </div>
               </div>
 
@@ -203,7 +231,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-black/35 rounded-xl border border-border/40 p-2.5 font-mono text-[9px] h-[170px] overflow-y-auto flex flex-col gap-2 text-muted-foreground">
+              <div className="bg-black/35 rounded-xl border border-border/40 p-2.5 font-mono text-[9px] h-42.5 overflow-y-auto flex flex-col gap-2 text-muted-foreground">
                 {ledgerFeed.map((item) =>
                 <div key={item.id} className="flex justify-between items-center border-b border-border/10 pb-1.5 last:border-0 last:pb-0">
                     <div className="flex flex-col">
@@ -468,6 +496,7 @@ export default function FinancialDashboard() {const { t: i18nT } = useI18n();
 
         </div>
 
+      </div>
       </div>
     </ProductShell>);
 

@@ -31,7 +31,7 @@ export function useModeration() {
 
   const takeAction = useCallback(async (
     itemId: string,
-    action: "approved" | "rejected" | "escalated",
+    action: "approve" | "reject" | "escalate" | "resolve" | "dismiss",
     note?: string
   ) => {
     try {

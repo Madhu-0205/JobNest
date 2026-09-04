@@ -6,13 +6,13 @@ import { z } from "zod";
 
 export const moderationActionSchema = z.object({
   itemId: z.string().uuid("Invalid moderation item ID"),
-  action: z.enum(["approved", "rejected", "escalated"]),
+  action: z.enum(["approve", "reject", "escalate", "resolve", "dismiss"]),
   note: z.string().max(2000).optional(),
 });
 
 export const bulkModerationSchema = z.object({
   itemIds: z.array(z.string().uuid()).min(1).max(100),
-  action: z.enum(["approved", "rejected", "escalated"]),
+  action: z.enum(["approve", "reject", "escalate", "resolve", "dismiss"]),
   note: z.string().max(2000).optional(),
 });
 

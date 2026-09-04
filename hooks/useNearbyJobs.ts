@@ -160,12 +160,12 @@ export function useNearbyJobs(latitude: number | null, longitude: number | null,
       }
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
-        logger.info("[useNearbyJobs] Request aborted.");
+        logger.debug("[useNearbyJobs] Request aborted.");
         return;
       }
       logger.error("[useNearbyJobs] Query failed", err as Record<string, unknown>);
-      setError("Network or connection failure while loading nearby jobs.");
-      setJobs([]); // Explicitly empty instead of using mocks
+      setError(err instanceof Error ? err.message : "Network or connection failure while loading nearby jobs.");
+      setJobs([]); 
     } finally {
       if (abortControllerRef.current === controller) {
         setLoading(false);

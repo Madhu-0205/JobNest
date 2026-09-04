@@ -73,8 +73,8 @@ export class ConfigService {
    */
   static get storage() {
     return {
-      supabaseUrl: env.NODE_ENV === "production" ? env.NEXT_PUBLIC_SUPABASE_URL : (env.NEXT_PUBLIC_SUPABASE_URL || "https://mock.supabase.co"),
-      supabaseAnonKey: env.NODE_ENV === "production" ? env.NEXT_PUBLIC_SUPABASE_ANON_KEY : (env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "mock-anon-key"),
+      supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL,
+      supabaseAnonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       maxFileSizeBytes: 5 * 1024 * 1024, // 5MB Upload Limit
       allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
       avatarBucket: "avatars",

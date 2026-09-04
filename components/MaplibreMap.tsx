@@ -58,6 +58,7 @@ export function MaplibreMap({
       container: mapContainer.current,
       style: {
         version: 8,
+        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
         sources: {
           "osm-tiles": {
             type: "raster",
@@ -104,30 +105,147 @@ export function MaplibreMap({
     }
   }, [map, latitude, longitude]);
 
-  // Sync Markers
+  // Sync Markers via GeoJSON source for Native Clustering
   useEffect(() => {
-    if (!map) return;
+    if (!map || !styleLoaded) return;
 
+    const geoJsonData: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+      type: "FeatureCollection",
+      features: markers.map((m, i) => ({
+        type: "Feature",
+        properties: {
+          id: i,
+          label: m.label || "",
+          color: m.color || "#c5a880"
+        },
+        geometry: {
+          type: "Point",
+          coordinates: [m.longitude, m.latitude]
+        }
+      }))
+    };
+
+    if (map.getSource("markers-source")) {
+      (map.getSource("markers-source") as maplibregl.GeoJSONSource).setData(geoJsonData);
+    } else {
+      map.addSource("markers-source", {
+        type: "geojson",
+        data: geoJsonData,
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 50
+      });
+
+      map.addLayer({
+        id: "clusters",
+        type: "circle",
+        source: "markers-source",
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": [
+            "step",
+            ["get", "point_count"],
+            "#51bbd6",
+            10,
+            "#f1f075",
+            50,
+            "#f28cb1"
+          ],
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            20,
+            10,
+            30,
+            50,
+            40
+          ],
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#ffffff"
+        }
+      });
+
+      map.addLayer({
+        id: "cluster-count",
+        type: "symbol",
+        source: "markers-source",
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": "{point_count_abbreviated}",
+          "text-font": ["Open Sans Regular"],
+          "text-size": 12
+        }
+      });
+
+      map.addLayer({
+        id: "unclustered-point",
+        type: "circle",
+        source: "markers-source",
+        filter: ["!", ["has", "point_count"]],
+        paint: {
+          "circle-color": ["get", "color"],
+          "circle-radius": 8,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#fff"
+        }
+      });
+
+      // Handle unclustered point clicks for popup
+      map.on('click', 'unclustered-point', (e) => {
+        const features = e.features;
+        if (!features || !features[0]) return;
+        
+        const coordinates = (features[0].geometry as GeoJSON.Point).coordinates.slice();
+        const label = features[0].properties?.['label'];
+
+        if (label) {
+          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+          }
+
+          new maplibregl.Popup({ offset: 15 })
+            .setLngLat([coordinates[0], coordinates[1]])
+            .setHTML(`<div class="text-xs font-semibold p-1 text-black">${label}</div>`)
+            .addTo(map);
+        }
+      });
+
+      // Change pointer on hover
+      map.on('mouseenter', 'clusters', () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', 'clusters', () => {
+        map.getCanvas().style.cursor = '';
+      });
+      map.on('mouseenter', 'unclustered-point', () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', 'unclustered-point', () => {
+        map.getCanvas().style.cursor = '';
+      });
+
+      // Zoom in on cluster click
+      map.on('click', 'clusters', (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['clusters']
+        });
+        const clusterId = features[0].properties?.['cluster_id'];
+        const source = map.getSource('markers-source') as maplibregl.GeoJSONSource;
+        
+        source.getClusterExpansionZoom(clusterId).then((zoom) => {
+          map.easeTo({
+            center: (features[0].geometry as GeoJSON.Point).coordinates as [number, number],
+            zoom: zoom
+          });
+        }).catch(() => {});
+      });
+    }
+
+    // Cleanup old DOM markers if any still exist
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
-    markers.forEach((markerInfo) => {
-      const popup = markerInfo.label ?
-      new maplibregl.Popup({ offset: 25 }).setHTML(
-        `<div class="text-xs font-semibold p-1 text-black">${markerInfo.label}</div>`
-      ) :
-      undefined;
-
-      const marker = new maplibregl.Marker({
-        color: markerInfo.color || "#c5a880" // default gold
-      }).
-      setLngLat([markerInfo.longitude, markerInfo.latitude]).
-      setPopup(popup).
-      addTo(map);
-
-      markersRef.current.push(marker);
-    });
-  }, [map, markers]);
+  }, [map, markers, styleLoaded]);
 
   // Sync Routes & Geofences Layers
   useEffect(() => {
@@ -271,7 +389,7 @@ export function MaplibreMap({
   }, [map, styleLoaded, routeCoordinates, geofences]);
 
   return (
-    <div className="relative w-full h-[450px] rounded-2xl overflow-hidden border border-border shadow-(--shadow-luxury) backdrop-blur-md">
+    <div className="relative w-full h-112.5 rounded-2xl overflow-hidden border border-border shadow-(--shadow-luxury) backdrop-blur-md">
       <div ref={mapContainer} className="w-full h-full" />
       {isOffline &&
       <div className="absolute bottom-4 left-4 bg-destructive/90 text-destructive-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 animate-pulse z-10">

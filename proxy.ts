@@ -47,7 +47,12 @@ export async function proxy(request: NextRequest) {
     } else if (path.includes("/admin/")) {
       type = "admin";
     } else if (path.includes("/financial/")) {
-      type = "paymentCreation";
+      // Differentiate between destructive payment operations vs basic wallet fetching
+      if (request.method === "GET") {
+        type = "search"; // Standard rate limit
+      } else {
+        type = "paymentCreation";
+      }
     } else if (path.includes("/search")) {
       type = "search";
     }
@@ -99,8 +104,9 @@ export async function proxy(request: NextRequest) {
     const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     const isMock = !url || !anonKey || url === "https://mock.supabase.co" || anonKey === "mock-anon-key";
 
-    if (isMock && process.env.NODE_ENV === "production") {
-      return createRscSafeRedirect("/");
+    if (isMock) {
+      // Missing or mock configuration should fail the request, not silently redirect to /
+      return NextResponse.json({ error: "Configuration Error: Supabase credentials are missing or mocked." }, { status: 500 });
     }
 
     if (!isMock) {
@@ -114,25 +120,29 @@ export async function proxy(request: NextRequest) {
       });
 
       const { data: { user } } = await supabase.auth.getUser();
-      const hasClientAuthCookie = request.cookies.get("jobnest_auth")?.value === "true";
       
-      if (!user && !hasClientAuthCookie) {
+      // Strict Guard: All protected routes REQUIRE an authenticated server user.
+      // Client-supplied cookies (jobnest_auth, jobnest_role) MUST NEVER grant access.
+      if (!user) {
         return createRscSafeRedirect("/");
       }
 
-      // Vulnerability Fix: Server user metadata / app metadata is authoritative.
-      // Unauthenticated cookie tampering must NEVER grant access to admin/privileged routes.
-      const userRole = (user?.app_metadata?.['role'] || user?.user_metadata?.['role'] || (user ? "worker" : request.cookies.get("jobnest_role")?.value || "worker")) as string;
+      // Authoritative role resolution:
+      // Only server-managed app_metadata or the database user_roles table can be trusted.
+      // Client-supplied user_metadata or cookies MUST NEVER grant elevated roles.
+      let userRole: string = (user.app_metadata?.['role'] as string) || "";
       
-      // Strict Guard: Admin & elevated routes (/admin, /trust, /financial, /realtime, /ai, /geospatial) REQUIRE a authenticated server user
-      const isElevatedRoute = ["/admin", "/trust", "/financial", "/realtime", "/ai", "/geospatial"].some(p => pathname.startsWith(p));
-      if (isElevatedRoute && !user && matchingGuard.allowedRoles.includes("admin")) {
-        // Fallback for local client-side state: check if jobnest_role cookie is strictly 'admin'
-        const clientRole = request.cookies.get("jobnest_role")?.value;
-        if (clientRole !== "admin") {
-          return createRscSafeRedirect("/");
-        }
-      } else if (!matchingGuard.allowedRoles.includes(userRole)) {
+      if (!userRole) {
+        const { data: dbRole } = await supabase
+          .from("user_roles")
+          .select("roles:roles ( name )")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        const roleData = dbRole as unknown as { roles: { name: string } | null } | null;
+        userRole = roleData?.roles?.name || "worker";
+      }
+
+      if (!matchingGuard.allowedRoles.includes(userRole)) {
         return createRscSafeRedirect("/");
       }
 

@@ -23,19 +23,22 @@ export function useRealtimeChannel(channelName: string) {
     let activeChannel: RealtimeChannel | null = null;
 
     function connect() {
+      if (!channelName) return;
       try {
         const supabase = createBrowserClient();
         const ch = supabase.channel(channelName);
         activeChannel = ch;
         setChannel(ch);
 
-        ch.subscribe((state) => {
+        ch.on('system', { event: '*' }, (payload: { extension?: string; status?: string; event?: string }) => {
           if (!active) return;
-          if (state === "SUBSCRIBED") {
+          const state = payload?.extension || payload?.status || payload?.event;
+          
+          if (state === "SUBSCRIBED" || state === "ok") {
             setStatus("connected");
             attempts = 0;
             logger.info(`[RealtimeChannel] Subscribed to channel: ${channelName}`);
-          } else if (state === "CLOSED" || state === "CHANNEL_ERROR") {
+          } else if (state === "CLOSED" || state === "CHANNEL_ERROR" || state === "error" || state === "timeout") {
             setStatus("disconnected");
             logger.warn(`[RealtimeChannel] Disconnected from channel: ${channelName}. Reconnecting...`);
             

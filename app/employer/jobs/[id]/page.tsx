@@ -10,6 +10,7 @@ import { Typography } from "@/components/ui/Typography";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { useToast } from "@/hooks/useToast";
 import {
   Star,
   Users,
@@ -173,9 +174,11 @@ const computeAiScore = (cand: Candidate, job: JobDetails | null) => {
   return Math.round(finalScore);
 };
 
-export default function EmployerJobDetailsPage({ params }: PageProps) {const { t: i18nT } = useI18n();
+export default function EmployerJobDetailsPage({ params }: PageProps) {
+  const { t: i18nT } = useI18n();
   const router = useRouter();
   const { user } = useAuth();
+  const { success: toastSuccess, error: toastError } = useToast();
   const resolvedParams = use(params);
   const { id } = resolvedParams;
 
@@ -188,7 +191,7 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
   const [hiringCandidate, setHiringCandidate] = useState<Candidate | null>(null);
 
   // Realtime Dev Simulator controls
-  const [devTrustScore, setDevTrustScore] = useState(99);
+
   const [devAvailability, setDevAvailability] = useState("Immediate");
 
   // Load opportunity details and applicants pipeline
@@ -307,60 +310,28 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
   }, [id]);
 
   // Realtime simulated application event
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const newMockApplicant: Candidate = {
-        id: "cand-realtime",
-        name: "Gopal Raju",
-        skill: "Premium Carpentry Repair",
-        rating: 4.8,
-        reviews: 24,
-        distance: "0.8 km",
-        match: 97,
-        trustScore: 99,
-        status: "applied",
-        avatarUrl: null,
-        languages: ["Telugu", "Hindi"],
-        experience: "6 Years",
-        expectedSalary: 1800,
-        availability: "Immediate"
-      };
-      setCandidates((prev) => {
-        if (prev.some((c) => c.id === "cand-realtime")) return prev;
-        setActionSuccess("Realtime Event: Gopal Raju just applied for this opportunity!");
-        setTimeout(() => setActionSuccess(null), 4000);
-        return [newMockApplicant, ...prev];
-      });
-    }, 15000); // 15 seconds simulation trigger
-    return () => clearTimeout(timer);
-  }, []);
+
 
   const handleUpdateStatus = async (
-  candId: string,
-  newStatus: "applied" | "under_review" | "shortlisted" | "accepted" | "rejected") =>
-  {
+    candId: string,
+    newStatus: "applied" | "under_review" | "shortlisted" | "accepted" | "rejected"
+  ) => {
     try {
       const result = await updateApplicationStatusAction(candId, newStatus);
       if (result.success) {
         setCandidates((prev) =>
-        prev.map((c) => c.id === candId ? { ...c, status: newStatus } : c)
+          prev.map((c) => c.id === candId ? { ...c, status: newStatus } : c)
         );
-        setActionSuccess(`Application status updated to ${newStatus.replace("_", " ")}!`);
+        const readableStatus = newStatus.replace("_", " ");
+        setActionSuccess(`Application status updated to ${readableStatus}!`);
+        toastSuccess("Status Updated", `Applicant status changed to ${readableStatus}.`);
         setTimeout(() => setActionSuccess(null), 3000);
       } else {
-        setCandidates((prev) =>
-        prev.map((c) => c.id === candId ? { ...c, status: newStatus } : c)
-        );
-        setActionSuccess(`Offline Mode: Application status simulated to ${newStatus.replace("_", " ")}!`);
-        setTimeout(() => setActionSuccess(null), 3000);
+        const errorMsg = result.error?.message || "Unable to update application status. Please try again.";
+        toastError("Update Failed", errorMsg);
       }
-    } catch (err) {
-      console.warn("DB offline or mock env. Updating state locally.", err);
-      setCandidates((prev) =>
-      prev.map((c) => c.id === candId ? { ...c, status: newStatus } : c)
-      );
-      setActionSuccess(`Offline Mode: Application status simulated to ${newStatus.replace("_", " ")}!`);
-      setTimeout(() => setActionSuccess(null), 3000);
+    } catch {
+      toastError("Update Failed", "A network error occurred while updating status. Please verify your connection and try again.");
     }
   };
 
@@ -401,45 +372,27 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
       const res = await hireCandidateTransactionAction(candId, score, recommendationReason, explanationStr);
       if (res.success) {
         setCandidates((prev) =>
-        prev.map((c) => c.id === candId ? { ...c, status: "accepted" } : c)
+          prev.map((c) => c.id === candId ? { ...c, status: "accepted" } : c)
         );
         setActionSuccess(`Escrow reserved & Hiring Contract created! Opening chat with ${candName}...`);
+        toastSuccess("Candidate Hired", `Escrow locked and contract initiated for ${candName}.`);
         setTimeout(() => {
           setActionSuccess(null);
           router.push("/messages");
-        }, 2000);
+        }, 1500);
       } else {
-        await handleUpdateStatus(candId, "accepted");
-        setActionSuccess(`Offline Transaction: Escrow reserved! Opening chat with ${candName}...`);
-        setTimeout(() => {
-          setActionSuccess(null);
-          router.push("/messages");
-        }, 2500);
+        const errorMsg = res.error?.message || "Unable to reserve escrow for hiring. Please check your wallet balance and try again.";
+        toastError("Hiring Failed", errorMsg);
       }
-    } catch (err) {
-      console.warn("Transaction error. Falling back locally.", err);
-      await handleUpdateStatus(candId, "accepted");
-      setActionSuccess(`Transaction captured! Opening chat with ${candName}...`);
-      setTimeout(() => {
-        setActionSuccess(null);
-        router.push("/messages");
-      }, 2500);
+    } catch {
+      toastError("Hiring Failed", "Unable to complete hiring transaction. Please check your network and try again.");
     } finally {
       setLoading(false);
     }
   };
 
   // Apply reactive dev settings
-  const processedCandidates = candidates.map((c) => {
-    if (c.id === "cand-realtime") {
-      return {
-        ...c,
-        trustScore: devTrustScore,
-        availability: devAvailability
-      };
-    }
-    return c;
-  });
+  const processedCandidates = candidates;
 
   const sortedCandidates = [...processedCandidates].sort((a, b) => {
     if (sortBy === "match") {
@@ -598,16 +551,8 @@ export default function EmployerJobDetailsPage({ params }: PageProps) {const { t
                   <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between text-[10px] font-medium text-foreground">
                       <span>{i18nT("employer.gopalRajuTrustScore")}</span>
-                      <span className="font-bold text-amber-500">{devTrustScore}%</span>
+                      <span className="font-bold text-amber-500">99%</span>
                     </div>
-                    <input
-                      type="range"
-                      min="70"
-                      max="100"
-                      value={devTrustScore}
-                      onChange={(e) => setDevTrustScore(Number(e.target.value))}
-                      className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
-                    
                   </div>
                   
                   <div className="flex flex-col gap-1">

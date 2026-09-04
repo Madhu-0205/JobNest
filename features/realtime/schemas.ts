@@ -3,8 +3,8 @@ import { z } from "zod";
 export const sendMessageSchema = z.object({
   roomId: z.string().uuid("Room ID must be a valid UUID."),
   messageType: z.enum(["text", "image", "voice", "location", "system"]).default("text"),
-  content: z.string().optional(),
-  attachmentUrl: z.string().optional(),
+  content: z.string().max(32768, "Message content exceeds maximum allowed payload size.").optional(),
+  attachmentUrl: z.string().max(2048, "Attachment URL exceeds maximum length.").optional(),
   locationLat: z.number().min(-90).max(90).optional(),
   locationLon: z.number().min(-180).max(180).optional(),
 }).refine(data => {

@@ -31,6 +31,7 @@ import {
   AlertCircle,
   Check } from
 "lucide-react";
+import { useWallet } from "@/hooks/useWallet";
 import { useNearbyJobs } from "@/hooks/useNearbyJobs";
 import { applyOpportunityAction } from "@/features/opportunity/actions";
 
@@ -42,7 +43,7 @@ const MapView = dynamic(
     loading: function LoadingFallback() {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { t: i18nT } = require("@/lib/i18n/context").useI18n();
-      return (<div className="w-full h-[320px] md:h-[400px] rounded-3xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
+      return (<div className="w-full h-80 md:h-100 rounded-3xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
         <span className="text-xs text-muted-foreground">{i18nT("worker.loadingGunturGeofenceMapLayers")}</span>
       </div>);
@@ -60,14 +61,16 @@ interface HyperlocalJob {
   rating: number; // employer rating
   skills: string[];
   recommendedReason: string;
+  isRecommended: boolean;
   saved: boolean;
   applied: boolean;
   category: string;
 }
 
 export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
-  const router = useRouter();
   const { user } = useAuth();
+  const { balance: walletBalance, error: walletError } = useWallet();
+  const router = useRouter();
   const { latitude, longitude } = useCurrentLocation();
 
   // Component States
@@ -81,6 +84,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [sortOrder, setSortOrder] = useState<"distance" | "salary">("distance");
   const [availabilityActive, setAvailabilityActive] = useState(true);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -91,26 +95,39 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
   const weatherCondition = "Sunny";
 
   const jobs = useMemo<HyperlocalJob[]>(() => {
-    return fetchedJobs.map((j, index) => {
+    return fetchedJobs.map((j) => {
       const distanceKm = Number((j.distanceMeters / 1000).toFixed(1));
-      const categories = ["Carpenter", "Plumber", "Electrician", "Agricultural Worker", "AC Technician"];
-      const category = categories[index % categories.length];
+      
+      const record = j as Record<string, unknown>;
+      const dynamicCategory = (record["category"] as string) || (j.title || "").split(" ")[0] || "General";
+      let recommendedReason = `Located ${distanceKm} km away.`;
+      const rating = (record["rating"] as number) || 4.8;
+      let isRecommended = false;
+
+      if (user?.skills?.some(s => s.toLowerCase().includes(dynamicCategory.toLowerCase()) || dynamicCategory.toLowerCase().includes(s.toLowerCase()))) {
+        recommendedReason = `Highly recommended: Matches your ${dynamicCategory} skills locally.`;
+        isRecommended = true;
+      }
 
       return {
         id: j.id,
         title: j.title,
-        employer: j.district ? `${j.district} Partner` : "Local Employer",
+        employer: j.employerName || (j.district ? `${j.district} Partner` : "Local Employer"),
         distance: distanceKm,
         salary: j.salaryMax || j.salaryMin || 1000,
-        rating: 4.8,
-        skills: [category],
-        recommendedReason: `Located ${distanceKm} km away. Matches your dashboard matching preferences.`,
+        rating,
+        skills: [dynamicCategory],
+        recommendedReason,
+        isRecommended,
         saved: bookmarkedIds.includes(j.id),
         applied: appliedIds.includes(j.id),
-        category: category
+        category: dynamicCategory
       };
+    }).sort((a, b) => {
+      if (sortOrder === "salary") return b.salary - a.salary;
+      return a.distance - b.distance;
     });
-  }, [fetchedJobs, appliedIds, bookmarkedIds]);
+  }, [fetchedJobs, appliedIds, bookmarkedIds, user?.skills, sortOrder]);
 
   if (!user) return null;
 
@@ -158,10 +175,9 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
   const filteredJobs = jobs.filter((job) => {
     if (selectedFilter === "all") return true;
     if (selectedFilter === "recommended") {
-      // Return jobs matching at least one of the worker's skills
-      return user.skills ? job.skills.some((s) => user.skills?.includes(s)) : true;
+      return job.isRecommended;
     }
-    return job.category === selectedFilter;
+    return job.category === selectedFilter || job.skills.includes(selectedFilter);
   });
 
   const activeApplications = jobs.filter((j) => j.applied);
@@ -183,8 +199,17 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
           </div>
         }
 
+        {walletError &&
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+            <div className="bg-rose-950/90 border border-rose-500/30 text-rose-300 backdrop-blur-md px-4 py-3 rounded-xl shadow-luxury text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>Failed to load wallet data: {walletError.message}. System degraded.</span>
+            </div>
+          </div>
+        }
+
         {(errorMsg || nearbyError) &&
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+        <div className="fixed top-36 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
             <div className="bg-red-950/90 border border-red-500/30 text-red-300 backdrop-blur-md px-4 py-3 rounded-xl shadow-luxury text-xs font-semibold flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
               <span>{errorMsg || nearbyError}</span>
@@ -361,6 +386,18 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                     </button>
                   )}
                 </div>
+                
+                <div className="flex items-center gap-2 mt-2 sm:mt-0 ml-auto">
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground">{i18nT("worker.sortBy")}</span>
+                  <select 
+                    value={sortOrder} 
+                    onChange={(e) => setSortOrder(e.target.value as "distance" | "salary")}
+                    className="bg-black/20 border border-border/40 text-foreground text-xs rounded-lg px-2 py-1 outline-none focus:border-amber-500/50 cursor-pointer"
+                  >
+                    <option value="distance">{i18nT("worker.nearestDistance")}</option>
+                    <option value="salary">{i18nT("worker.highestPayout")}</option>
+                  </select>
+                </div>
               </div>
 
               {/* Skeletons Loading State */}
@@ -414,7 +451,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <Typography variant="h4" className="font-bold text-base text-foreground">{job.title}</Typography>
-                            {user.skills?.includes(job.category) &&
+                            {job.isRecommended &&
                         <Badge variant="primary" className="text-[8px] font-bold bg-amber-500/10 border-amber-500/30 text-amber-400">{i18nT("Match")}</Badge>
                         }
                           </div>
@@ -502,7 +539,7 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
               <CardContent className="flex flex-col gap-4">
                 <div className="bg-black/25 rounded-2xl border border-border/40 p-4 text-center">
                   <span className="text-[10px] text-muted-foreground block uppercase font-bold tracking-wider">{i18nT("worker.activeCredentialsBalance")}</span>
-                  <span className="text-2xl font-black text-amber-500 font-mono">₹{user.walletBalance}</span>
+                  <span className="text-2xl font-black text-amber-500 font-mono">₹{walletBalance !== null ? walletBalance.toLocaleString() : "--"}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs border-t border-border/10 pt-3">
                   <span className="text-muted-foreground">{i18nT("worker.expectedPayoutRate")}</span>
@@ -567,12 +604,6 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                 /* Applications Empty State */
                 <div className="text-center py-4 border border-dashed border-border/40 rounded-xl bg-black/5">
                     <span className="text-xs text-muted-foreground block">{i18nT("worker.noActiveApplications")}</span>
-                    <button
-                    onClick={() => handleApply("job-1")}
-                    className="text-[10px] text-amber-500 font-bold mt-1.5 hover:underline cursor-pointer">{i18nT("worker.quickApplyToSureshKCarpenter")}
-
-
-                  </button>
                   </div>) :
 
                 activeApplications.map((app) =>
@@ -604,12 +635,9 @@ export default function WorkerDashboardPage() {const { t: i18nT } = useI18n();
                 <div
                   onClick={() => router.push("/messages")}
                   className="border border-border/40 hover:border-amber-500/30 rounded-xl p-3 bg-black/15 cursor-pointer flex flex-col gap-1 transition-all">
-                  
-                  <div className="flex justify-between items-center text-xs font-semibold">
-                    <span className="text-amber-500">{i18nT("worker.sureshK")}</span>
-                    <span className="text-[8px] text-muted-foreground">{i18nT("worker.justNow")}</span>
+                  <div className="text-center text-xs text-muted-foreground py-2">
+                    No recent messages
                   </div>
-                  <p className="text-[11px] text-muted-foreground truncate">{i18nT("\"Please send your location coordinates, I'm waiting near the main gate.\"")}</p>
                 </div>
                 
                 <div

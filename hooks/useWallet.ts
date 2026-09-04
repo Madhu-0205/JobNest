@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { logger } from "@/services/logger";
+import { useAuth } from "@/providers/AuthProvider";
 
 export interface WalletTransaction {
   id: string;
@@ -14,57 +15,115 @@ export interface WalletTransaction {
 }
 
 export function useWallet() {
-  const [balance, setBalance] = useState(0.00);
-  const [pendingBalance, setPendingBalance] = useState(0.00);
-  const [lockedBalance, setLockedBalance] = useState(0.00);
+  const authContext = useAuth();
+  const userId = authContext?.user?.id;
+
+  const [balance, setBalance] = useState<number | null>(null);
+  const [pendingBalance, setPendingBalance] = useState<number | null>(null);
+  const [lockedBalance, setLockedBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
+
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchWallet = useCallback(async () => {
+    // Cancel any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       setLoading(true);
-      const res = await fetch("/api/financial/wallet");
-      const data = await res.json();
-      if (data.success) {
-        setBalance(data.data.balance);
-        setPendingBalance(data.data.pendingBalance);
-        setLockedBalance(data.data.lockedBalance);
+      setError(null);
+
+      const res = await fetch("/api/financial/wallet", {
+        signal: controller.signal,
+      });
+
+      // 1. Detect HTTP 401 unauthenticated response
+      if (res.status === 401) {
+        setBalance(null);
+        setPendingBalance(null);
+        setLockedBalance(null);
+        setTransactions([]);
+        setIsUnauthorized(true);
+        setError(null);
+        return;
+      }
+
+      let data: {
+        success?: boolean;
+        error?: { code?: string; message?: string };
+        data?: {
+          balance?: number;
+          pendingBalance?: number;
+          lockedBalance?: number;
+          transactions?: WalletTransaction[];
+        };
+      } | null = null;
+      try {
+        data = await res.json();
+      } catch {
+        // Fall through to error handler if response isn't JSON
+      }
+
+      if (data?.error?.code === "UNAUTHORIZED") {
+        setBalance(null);
+        setPendingBalance(null);
+        setLockedBalance(null);
+        setTransactions([]);
+        setIsUnauthorized(true);
+        setError(null);
+        return;
+      }
+
+      // 2. Successful response (200)
+      if (res.ok && data?.success && data.data) {
+        setBalance(data.data.balance !== undefined && data.data.balance !== null ? Number(data.data.balance) : 0);
+        setPendingBalance(data.data.pendingBalance !== undefined && data.data.pendingBalance !== null ? Number(data.data.pendingBalance) : 0);
+        setLockedBalance(data.data.lockedBalance !== undefined && data.data.lockedBalance !== null ? Number(data.data.lockedBalance) : 0);
         setTransactions(data.data.transactions || []);
+        setIsUnauthorized(false);
+        setError(null);
+      } else {
+        // 3. Genuine 500 / server / database failures
+        const message = data?.error?.message || `Failed to load wallet data (${res.status}).`;
+        throw new Error(message);
       }
     } catch (err) {
-      logger.warn("[useWallet] Falling back to wallet sandbox mocks.", err as Record<string, unknown>);
-      // Set mock fallback values
-      setBalance(850.00);
-      setPendingBalance(150.00);
-      setLockedBalance(200.00);
-      setTransactions([
-        {
-          id: "t1",
-          amount: 500.00,
-          type: "credit",
-          category: "payment",
-          reference_id: "pay_captured_mock123",
-          description: "Deposit loaded via Razorpay checkout",
-          created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-        },
-        {
-          id: "t2",
-          amount: 150.00,
-          type: "debit",
-          category: "escrow_hold",
-          reference_id: "esc_hold_mock456",
-          description: "Escrow funded for Harvesting gig",
-          created_at: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
-        }
-      ]);
+      // Treat AbortError as an expected cancellation, not a failure
+      if (err instanceof Error && err.name === "AbortError") {
+        logger.debug("[useWallet] Request aborted.");
+        return;
+      }
+
+      const errorObj = err instanceof Error ? err : new Error(String(err));
+      logger.error("[useWallet] Failed to fetch wallet data.", errorObj);
+      setBalance(null);
+      setPendingBalance(null);
+      setLockedBalance(null);
+      setTransactions([]);
+      setIsUnauthorized(false);
+      setError(errorObj);
     } finally {
-      setLoading(false);
+      if (abortControllerRef.current === controller) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     fetchWallet();
-  }, [fetchWallet]);
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [fetchWallet, userId]);
 
   const depositFunds = async (amount: number, gateway: "razorpay" | "stripe" = "razorpay") => {
     try {
@@ -78,10 +137,6 @@ export function useWallet() {
       const data = await res.json();
 
       if (data.success) {
-        // Payment order successfully initialized on server.
-        // In production, the client-side Razorpay/Stripe Checkout widget opens here.
-        // Once completed, the gateway webhooks update the backend ledger asynchronously.
-        // We trigger a refresh to fetch the verified balance from the server.
         await fetchWallet();
         return { success: true, orderId: data.data.orderId };
       }
@@ -98,6 +153,8 @@ export function useWallet() {
     lockedBalance,
     transactions,
     loading,
+    error,
+    isUnauthorized,
     depositFunds,
     refresh: fetchWallet,
   };

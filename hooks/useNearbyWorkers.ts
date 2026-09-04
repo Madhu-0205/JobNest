@@ -152,7 +152,7 @@ export function useNearbyWorkers(latitude: number | null, longitude: number | nu
       }
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
-        logger.info("[useNearbyWorkers] Request aborted.");
+        logger.debug("[useNearbyWorkers] Request aborted.");
         return;
       }
       logger.error("[useNearbyWorkers] Query failed", err as Record<string, unknown>);

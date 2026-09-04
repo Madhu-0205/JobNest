@@ -20,46 +20,11 @@ END $$;
 
 
 -- Setup local auth schema if missing (for local development database runs)
-CREATE SCHEMA IF NOT EXISTS auth;
-CREATE TABLE IF NOT EXISTS auth.users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255),
-    phone VARCHAR(50),
-    raw_user_meta_data JSONB,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Setup Supabase auth helper functions locally
-CREATE OR REPLACE FUNCTION auth.uid()
-RETURNS uuid
-LANGUAGE sql STABLE
-AS $$
-  SELECT COALESCE(
-    nullif(current_setting('request.jwt.claim.sub', true), ''),
-    nullif(current_setting('request.jwt.claims', true)::jsonb->>'sub', '')
-  )::uuid;
-$$;
-
-CREATE OR REPLACE FUNCTION auth.role()
-RETURNS varchar
-LANGUAGE sql STABLE
-AS $$
-  SELECT COALESCE(
-    nullif(current_setting('request.jwt.claim.role', true), ''),
-    nullif(current_setting('request.jwt.claims', true)::jsonb->>'role', ''),
-    'authenticated'
-  )::varchar;
-$$;
-
-CREATE OR REPLACE FUNCTION auth.email()
-RETURNS varchar
-LANGUAGE sql STABLE
-AS $$
-  SELECT COALESCE(
-    nullif(current_setting('request.jwt.claim.email', true), ''),
-    nullif(current_setting('request.jwt.claims', true)::jsonb->>'email', '')
-  )::varchar;
-$$;
+-- (Skipped for real Supabase databases where auth schema is managed by supabase_admin)
+-- CREATE SCHEMA IF NOT EXISTS auth;
+-- CREATE TABLE IF NOT EXISTS auth.users (...);
+-- CREATE OR REPLACE FUNCTION auth.uid()...
+-- CREATE OR REPLACE FUNCTION auth.role()...
+-- CREATE OR REPLACE FUNCTION auth.email()...
 
 

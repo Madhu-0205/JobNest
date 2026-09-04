@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";import { useI18n } from "@/lib/i18n/context";
+import { useState, useMemo, Suspense, useEffect } from "react";
+import { useI18n } from "@/lib/i18n/context";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ProductShell } from "@/components/ProductShell";
 import { useAuth } from "@/providers/AuthProvider";
@@ -59,7 +61,17 @@ interface ExtendedJob extends NearbyJob {
   category: string;
 }
 
-export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n();
+export default function NearbyOpportunitiesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-amber-500" /></div>}>
+      <OpportunitiesContent />
+    </Suspense>
+  );
+}
+
+function OpportunitiesContent() {
+  const { t: i18nT } = useI18n();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const { latitude, longitude } = useCurrentLocation();
 
@@ -67,11 +79,21 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
   const [viewMode, setViewMode] = useState<"split" | "map" | "list">("split");
 
   // Search and Filter States
-  const [searchQuery, setSearchQuery] = useState("");
-  const [radiusKm, setRadiusKm] = useState(15);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [radiusKm, setRadiusKm] = useState(searchParams.get("radius") ? Number(searchParams.get("radius")) : 15);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<"distance" | "salary" | "rating" | "trust">("distance");
+
+  // Sync state with URL if VoiceAssistant updates it while we're already on this page
+  useEffect(() => {
+    if (searchParams.get("q") !== null) {
+      setSearchQuery(searchParams.get("q") || "");
+    }
+    if (searchParams.get("radius") !== null) {
+      setRadiusKm(Number(searchParams.get("radius")));
+    }
+  }, [searchParams]);
 
   // Filters panel values
   const [filterType, setFilterType] = useState<string>("all");
@@ -89,9 +111,12 @@ export default function NearbyOpportunitiesPage() {const { t: i18nT } = useI18n(
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Fetch jobs dynamically based on radius
+  const targetLat = searchParams.get("lat") ? Number(searchParams.get("lat")) : (latitude || 16.3067);
+  const targetLng = searchParams.get("lng") ? Number(searchParams.get("lng")) : (longitude || 80.4365);
+  
   const { jobs: rawJobs, loading: rawLoading } = useNearbyJobs(
-    latitude || 16.3067, // Default Guntur Lat
-    longitude || 80.4365, // Default Guntur Lng
+    targetLat, 
+    targetLng, 
     radiusKm * 1000 // radius in meters
   );
 

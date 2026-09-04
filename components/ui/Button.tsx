@@ -33,7 +33,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center font-medium rounded-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
 
     const variants = {
-      primary: "luxury-button-gradient text-primary-foreground font-semibold",
+      primary: "luxury-button-gradient text-primary-foreground font-semibold hover:brightness-110 shadow-sm",
       secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/85 border border-border",
       outline: "border border-border bg-transparent text-foreground hover:bg-secondary/50 hover:border-primary/20",
       ghost: "text-foreground hover:bg-secondary/50 hover:text-primary",

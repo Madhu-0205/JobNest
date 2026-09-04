@@ -219,6 +219,15 @@ export async function submitDisputeAction(formData: unknown): Promise<ActionResu
 
       if (error) throw error;
 
+      await supabase.from("moderation_queue").insert({
+        content_type: "dispute",
+        content_id: dispute.id,
+        reported_by: initiatorId,
+        reason: validated.reason,
+        status: "OPEN",
+        priority: "HIGH"
+      });
+
       return { disputeId: dispute.id };
   });
 }
@@ -279,6 +288,15 @@ export async function submitReportAction(formData: unknown): Promise<ActionResul
 
         await supabase.from("report_evidence").insert(evidenceRows);
       }
+
+      await supabase.from("moderation_queue").insert({
+        content_type: validated.opportunityId ? "opportunity_report" : "user_report",
+        content_id: report.id,
+        reported_by: reporterId,
+        reason: validated.reason,
+        status: "OPEN",
+        priority: "MEDIUM" // Will be triaged later
+      });
 
       return { reportId: report.id };
   });
