@@ -6,6 +6,8 @@ import { logger } from "@/services/logger";
 
 const MAX_AUDIO_SIZE = 5 * 1024 * 1024; // 5 MB
 
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createServerClient();

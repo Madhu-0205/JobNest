@@ -24,7 +24,10 @@ function auditEnv() {
   const errors = [];
 
   for (const v of requiredVars) {
-    const val = process.env[v];
+    let val = process.env[v];
+    if (v === "SUPABASE_SERVICE_ROLE_KEY" && !val) {
+      val = process.env.SUPABASE_SECRET_KEY;
+    }
     if (!val) {
       errors.push(`❌ Missing required secret: ${v}`);
       continue;

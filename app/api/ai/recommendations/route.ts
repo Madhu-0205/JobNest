@@ -6,6 +6,8 @@ import { createServerClient } from "@/lib/supabase/server";
 /**
  * GET /api/ai/recommendations — Fetch ranked candidate recommendations.
  */
+export const maxDuration = 60;
+
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createServerClient();

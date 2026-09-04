@@ -3,7 +3,6 @@
   "framework": "nextjs",
   "cleanUrls": true,
   "trailingSlash": false,
-  "regions": ["iad1", "sin1"],
   "functions": {
     "app/api/**/*": {
       "maxDuration": 30

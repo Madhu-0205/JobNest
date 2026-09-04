@@ -13,6 +13,8 @@ const LANGUAGE_NAMES: Record<string, string> = {
 /**
  * POST /api/ai/translate — Translate text to a target Indian language.
  */
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.json();

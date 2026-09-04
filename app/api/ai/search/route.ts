@@ -8,6 +8,8 @@ import { AbuseProtection } from "@/lib/security/abuse-protection";
 /**
  * POST /api/ai/search — Semantic search for opportunities.
  */
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.json();
