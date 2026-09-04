@@ -126,10 +126,29 @@ jobs:
       - name: Install Dependencies
         run: npm ci --prefer-offline
 
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build-${{ github.sha }}
+          path: .next/
+
       - name: Run Smoke Tests
-        run: npm run test:smoke --if-present
+        run: |
+          npx next start -p 3000 &
+          SERVER_PID=$!
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server is ready on port 3000"
+              break
+            fi
+            echo "Waiting for server to be ready..."
+            sleep 2
+          done
+          npm run test:smoke
+          kill $SERVER_PID || true
         env:
           NODE_ENV: test
+          PORT: 3000
 
   # ─────────────────────────────────────────────────────────────────
   # Job 4: Docker Build Validation

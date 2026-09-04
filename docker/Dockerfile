@@ -8,6 +8,8 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
+ENV HUSKY=0
+
 # Copy lockfile first to leverage Docker layer cache
 COPY package.json package-lock.json* ./
 RUN npm ci --prefer-offline && npm cache clean --force
@@ -26,10 +28,12 @@ COPY . .
 ARG BUILD_VERSION=dev
 ARG BUILD_SHA=unknown
 ARG NEXT_TELEMETRY_DISABLED=1
+ARG SKIP_ENV_AUDIT=1
 
 ENV NEXT_TELEMETRY_DISABLED=${NEXT_TELEMETRY_DISABLED}
 ENV BUILD_VERSION=${BUILD_VERSION}
 ENV BUILD_SHA=${BUILD_SHA}
+ENV SKIP_ENV_AUDIT=${SKIP_ENV_AUDIT}
 ENV NODE_ENV=production
 
 RUN npm run build

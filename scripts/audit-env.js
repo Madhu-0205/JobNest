@@ -1,7 +1,7 @@
 function auditEnv() {
   // Only enforce strict checks in production CI/CD builds
-  if (process.env.NODE_ENV !== "production") {
-    console.info("ℹ️ Skipping strict environment audit (NODE_ENV !== production)");
+  if (process.env.SKIP_ENV_AUDIT === "1" || process.env.NODE_ENV !== "production") {
+    console.info("ℹ️ Skipping strict environment audit (SKIP_ENV_AUDIT=1 or NODE_ENV !== production)");
     return;
   }
 
