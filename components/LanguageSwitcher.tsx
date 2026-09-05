@@ -23,7 +23,7 @@ export function LanguageSwitcher() {
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         type="button"
-        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-secondary/80 hover:bg-secondary border border-border rounded-lg shadow-sm backdrop-blur-md transition-all duration-300 ease-[var(--ease-luxury)] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-secondary/80 hover:bg-secondary border border-border rounded-lg shadow-sm backdrop-blur-md transition-all duration-300 ease-luxury focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
         id="language-menu-button"
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -37,12 +37,12 @@ export function LanguageSwitcher() {
         <>
           {/* Overlay to close on outside click */}
           <div
-            className="fixed inset-0 z-[var(--z-overlay)]"
+            className="fixed inset-0 z-(--z-overlay)"
             onClick={() => setIsOpen(false)}
           />
 
           <div
-            className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card/90 shadow-[var(--shadow-luxury)] backdrop-blur-lg z-[var(--z-modal)] focus:outline-none animate-fade-in origin-top-right"
+            className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card/90 shadow-(--shadow-luxury) backdrop-blur-lg z-(--z-modal) focus:outline-none animate-fade-in origin-top-right"
             role="menu"
             aria-orientation="vertical"
             aria-labelledby="language-menu-button"

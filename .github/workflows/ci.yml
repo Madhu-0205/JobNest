@@ -143,8 +143,8 @@ jobs:
         env:
           PORT: 3000
           NEXT_PUBLIC_APP_URL: http://localhost:3000
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://xjysfrzckkubvkidyxqs.supabase.co' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_5Iw0ZWKuDB10POg4O3-eFg_-FJ5fYgY' }}
+          NEXT_PUBLIC_SUPABASE_URL: https://xjysfrzckkubvkidyxqs.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_5Iw0ZWKuDB10POg4O3-eFg_-FJ5fYgY
 
   # ─────────────────────────────────────────────────────────────────
   # Job 4: Docker Build Validation

@@ -41,7 +41,7 @@ const MapView = dynamic(
     loading: function LoadingFallback() {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { t: i18nT } = require("@/lib/i18n/context").useI18n();
-      return (<div className="w-full h-[320px] md:h-[385px] rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
+      return (<div className="w-full h-80 md:h-96.25 rounded-2xl overflow-hidden border border-border/40 shadow-luxury bg-black/10 flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
         <span className="text-xs text-muted-foreground">{i18nT("employer.loadingActiveWorkerTrackingMaps")}</span>
       </div>);

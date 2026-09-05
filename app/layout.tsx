@@ -100,7 +100,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
         <a 
           href="#main-content" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[100] bg-card text-foreground px-4 py-2 rounded-md shadow-luxury outline-none border border-primary/50 text-sm font-medium"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-100 bg-card text-foreground px-4 py-2 rounded-md shadow-luxury outline-none border border-primary/50 text-sm font-medium"
         >
           Skip to main content
         </a>

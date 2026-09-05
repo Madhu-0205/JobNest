@@ -565,7 +565,7 @@ export function LegacyLocalHome() {const { t: i18nT } = useI18n();
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation-drawer"
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-              className="md:hidden p-2 rounded-xl border border-border text-foreground hover:bg-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors"
+              className="md:hidden p-2 rounded-xl border border-border text-foreground hover:bg-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary min-w-11 min-h-11 flex items-center justify-center transition-colors"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -611,7 +611,7 @@ export function LegacyLocalHome() {const { t: i18nT } = useI18n();
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
                   aria-label="Close menu"
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 min-w-11 min-h-11 flex items-center justify-center"
                 >
                   <X className="w-5 h-5" />
                 </button>

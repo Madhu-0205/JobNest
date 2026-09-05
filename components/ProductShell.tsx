@@ -305,7 +305,7 @@ export function ProductShell({ children }: ProductShellProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl border border-border/60 hover:bg-secondary/40 text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              className="md:hidden p-2 rounded-xl border border-border/60 hover:bg-secondary/40 text-foreground transition-colors min-h-11 min-w-11 flex items-center justify-center cursor-pointer"
               aria-label={i18nT("common.toggleMobileNavigationMenu")}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation-drawer">
@@ -571,7 +571,7 @@ export function ProductShell({ children }: ProductShellProps) {
                 role="dialog"
                 aria-modal="true"
                 aria-label="Mobile navigation"
-                className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-card border-r border-border/50 z-[60] p-4 md:hidden flex flex-col shadow-2xl">
+                className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-card border-r border-border/50 z-60 p-4 md:hidden flex flex-col shadow-2xl">
               
                 <div className="flex items-center justify-between border-b border-border/20 pb-4 mb-4">
                   <div className="flex items-center gap-2.5">
@@ -581,7 +581,7 @@ export function ProductShell({ children }: ProductShellProps) {
                   <button
                     onClick={() => setMobileMenuOpen(false)}
                     aria-label="Close navigation menu"
-                    className="p-2 rounded-lg border border-border text-foreground hover:bg-secondary/40 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+                    className="p-2 rounded-lg border border-border text-foreground hover:bg-secondary/40 min-h-10 min-w-10 flex items-center justify-center cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>

@@ -234,7 +234,7 @@ export default function WalletPage() {
               />
             ) : (
               <div className="overflow-x-auto w-full">
-                <table className="w-full text-left border-collapse text-xs min-w-[500px]">
+                <table className="w-full text-left border-collapse text-xs min-w-125">
                   <thead>
                     <tr className="bg-muted/30 border-b border-border/30 text-muted-foreground font-semibold">
                       <th className="p-4">{i18nT("app.transactionId")}</th>
