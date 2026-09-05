@@ -10,8 +10,7 @@ function auditEnv() {
   const requiredVars = [
     "NEXT_PUBLIC_SUPABASE_URL",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    "SUPABASE_SERVICE_ROLE_KEY",
-    "METRICS_SECRET"
+    "SUPABASE_SERVICE_ROLE_KEY"
   ];
 
   const mockPatterns = [
@@ -42,10 +41,17 @@ function auditEnv() {
     }
   }
 
-  // Check metrics secret length
-  if (process.env.METRICS_SECRET && process.env.METRICS_SECRET.length < 32) {
-    if (!process.env.METRICS_SECRET.toLowerCase().includes("your-")) {
+  // Check metrics secret if configured
+  if (process.env.METRICS_SECRET) {
+    if (process.env.METRICS_SECRET.length < 32) {
       errors.push("❌ METRICS_SECRET is too short. Must be at least 32 characters.");
+    }
+    const lowerMetrics = process.env.METRICS_SECRET.toLowerCase();
+    for (const pattern of mockPatterns) {
+      if (lowerMetrics.includes(pattern)) {
+        errors.push(`❌ METRICS_SECRET contains mock/placeholder value.`);
+        break;
+      }
     }
   }
 
